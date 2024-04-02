@@ -11,8 +11,31 @@ import requests
 import json
 import threading
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-
 from selenium.webdriver.common.keys import Keys
+from concurrent.futures import ThreadPoolExecutor, wait, as_completed
+
+def open_url_in_thread(profile_path, web):
+    #def run_thread():
+        chrome_options = Options()
+        print('Run profile')
+        driver2 = None
+        try:
+            chrome_options.add_argument(f'--user-data-dir={profile_path}')
+            chrome_options.add_argument('--no-experiments')
+            driver2 = webdriver.Chrome(options=chrome_options)
+            if web is not None:
+                driver2.get(web)
+            else:
+                driver2.get('https://www.mycloudwallet.com')
+            time.sleep(20)
+        except (NoSuchElementException, TimeoutException) as e:
+            print(f"Xảy ra lỗi: {str(e)}")
+        finally:
+            if driver2 is not None:
+                print('Quit')
+                driver2.quit()
+                #threading.Thread(target=run_thread).start()
+
 class ChromeProfileManager(QMainWindow):
     max_threads = 2
     threads = []
@@ -39,7 +62,7 @@ class ChromeProfileManager(QMainWindow):
         self.input_label = QLabel('Nhập thông tin (email|password|2fa):')
         self.input_text = QTextEdit()
         self.input_text.setPlaceholderText('email1|password1|2fa1\nemail2|password2|2fa2')
-        self.create_button = QPushButton('Tạo Profile')
+        self.create_button = QPushButton('Create Profile')
         self.create_button.clicked.connect(self.create_profile)
         self.load_button = QPushButton('Load Profile')
         self.load_button.clicked.connect(self.load_profile)
@@ -56,8 +79,76 @@ class ChromeProfileManager(QMainWindow):
         self.right_layout.addWidget(QLabel('Thông tin profile:'))
         self.right_layout.addWidget(self.profile_table)
 
+        self.actionLayout = QVBoxLayout()
+
+        self.input_morning = QTextEdit()
+        self.input_morning.setFixedHeight(30)
+        self.input_morning.setText('8')
+        self.input_morning.setPlaceholderText('Time of morning')
+
+        self.input_thread = QTextEdit()
+        self.input_thread.setFixedHeight(30)
+        self.input_thread.setText('6')
+        self.input_thread.setPlaceholderText('Number thread')
+
+        self.input_custom = QTextEdit()
+        self.input_custom.setFixedHeight(50)
+        self.input_custom.setText('https://bot.ec2network.info')
+        self.input_custom.setPlaceholderText('Url custom')
+
+        self.morning_shift_mining = QPushButton('Shift start')
+        self.all_mining = QPushButton('All start')
+
+        self.actionLayout.addWidget(self.input_custom)
+        self.actionLayout.addWidget(self.input_thread)
+        self.actionLayout.addWidget(self.input_morning)
+        self.actionLayout.addWidget(self.morning_shift_mining)
+        self.actionLayout.addWidget(self.all_mining)
+
+        self.morning_shift_mining.clicked.connect(self.morning_shift_mining_acction)
+
+        self.input_layout.addLayout(self.actionLayout)
         self.layout.addLayout(self.input_layout)
         self.layout.addLayout(self.right_layout)
+
+    def morning_shift_mining_acction(self):
+        input_text = self.input_text.toPlainText()
+        profiles_data = input_text.strip().split('\n')
+        num_threads_text = self.input_thread.toPlainText()
+        try:
+            num_threads = int(num_threads_text)
+        except ValueError:
+            print("Invalid input for number of threads")
+            num_threads = 1  # Default to 1 thread if input is invalid
+
+        event = threading.Event()
+
+        with ThreadPoolExecutor(max_workers=num_threads) as executor:
+            futures = []
+            for i in range(0, len(profiles_data)):
+                email, password, twofa = profiles_data[i].split('|')
+                future = executor.submit(self.open_url, email, event)
+                futures.append(future)
+
+                if len(futures) >= num_threads:
+                    # Wait for at least one future to complete
+                    for future in as_completed(futures):
+                        pass  # Ensure all threads have started before continuing
+                    futures.clear()
+
+            # Wait for remaining futures to complete
+            for future in as_completed(futures):
+                print(future)
+                pass  # Ensure all threads have started before continuing
+
+
+    def open_url(self, email, event):
+        web = self.input_custom.toPlainText()
+        profile_path = f"C:/path/to/profiles/{email}"
+        if os.path.exists(profile_path):
+            # event.wait()
+            open_url_in_thread(profile_path, web)
+
     def load_profile(self):
         input_text = self.input_text.toPlainText()
         profiles_data = input_text.strip().split('\n')
