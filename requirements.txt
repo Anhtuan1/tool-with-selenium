@@ -1,0 +1,3 @@
+PyQt5==5.15.10
+Requests==2.31.0
+selenium==4.19.0
