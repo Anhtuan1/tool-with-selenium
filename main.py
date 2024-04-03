@@ -13,31 +13,11 @@ import threading
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.keys import Keys
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
+from datetime import datetime
 
-def open_url_in_thread(profile_path, web):
-    #def run_thread():
-        chrome_options = Options()
-        print('Run profile')
-        driver2 = None
-        try:
-            chrome_options.add_argument(f'--user-data-dir={profile_path}')
-            chrome_options.add_argument('--no-experiments')
-            driver2 = webdriver.Chrome(options=chrome_options)
-            if web is not None:
-                driver2.get(web)
-            else:
-                driver2.get('https://www.mycloudwallet.com')
-            time.sleep(20)
-        except (NoSuchElementException, TimeoutException) as e:
-            print(f"Xảy ra lỗi: {str(e)}")
-        finally:
-            if driver2 is not None:
-                print('Quit')
-                driver2.quit()
-                #threading.Thread(target=run_thread).start()
+accList = {}
 
 class ChromeProfileManager(QMainWindow):
-    max_threads = 2
     threads = []
     def __init__(self):
         super().__init__()
@@ -72,8 +52,8 @@ class ChromeProfileManager(QMainWindow):
         self.input_layout.addWidget(self.load_button)
         # Cột phải - Hiển thị thông tin profile
         self.profile_table = QTableWidget()
-        self.profile_table.setColumnCount(5)
-        self.profile_table.setHorizontalHeaderLabels(['Email', 'Password', '2FA', 'Trạng thái', 'Action'])
+        self.profile_table.setColumnCount(6)
+        self.profile_table.setHorizontalHeaderLabels(['Email', 'Password', '2FA', 'Wallet', 'Time', 'Next Time'])
 
         self.right_layout = QVBoxLayout()
         self.right_layout.addWidget(QLabel('Thông tin profile:'))
@@ -111,10 +91,55 @@ class ChromeProfileManager(QMainWindow):
         self.layout.addLayout(self.input_layout)
         self.layout.addLayout(self.right_layout)
 
+    def open_url_in_thread(self, profile_path, web, email):
+        # def run_thread():
+        chrome_options = Options()
+        print('Run profile')
+        driver2 = None
+        global accList
+        try:
+            chrome_options.add_argument(f'--user-data-dir={profile_path}')
+            chrome_options.add_argument('--no-experiments')
+            driver2 = webdriver.Chrome(options=chrome_options)
+            if web is not None:
+                driver2.get(web)
+            else:
+                driver2.get('https://www.mycloudwallet.com')
+            try:
+                WebDriverWait(driver2, 40).until(EC.number_of_windows_to_be(2))
+                driver2.switch_to.window(driver2.window_handles[1])
+                element_on_B = WebDriverWait(driver2, 20).until(
+                    EC.presence_of_element_located((By.CLASS_NAME, "sc-vuxumm-0")))
+                element_on_B.click()
+                driver2.switch_to.window(driver2.window_handles[0])
+                # Get the current time
+                current_time = datetime.now()
+                time_string = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
+                accList[email]['time'] = time_string
+                self.clear_table()
+                self.add_profile_to_table(accList)
+
+                time.sleep(2)
+                # wait.until(EC.url_to_be('https://www.mycloudwallet.com/cloud-wallet/signing/'))
+
+
+            except TimeoutException:
+                print("Không tìm thấy phần tử email. Xử lý tại đây...")
+
+        except (NoSuchElementException, TimeoutException) as e:
+            print(f"Xảy ra lỗi: {str(e)}")
+        finally:
+            if driver2 is not None:
+                print('Quit')
+                driver2.quit()
+                # threading.Thread(target=run_thread).start()
+
     def morning_shift_mining_acction(self):
         input_text = self.input_text.toPlainText()
         profiles_data = input_text.strip().split('\n')
         num_threads_text = self.input_thread.toPlainText()
+        global accList
         try:
             num_threads = int(num_threads_text)
         except ValueError:
@@ -122,24 +147,26 @@ class ChromeProfileManager(QMainWindow):
             num_threads = 1  # Default to 1 thread if input is invalid
 
         event = threading.Event()
-
+        keys_list = list(accList.keys())
+        length = len(keys_list)
         with ThreadPoolExecutor(max_workers=num_threads) as executor:
             futures = []
-            for i in range(0, len(profiles_data)):
-                email, password, twofa = profiles_data[i].split('|')
+            for i in range(length // 2):
+                email = keys_list[i]
                 future = executor.submit(self.open_url, email, event)
                 futures.append(future)
-
                 if len(futures) >= num_threads:
                     # Wait for at least one future to complete
                     for future in as_completed(futures):
                         pass  # Ensure all threads have started before continuing
                     futures.clear()
+        self.morning_shift_mining_acction()
 
             # Wait for remaining futures to complete
-            for future in as_completed(futures):
-                print(future)
-                pass  # Ensure all threads have started before continuing
+            # for future in as_completed(futures):
+            #     print(future)
+            #     pass  # Ensure all threads have started before continuing
+
 
 
     def open_url(self, email, event):
@@ -147,14 +174,28 @@ class ChromeProfileManager(QMainWindow):
         profile_path = f"C:/path/to/profiles/{email}"
         if os.path.exists(profile_path):
             # event.wait()
-            open_url_in_thread(profile_path, web)
+            self.open_url_in_thread(profile_path, web, email)
 
     def load_profile(self):
+        global accList
         input_text = self.input_text.toPlainText()
         profiles_data = input_text.strip().split('\n')
         for profile_data in profiles_data:
             email, password, twofa = profile_data.split('|')
-            self.add_profile_to_table(email, password, twofa, '')
+            accList[email] = {
+                'wallet': '',
+                'password': password,
+                'twofa': twofa,
+            }
+            # profile_path = f"C:/path/to/profiles/{email}"
+            # if not os.path.exists(profile_path):
+            #     os.makedirs(profile_path)
+            # chrome_options = Options()
+            # chrome_options.add_argument(f'--user-data-dir={profile_path}')
+            # driver = webdriver.Chrome(options=chrome_options)
+            # driver.get('https://www.mycloudwallet.com/dashboard')
+        self.clear_table()
+        self.add_profile_to_table(accList)
     def import_data(self):
         options = QFileDialog.Options()
         options |= QFileDialog.ReadOnly
@@ -174,10 +215,14 @@ class ChromeProfileManager(QMainWindow):
     def create_profile(self):
         input_text = self.input_text.toPlainText()
         profiles_data = input_text.strip().split('\n')
-
+        global accList
         for profile_data in profiles_data:
             email, password, twofa = profile_data.split('|')
-
+            accList[email] = {
+                'wallet': '',
+                'password': password,
+                'twofa': twofa
+            }
             profile = {'email': email, 'password': password, 'twofa': twofa}
             self.profiles.append(profile)
 
@@ -188,11 +233,8 @@ class ChromeProfileManager(QMainWindow):
             chrome_options = Options()
             chrome_options.add_argument(f'--user-data-dir={profile_path}')
             # chrome_options.add_argument('--no-experiments')
-            # Đường dẫn đến thư mục lưu trữ hồ sơ
 
             driver = webdriver.Chrome(options=chrome_options)
-
-            # Truy cập trang web
             driver.get('https://www.mycloudwallet.com/signin')
             # Đợi cho đến khi phần tử input email xuất hiện
 
@@ -215,8 +257,6 @@ class ChromeProfileManager(QMainWindow):
                 time.sleep(1)
                 login_button = driver.find_element(By.XPATH, "//button[contains(., 'Sign In')]")
                 login_button.click()
-                # Đợi cho đến khi trang web chuyển hướng đến https://www.mycloudwallet.com/dashboard
-                # WebDriverWait(driver, 10).until(EC.url_to_be('https://www.mycloudwallet.com/2fa'))
 
                 # Thêm thông tin profile vào bảng
                 wait = WebDriverWait(driver, 10)
@@ -228,11 +268,17 @@ class ChromeProfileManager(QMainWindow):
                 continue_button = driver.find_element(By.XPATH, "//button[contains(., 'CONTINUE')]")
                 continue_button.click()
                 WebDriverWait(driver, 10).until(EC.url_to_be('https://www.mycloudwallet.com/dashboard'))
-                self.add_profile_to_table(email, password, twofa, 'Đã đăng nhập')
+                time.sleep(2)
+                # element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, "avatar-div-3")))
+
+                # accList[email]['wallet'] = element.text.strip()
+
+
                 driver.quit()
             except TimeoutException:
                 print("Không tìm thấy phần tử email. Xử lý tại đây...")
-                self.add_profile_to_table(email, password, twofa, 'Đã đăng nhập')
+        self.clear_table()
+        self.add_profile_to_table(accList)
 
     def get_twofa_string(self, twofa):
         # Gửi token đến 2fa.ec2network.info/2fa và nhận mã 2FA
@@ -253,18 +299,19 @@ class ChromeProfileManager(QMainWindow):
             except json.JSONDecodeError:
                 print("Không thể phân tích chuỗi JSON")
                 return
-    def add_profile_to_table(self, email, password, twofa, status):
-        row_position = self.profile_table.rowCount()
-        self.profile_table.insertRow(row_position)
 
-        self.profile_table.setItem(row_position, 0, QTableWidgetItem(email))
-        self.profile_table.setItem(row_position, 1, QTableWidgetItem(password))
-        self.profile_table.setItem(row_position, 2, QTableWidgetItem(twofa))
-        self.profile_table.setItem(row_position, 3, QTableWidgetItem(status))
-        # Thêm nút "Mở profile" vào cột "Action"
-        open_profile_button = QPushButton('Mở Profile')
-        open_profile_button.clicked.connect(lambda state, email=email: self.open_profile(email, None))
-        self.profile_table.setCellWidget(row_position, 4, open_profile_button)
+    def clear_table(self):
+        self.profile_table.setRowCount(0)
+    def add_profile_to_table(self, accList):
+        for email, value in accList.items():
+            row_position = self.profile_table.rowCount()
+            self.profile_table.insertRow(row_position)
+            self.profile_table.setItem(row_position, 0, QTableWidgetItem(email))
+            self.profile_table.setItem(row_position, 1, QTableWidgetItem(value.get('password', '')))
+            self.profile_table.setItem(row_position, 2, QTableWidgetItem(value.get('twofa', '')))
+            self.profile_table.setItem(row_position, 3, QTableWidgetItem(value.get('wallet', '')))
+            self.profile_table.setItem(row_position, 4, QTableWidgetItem(value.get('time', '')))
+            self.profile_table.setItem(row_position, 5, QTableWidgetItem(value.get('next', '')))
 
     def open_profile(self, email, web):
         # Kiểm tra xem thư mục lưu trữ hồ sơ đã tồn tại
