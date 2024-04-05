@@ -57,7 +57,7 @@ class ChromeProfileManager(QMainWindow):
         # Cột phải - Hiển thị thông tin profile
         self.profile_table = QTableWidget()
         self.profile_table.setColumnCount(6)
-        self.profile_table.setHorizontalHeaderLabels(['Email', 'Password', '2FA', 'Wallet', 'Time', 'Next Time'])
+        self.profile_table.setHorizontalHeaderLabels(['Email', 'Password', '2FA', 'Wallet', 'Time', 'Action'])
 
         self.right_layout = QVBoxLayout()
         self.right_layout.addWidget(QLabel('Thông tin profile:'))
@@ -410,31 +410,24 @@ class ChromeProfileManager(QMainWindow):
             self.profile_table.setItem(row_position, 2, QTableWidgetItem(value.get('twofa', '')))
             self.profile_table.setItem(row_position, 3, QTableWidgetItem(value.get('wallet', '')))
             self.profile_table.setItem(row_position, 4, QTableWidgetItem(value.get('time', '')))
-            self.profile_table.setItem(row_position, 5, QTableWidgetItem(value.get('next', '')))
+            open_profile_button = QPushButton('Mở Profile')
+            open_profile_button.clicked.connect(lambda: self.open_profile(email, None))
+            self.profile_table.setCellWidget(row_position, 5, open_profile_button)
 
     def open_profile(self, email, web):
         # Kiểm tra xem thư mục lưu trữ hồ sơ đã tồn tại
         profile_path = f"C:/path/to/profiles/{email}"  # Đường dẫn thư mục lưu trữ hồ sơ
         if os.path.exists(profile_path):
-            # Tạo trình duyệt Chrome và truy cập trang web
-            chrome_options = Options()
-            print('Run profile')
-            driver2 = None
             try:
+                chrome_options = Options()
+
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                driver2 = webdriver.Chrome(options=chrome_options)
-                if web is not None:
-                    driver2.get(web)
-                else:
-                    driver2.get('https://www.mycloudwallet.com')
-                time.sleep(20)
-                # driver2.quit()
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi: {str(e)}")
-            finally:
-                if driver2 is not None:
-                    driver2.quit()
+                chrome_options.add_experimental_option("detach", True)
+                driver3 = webdriver.Chrome(options=chrome_options)
+                driver3.get('https://google.com')
+            except TimeoutException:
+                print('Error')
+
 if __name__ == '__main__':
     app = QApplication(sys.argv)
     window = ChromeProfileManager()
