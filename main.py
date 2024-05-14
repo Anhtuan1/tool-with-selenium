@@ -167,7 +167,7 @@ class ChromeProfileManager(QMainWindow):
     def open_url_in_thread(self, profile_path, web, email):
         # def run_thread():
         chrome_options = Options()
-        print('Run profile')
+        print(f"Running: {str(email)}")
         driver2 = None
         global accList
         if web == 'https://web.telegram.org/a/#6430669852':
@@ -177,24 +177,18 @@ class ChromeProfileManager(QMainWindow):
                 driver2 = webdriver.Chrome(options=chrome_options)
                 if web is not None:
                     driver2.get(web)
+                    time.sleep(3)
                 try:
                     wait = WebDriverWait(driver2, 30)
                     play_button = wait.until(EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, 'button.Button.bot-menu.open.default.translucent.round')))
+                        (By.CSS_SELECTOR, 'span.bot-menu-text')))
                     play_button.click()
-                    script_confirm = """
-                        function clickButtonConfirm() {
-                            var buttons = document.querySelectorAll('button.confirm-dialog-button');
-                            buttons.forEach(function(button) {
-                                if (button.textContent.trim() === 'Confirm') {
-                                    button.click();
-                                }
-                            });
-                        }
-                        setInterval(clickButtonConfirm, 500);
-                    """
-                    driver2.execute_script(script_confirm)
                     time.sleep(3)
+                    try:
+                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
+                        continue_button.click()
+                    except (NoSuchElementException, TimeoutException):
+                        print("confirm not found")
 
                     iframe_allow_attr = 'camera; microphone; geolocation;'
                     iframe = WebDriverWait(driver2, 50).until(
@@ -219,7 +213,7 @@ class ChromeProfileManager(QMainWindow):
                         setInterval(clickButtonGetClaim, 2000);
                         """
                     driver2.execute_script(script)
-                    time.sleep(6)
+                    time.sleep(8)
                     driver2.switch_to.default_content()
 
 
