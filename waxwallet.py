@@ -1,13 +1,6 @@
 import sys
 import time
 import os  # Thêm thư viện os
-from concurrent.futures import ThreadPoolExecutor, wait, as_completed
-from datetime import datetime
-from telethon.sync import TelegramClient, events
-from telethon.sessions import StringSession
-from telethon.tl.types import Channel
-from pyrogram import Client
-
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QFileDialog
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -19,10 +12,8 @@ import json
 import threading
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from selenium.webdriver.common.keys import Keys
-
-import pyperclip
-import re
-import csv
+from concurrent.futures import ThreadPoolExecutor, wait, as_completed
+from datetime import datetime
 
 accList = {}
 num_thread_running = 0
@@ -36,19 +27,6 @@ class ChromeProfileManager(QMainWindow):
         self.profiles = []
 
     def initUI(self):
-        loaddataPath = "C:/path/to/loaddata.txt"
-
-        # Check if the file exists
-        if os.path.exists(loaddataPath):
-            # Open the file in read mode
-            with open(loaddataPath, 'r') as file:
-                # Read the contents of the file
-                file_contents = file.read()
-                # Now you can work with the contents, for example:
-
-        else:
-            file_contents = ''
-
         self.setWindowTitle('Quản lý Profile Chrome')
         self.setGeometry(100, 100, 1200, 800)
 
@@ -62,12 +40,9 @@ class ChromeProfileManager(QMainWindow):
         self.input_layout = QVBoxLayout()
 
 
-        self.input_label = QLabel('Nhập thông tin (id|wallet|key):')
+        self.input_label = QLabel('Nhập thông tin (email|password|2fa):')
         self.input_text = QTextEdit()
-        self.input_text.setPlaceholderText('id|wallet|key')
-        if file_contents != '':
-            self.input_text.setPlainText(file_contents)
-
+        self.input_text.setPlaceholderText('email1|password1|2fa1|wallet1\nemail2|password2|2fa2|wallet2\nemail3\tpassword3\t2fa3\twallet3')
         self.create_button = QPushButton('Create Profile')
         self.create_button.clicked.connect(lambda: self.create_profile('No'))
         self.create_mine_button = QPushButton('Create Profile and Mine')
@@ -82,7 +57,7 @@ class ChromeProfileManager(QMainWindow):
         # Cột phải - Hiển thị thông tin profile
         self.profile_table = QTableWidget()
         self.profile_table.setColumnCount(6)
-        self.profile_table.setHorizontalHeaderLabels(['ID', 'Wallet', 'Key', 'Action'])
+        self.profile_table.setHorizontalHeaderLabels(['Email', 'Password', '2FA', 'Wallet', 'Time', 'Action'])
 
         self.right_layout = QVBoxLayout()
         self.right_layout.addWidget(QLabel('Thông tin profile:'))
@@ -97,30 +72,30 @@ class ChromeProfileManager(QMainWindow):
 
         self.input_thread = QTextEdit()
         self.input_thread.setFixedHeight(30)
-        self.input_thread.setText('1')
+        self.input_thread.setText('6')
         self.input_thread.setPlaceholderText('Number thread')
 
         self.input_custom = QTextEdit()
         self.input_custom.setFixedHeight(50)
-        self.input_custom.setText('https://web.telegram.org/a/#6430669852')
+        self.input_custom.setText('https://bot.ec2network.info')
         self.input_custom.setPlaceholderText('Url custom')
 
+        self.morning_shift_mining = QPushButton('Shift start')
         self.all_mining = QPushButton('All start')
         self.stop_mining = QPushButton('Stop')
 
         self.actionLayout.addWidget(self.input_custom)
         self.actionLayout.addWidget(self.input_thread)
         self.actionLayout.addWidget(self.input_morning)
+        self.actionLayout.addWidget(self.morning_shift_mining)
         self.actionLayout.addWidget(self.all_mining)
         self.actionLayout.addWidget(self.stop_mining)
+        self.morning_shift_mining.clicked.connect(self.morning_shift_mining_acction)
         self.all_mining.clicked.connect(self.all_acction)
         self.stop_mining.clicked.connect(self.stop_event)
         self.input_layout.addLayout(self.actionLayout)
         self.layout.addLayout(self.input_layout)
         self.layout.addLayout(self.right_layout)
-
-
-
 
     def login_action(self, profile_path, email):
         global accList
@@ -170,62 +145,65 @@ class ChromeProfileManager(QMainWindow):
         print('Run profile')
         driver2 = None
         global accList
-        if web == 'https://web.telegram.org/a/#6430669852':
+        if web == 'https://www.mycloudwallet.com/signin':
+            print(email + ' Login page')
+            self.login_action(profile_path, email)
+        else:
             try:
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
                 chrome_options.add_argument('--no-experiments')
                 driver2 = webdriver.Chrome(options=chrome_options)
                 if web is not None:
                     driver2.get(web)
+                else:
+                    driver2.get('https://www.mycloudwallet.com/signin')
                 try:
-                    wait = WebDriverWait(driver2, 30)
-                    play_button = wait.until(EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, 'button.Button.bot-menu.open.default.translucent.round')))
-                    play_button.click()
-                    script_confirm = """
-                        function clickButtonConfirm() {
-                            var buttons = document.querySelectorAll('button.confirm-dialog-button');
-                            buttons.forEach(function(button) {
-                                if (button.textContent.trim() === 'Confirm') {
-                                    button.click();
-                                }
-                            });
-                        }
-                        setInterval(clickButtonConfirm, 500);
-                    """
-                    driver2.execute_script(script_confirm)
-                    time.sleep(3)
+                    WebDriverWait(driver2, 40).until(EC.number_of_windows_to_be(2))
+                    driver2.switch_to.window(driver2.window_handles[1])
 
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 50).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
+                    url_of_second_window = driver2.current_url
+                    if '/cloud-wallet/login' in url_of_second_window or '/signin?redirect_to' in url_of_second_window:
+                        print(email + ' dosenot login')
+                        wait = WebDriverWait(driver2, 3)
+                        email_field = wait.until(EC.presence_of_element_located(
+                            (By.CSS_SELECTOR, 'input[placeholder="Enter profile username or email address"]')))
 
-                    print("Src attribute of the iframe:", iframe.get_attribute('src'))
-                    driver2.switch_to.frame(iframe)
-                    script = """
-                        function clickButton() {
-                            var button = document.querySelector("button.btn_claim");
-                            if (button) {
-                                button.click();
-                            }
-                        }
-                        function clickButtonGetClaim() {
-                            var button = document.querySelector(".claim.cursor-pointer");
-                            if (button) {
-                                button.click();
-                            }
-                        }
-                        setInterval(clickButton, 1000);
-                        setInterval(clickButtonGetClaim, 2000);
-                        """
-                    driver2.execute_script(script)
-                    time.sleep(6)
-                    driver2.switch_to.default_content()
+                        # Bạn có thể tiếp tục tương tác với phần tử email_input nếu nó đã xuất hiện
+                        password_field = wait.until(
+                            EC.presence_of_element_located((By.CSS_SELECTOR, 'input[placeholder="Enter password"]')))
+
+                        email_field.send_keys(email)
+                        password_field.send_keys(accList[email]['password'])
+                        time.sleep(1)
+                        login_button = driver2.find_element(By.XPATH, "//button[contains(., 'Sign In')]")
+                        login_button.click()
+
+                        # Thêm thông tin profile vào bảng
+                        wait = WebDriverWait(driver2, 10)
+                        twofa_input = wait.until(EC.presence_of_element_located((By.ID, 'tfacode')))
+
+                        twofa_string = self.get_twofa_string(accList[email]['twofa'])
+                        print(twofa_string)
+                        twofa_input.send_keys(twofa_string)
+                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'CONTINUE')]")
+                        continue_button.click()
+
+                    element_on_B = WebDriverWait(driver2, 20).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, "sc-vuxumm-0")))
+                    element_on_B.click()
+                    driver2.switch_to.window(driver2.window_handles[0])
+                    # Get the current time
+                    current_time = datetime.now()
+                    time_string = current_time.strftime("%Y-%m-%d %H:%M:%S")
+
+                    accList[email]['time'] = time_string
+                    time.sleep(20)
+
+                    # wait.until(EC.url_to_be('https://www.mycloudwallet.com/cloud-wallet/signing/'))
 
 
-                except (NoSuchElementException, TimeoutException):
-                    print("claim_button_next not found")
-
+                except TimeoutException:
+                    print("Không tìm thấy phần tử email. Xử lý tại đây...")
 
             except (NoSuchElementException, TimeoutException) as e:
                 print(f"Xảy ra lỗi: {str(e)}")
@@ -330,12 +308,24 @@ class ChromeProfileManager(QMainWindow):
         input_text = self.input_text.toPlainText()
         profiles_data = input_text.strip().split('\n')
         for profile_data in profiles_data:
-            if '|' in profile_data:
-                email, wallet, key = profile_data.split('|')
+            if '\t' in profile_data:
+                email, password, twofa, wallet = profile_data.split('\t')
+            elif '|' in profile_data:
+                email, password, twofa, wallet = profile_data.split('|')
+            else:
+                email, password, twofa, wallet = ['', '', '', '']
             accList[email] = {
                 'wallet': wallet,
-                'key': key,
+                'password': password,
+                'twofa': twofa,
             }
+            # profile_path = f"C:/path/to/profiles/{email}"
+            # if not os.path.exists(profile_path):
+            #     os.makedirs(profile_path)
+            # chrome_options = Options()
+            # chrome_options.add_argument(f'--user-data-dir={profile_path}')
+            # driver = webdriver.Chrome(options=chrome_options)
+            # driver.get('https://www.mycloudwallet.com/dashboard')
         self.clear_table()
         self.add_profile_to_table(accList)
     def import_data(self):
@@ -364,20 +354,22 @@ class ChromeProfileManager(QMainWindow):
             for profile_data in profiles_data:
 
                 if '\t' in profile_data:
-                    email, wallet, key = profile_data.split('\t')
+                    email, password, twofa, wallet = profile_data.split('\t')
                 elif '|' in profile_data:
-                    email, wallet, key = profile_data.split('|')
+                    email, password, twofa, wallet = profile_data.split('|')
+                else:
+                    email, password, twofa, wallet = ['', '', '', '']
                 accList[email] = {
                     'wallet': wallet,
-                    'key': key,
+                    'password': password,
+                    'twofa': twofa
                 }
-                profile = {'email': email, 'wallet': wallet, 'key': key}
+                profile = {'email': email, 'password': password, 'twofa': twofa}
                 self.profiles.append(profile)
                 # Tạo trình duyệt Chrome
                 profile_path = f"C:/path/to/profiles/{email}"  # Đường dẫn thư mục lưu trữ hồ sơ
                 if not os.path.exists(profile_path):
                     os.makedirs(profile_path)
-
                 chrome_options = Options()
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
                 future = executor.submit(self.open_url_login, email, event)
@@ -414,32 +406,27 @@ class ChromeProfileManager(QMainWindow):
             row_position = self.profile_table.rowCount()
             self.profile_table.insertRow(row_position)
             self.profile_table.setItem(row_position, 0, QTableWidgetItem(email))
-            self.profile_table.setItem(row_position, 1, QTableWidgetItem(value.get('wallet', '')))
-            self.profile_table.setItem(row_position, 2, QTableWidgetItem(value.get('key', '')))
-            open_profile_button = QPushButton('Add Session')
-            open_profile_button.clicked.connect(lambda _, email=email: self.open_profile(email))
-            self.profile_table.setCellWidget(row_position, 3, open_profile_button)
+            self.profile_table.setItem(row_position, 1, QTableWidgetItem(value.get('password', '')))
+            self.profile_table.setItem(row_position, 2, QTableWidgetItem(value.get('twofa', '')))
+            self.profile_table.setItem(row_position, 3, QTableWidgetItem(value.get('wallet', '')))
+            self.profile_table.setItem(row_position, 4, QTableWidgetItem(value.get('time', '')))
+            open_profile_button = QPushButton('Mở Profile')
+            open_profile_button.clicked.connect(lambda: self.open_profile(email, None))
+            self.profile_table.setCellWidget(row_position, 5, open_profile_button)
 
-    def open_profile(self, email):
+    def open_profile(self, email, web):
         # Kiểm tra xem thư mục lưu trữ hồ sơ đã tồn tại
-        profile_path = f"C:/path/to/profiles/{email}"
-        print('Account')
-        print(email)
-        if not os.path.exists(profile_path):
-            os.makedirs(profile_path)
-        try:
-            options = Options()
-            options.add_argument(f'--user-data-dir={profile_path}')
-            options.add_argument('--no-experiments')
-            driver3 = webdriver.Chrome(options=options)
-            driver3.get('https://web.telegram.org')
-            WebDriverWait(driver3, 800).until(EC.presence_of_element_located((By.ID, 'facebook')))
-            return driver3
+        profile_path = f"C:/path/to/profiles/{email}"  # Đường dẫn thư mục lưu trữ hồ sơ
+        if os.path.exists(profile_path):
+            try:
+                chrome_options = Options()
 
-        except TimeoutException:
-            print('Error')
-        finally:
-            driver3.quit()
+                chrome_options.add_argument(f'--user-data-dir={profile_path}')
+                chrome_options.add_experimental_option("detach", True)
+                driver3 = webdriver.Chrome(options=chrome_options)
+                driver3.get('https://google.com')
+            except TimeoutException:
+                print('Error')
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

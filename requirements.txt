@@ -2,3 +2,6 @@ PyQt5==5.15.10
 PyQt5_sip==12.13.0
 Requests==2.31.0
 selenium==4.19.0
+telethon==1.26.1
+pyrogram==2.0.106
+pyperclip==1.8.2
