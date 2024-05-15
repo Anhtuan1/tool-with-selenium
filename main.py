@@ -181,7 +181,7 @@ class ChromeProfileManager(QMainWindow):
                 try:
 
                     try:
-                        wait = WebDriverWait(driver2, 15)
+                        wait = WebDriverWait(driver2, 20)
                         play_button = wait.until(EC.presence_of_element_located(
                             (By.CSS_SELECTOR, 'span.bot-menu-text')))
                         play_button.click()
