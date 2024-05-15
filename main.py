@@ -177,7 +177,7 @@ class ChromeProfileManager(QMainWindow):
                 driver2 = webdriver.Chrome(options=chrome_options)
                 if web is not None:
                     driver2.get(web)
-                    time.sleep(3)
+                    time.sleep(5)
                 try:
 
                     try:
@@ -226,7 +226,7 @@ class ChromeProfileManager(QMainWindow):
                         setInterval(clickButtonGetClaim, 2000);
                         """
                     driver2.execute_script(script)
-                    time.sleep(8)
+                    time.sleep(11)
                     driver2.switch_to.default_content()
 
 
@@ -247,7 +247,7 @@ class ChromeProfileManager(QMainWindow):
         stop_event = threading.Event()
 
 
-        time.sleep(5)
+        time.sleep(2)
         stop_event.set()
 
         # Wait for the worker thread to finish
