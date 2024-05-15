@@ -226,6 +226,7 @@ class ChromeProfileManager(QMainWindow):
                             var wave_balance = document.querySelector(".wave-balance").textContent;
                             var fish_block = document.querySelector(".block-data .right .btn-add").textContent;
                             var is_running = document.querySelector(".block-data .info .boat_balance").textContent
+                            var level = document.querySelector(".menu-block .menu_2  .menu_title .time").textContent
                             if(wave_balance < 6 && fish_block == 'x 1' && is_running < 2 && is_running != 1) {
                                 document.querySelector('.block-data .cursor-pointer').click();
                                 setTimeout(() => {
@@ -237,6 +238,12 @@ class ChromeProfileManager(QMainWindow):
                                     },3000)
                                 },1000)
                                 
+                            }
+                            if(level == '1 /hours' && is_running < 2.5 && wave_balance >= 20){
+                                document.querySelector(".menu-block .menu_2  .block-btn button").click();
+                                setTimeout(() => {
+                                    document.querySelector(".modal-content .btn-upgrade").click();
+                                }, 1000)
                             }
                         }
                         setInterval(clickButton, 1000);
