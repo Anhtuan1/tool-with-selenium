@@ -179,11 +179,24 @@ class ChromeProfileManager(QMainWindow):
                     driver2.get(web)
                     time.sleep(3)
                 try:
-                    wait = WebDriverWait(driver2, 30)
-                    play_button = wait.until(EC.presence_of_element_located(
-                        (By.CSS_SELECTOR, 'span.bot-menu-text')))
-                    play_button.click()
+
+                    try:
+                        wait = WebDriverWait(driver2, 15)
+                        play_button = wait.until(EC.presence_of_element_located(
+                            (By.CSS_SELECTOR, 'span.bot-menu-text')))
+                        play_button.click()
+                    except (NoSuchElementException, TimeoutException):
+                        start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
+                        start_button.click()
+
                     time.sleep(3)
+
+                    try:
+                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
+                        continue_button.click()
+                    except (NoSuchElementException, TimeoutException):
+                        print("Launch not found")
+
                     try:
                         continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
                         continue_button.click()
