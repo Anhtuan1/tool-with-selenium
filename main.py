@@ -122,47 +122,6 @@ class ChromeProfileManager(QMainWindow):
 
 
 
-    def login_action(self, profile_path, email):
-        global accList
-        web = 'https://www.mycloudwallet.com/signin'
-        chrome_options = Options()
-        try:
-            chrome_options.add_argument(f'--user-data-dir={profile_path}')
-            chrome_options.add_argument('--no-experiments')
-            driver = webdriver.Chrome(options=chrome_options)
-            driver.get(web)
-            wait = WebDriverWait(driver, 3)
-            email_field = wait.until(EC.presence_of_element_located(
-                (By.CSS_SELECTOR, 'input[placeholder="Enter profile username or email address"]')))
-
-            # Bạn có thể tiếp tục tương tác với phần tử email_input nếu nó đã xuất hiện
-            password_field = wait.until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, 'input[placeholder="Enter password"]')))
-
-            email_field.send_keys(email)
-            password_field.send_keys(accList[email]['password'])
-            time.sleep(1)
-            login_button = driver.find_element(By.XPATH, "//button[contains(., 'Sign In')]")
-            login_button.click()
-
-            # Thêm thông tin profile vào bảng
-            wait = WebDriverWait(driver, 10)
-            twofa_input = wait.until(EC.presence_of_element_located((By.ID, 'tfacode')))
-
-            twofa_string = self.get_twofa_string(accList[email]['twofa'])
-            print(twofa_string)
-            twofa_input.send_keys(twofa_string)
-            continue_button = driver.find_element(By.XPATH, "//button[contains(., 'CONTINUE')]")
-            continue_button.click()
-            WebDriverWait(driver, 10).until(EC.url_to_be('https://www.mycloudwallet.com/dashboard'))
-            time.sleep(2)
-            # element = WebDriverWait(driver, 10).until(EC.visibility_of_element_located((By.CLASS_NAME, "avatar-div-3")))
-
-            # accList[email]['wallet'] = element.text.strip()
-
-            driver.quit()
-        except TimeoutException:
-            print("Không tìm thấy phần tử email. Xử lý tại đây...")
 
     def open_url_in_thread(self, profile_path, web, email):
         # def run_thread():
@@ -170,7 +129,65 @@ class ChromeProfileManager(QMainWindow):
         print(f"Running: {str(email)}")
         driver2 = None
         global accList
+        key = accList[email]["key"]
+        print(key)
+        script_login = f"""
+            var key = '{key}';
+            setInterval(() => {{
+                if (document.querySelector(".body_button .btn-login")) {{
+                    document.querySelector(".body_button .btn-login").click();
+                    setTimeout(() => {{
+                        document.querySelector("#section-login textarea").value = key;
+                        setTimeout(() => {{
+                            document.querySelector("#section-login .btn-continue").click();
+                        }}, 500);
+                    }}, 1000);
+                }}
+            }}, 2000);
+            """
+        script = """
+                function clickButton() {
+                    var button = document.querySelector("button.btn_claim");
+                    if (button) {
+                        button.click();
+                    }
+                }
+                function clickButtonGetClaim() {
+                    var button = document.querySelector(".claim.cursor-pointer");
+                    if (button) {
+                        button.click();
+                    }
+                }
+                function checkBalance() {
+                    var wave_balance = document.querySelector(".wave-balance").textContent;
+                    var fish_block = document.querySelector(".block-data .right .btn-add").textContent;
+                    var is_running = document.querySelector(".block-data .info .boat_balance").textContent
+                    var level = document.querySelector(".menu-block .menu_2  .menu_title .time").textContent
+                    if(wave_balance < 6 && fish_block == 'x 1' && is_running < 2 && is_running != 1) {
+                        document.querySelector('.block-data .cursor-pointer').click();
+                        setTimeout(() => {
+                            document.querySelector('#section-mission .block-gas button').click();
+                            setTimeout(() => {
+                                if(document.querySelectorAll('.btn-upgrade')[1].textContent == 'Claim'){
+                                    document.querySelectorAll('.btn-upgrade')[1].click();
+                                }
+                            },3000)
+                        },1000)
+    
+                    }
+                    if(level == '1 /hours' && is_running < 2.5 && wave_balance >= 20){
+                        document.querySelector(".menu-block .menu_2  .block-btn button").click();
+                        setTimeout(() => {
+                            document.querySelector(".modal-content .btn-upgrade").click();
+                        }, 1000)
+                    }
+                }
+                setInterval(clickButton, 1000);
+                setInterval(clickButtonGetClaim, 2000);
+                setTimeout(checkBalance, 3000);
+                """
         if web == 'https://web.telegram.org/a/#6430669852':
+            print(web)
             try:
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
                 chrome_options.add_argument('--no-experiments')
@@ -178,6 +195,7 @@ class ChromeProfileManager(QMainWindow):
                 if web is not None:
                     driver2.get(web)
                     time.sleep(5)
+
                 try:
 
                     try:
@@ -206,58 +224,32 @@ class ChromeProfileManager(QMainWindow):
                     iframe_allow_attr = 'camera; microphone; geolocation;'
                     iframe = WebDriverWait(driver2, 50).until(
                         EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
+                    iframe_url = iframe.get_attribute('src')
+                    print("Src attribute of the iframe:", iframe_url)
+                    try:
+                        data_path = f"C:/path/to/data_login/{email}"
+                        if not os.path.exists(data_path):
+                            os.makedirs(data_path)
+                        with open(data_path + '/url.txt', 'w') as file:
+                            file.write(iframe_url)
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
 
-                    print("Src attribute of the iframe:", iframe.get_attribute('src'))
                     driver2.switch_to.frame(iframe)
-                    script = """
-                        function clickButton() {
-                            var button = document.querySelector("button.btn_claim");
-                            if (button) {
-                                button.click();
-                            }
-                        }
-                        function clickButtonGetClaim() {
-                            var button = document.querySelector(".claim.cursor-pointer");
-                            if (button) {
-                                button.click();
-                            }
-                        }
-                        function checkBalance() {
-                            var wave_balance = document.querySelector(".wave-balance").textContent;
-                            var fish_block = document.querySelector(".block-data .right .btn-add").textContent;
-                            var is_running = document.querySelector(".block-data .info .boat_balance").textContent
-                            var level = document.querySelector(".menu-block .menu_2  .menu_title .time").textContent
-                            if(wave_balance < 6 && fish_block == 'x 1' && is_running < 2 && is_running != 1) {
-                                document.querySelector('.block-data .cursor-pointer').click();
-                                setTimeout(() => {
-                                    document.querySelector('#section-mission .block-gas button').click();
-                                    setTimeout(() => {
-                                        if(document.querySelectorAll('.btn-upgrade')[1].textContent == 'Claim'){
-                                            document.querySelectorAll('.btn-upgrade')[1].click();
-                                        }
-                                    },3000)
-                                },1000)
-                                
-                            }
-                            if(level == '1 /hours' && is_running < 2.5 && wave_balance >= 20){
-                                document.querySelector(".menu-block .menu_2  .block-btn button").click();
-                                setTimeout(() => {
-                                    document.querySelector(".modal-content .btn-upgrade").click();
-                                }, 1000)
-                            }
-                        }
-                        setInterval(clickButton, 1000);
-                        setInterval(clickButtonGetClaim, 2000);
-                        setTimeout(checkBalance, 2000);
-                        """
                     driver2.execute_script(script)
                     time.sleep(13)
+
                     driver2.switch_to.default_content()
-
-
                 except (NoSuchElementException, TimeoutException):
-                    print("claim_button_next not found")
-
+                    data_path = f"C:/path/to/data_login/{email}/url.txt"
+                    if os.path.exists(data_path):
+                        with open(data_path, 'r') as file:
+                            url = file.read().strip()
+                        driver2.get(url)
+                        time.sleep(4)
+                        driver2.execute_script(script_login)
+                        driver2.execute_script(script)
+                        time.sleep(15)
 
             except (NoSuchElementException, TimeoutException) as e:
                 print(f"Xảy ra lỗi: {str(e)}")
@@ -419,28 +411,10 @@ class ChromeProfileManager(QMainWindow):
         if mine == 'Yes':
             self.morning_shift_mining_acction()
 
-    def get_twofa_string(self, twofa):
-        # Gửi token đến 2fa.ec2network.info/2fa và nhận mã 2FA
-        # Đây là nơi bạn có thể thêm mã gọi API để nhận mã 2FA từ token.
-        # Đoạn mã này cần tương tác với API 2FA để nhận mã và trả về mã đó.
-        # Dưới đây là một ví dụ giả định:
-
-
-        api_url = f'https://2fa.ec2network.info/{twofa}'
-        response = requests.get(api_url)
-        if response.status_code == 200:
-            json_string = response.text
-            try:
-                data = json.loads(json_string)
-                token = data.get('token')
-                print(token)  # In ra 550226
-                return token
-            except json.JSONDecodeError:
-                print("Không thể phân tích chuỗi JSON")
-                return
 
     def clear_table(self):
         self.profile_table.setRowCount(0)
+
     def add_profile_to_table(self, accList):
         for email, value in accList.items():
             row_position = self.profile_table.rowCount()
