@@ -82,7 +82,7 @@ class ChromeProfileManager(QMainWindow):
         # Cột phải - Hiển thị thông tin profile
         self.profile_table = QTableWidget()
         self.profile_table.setColumnCount(6)
-        self.profile_table.setHorizontalHeaderLabels(['ID', 'Wallet', 'Key', 'Action'])
+        self.profile_table.setHorizontalHeaderLabels(['ID', 'Wallet', 'Key', 'Action', 'Login'])
 
         self.right_layout = QVBoxLayout()
         self.right_layout.addWidget(QLabel('Thông tin profile:'))
@@ -264,7 +264,7 @@ class ChromeProfileManager(QMainWindow):
         stop_event = threading.Event()
 
 
-        time.sleep(2)
+        time.sleep(5)
         stop_event.set()
 
         # Wait for the worker thread to finish
@@ -425,7 +425,11 @@ class ChromeProfileManager(QMainWindow):
             open_profile_button = QPushButton('Add Session')
             open_profile_button.clicked.connect(lambda _, email=email: self.open_profile(email))
             self.profile_table.setCellWidget(row_position, 3, open_profile_button)
-
+            data_path = f"C:/path/to/data_login/{email}"
+            if os.path.exists(data_path):
+                self.profile_table.setItem(row_position, 4, QTableWidgetItem('Login OK'))
+            else:
+                self.profile_table.setItem(row_position, 4, QTableWidgetItem('-'))
     def open_profile(self, email):
         # Kiểm tra xem thư mục lưu trữ hồ sơ đã tồn tại
         profile_path = f"C:/path/to/profiles/{email}"
