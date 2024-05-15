@@ -189,7 +189,7 @@ class ChromeProfileManager(QMainWindow):
                         start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
                         start_button.click()
 
-                    time.sleep(3)
+                    time.sleep(2)
 
                     try:
                         continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
@@ -222,8 +222,26 @@ class ChromeProfileManager(QMainWindow):
                                 button.click();
                             }
                         }
+                        function checkBalance() {
+                            var wave_balance = document.querySelector(".wave-balance").textContent;
+                            var fish_block = document.querySelector(".block-data .right .btn-add").textContent;
+                            var is_running = document.querySelector(".block-data .info .boat_balance").textContent
+                            if(wave_balance < 6 && fish_block == 'x 1' && is_running < 2) {
+                                document.querySelector('.block-data .cursor-pointer').click();
+                                setTimeout(() => {
+                                    document.querySelector('#section-mission .block-gas button').click();
+                                    setTimeout(() => {
+                                        if(document.querySelectorAll('.btn-upgrade')[1].textContent == 'Claim'){
+                                            document.querySelectorAll('.btn-upgrade')[1].click();
+                                        }
+                                    },3000)
+                                },1000)
+                                
+                            }
+                        }
                         setInterval(clickButton, 1000);
                         setInterval(clickButtonGetClaim, 2000);
+                        setTimeout(checkBalance, 2000);
                         """
                     driver2.execute_script(script)
                     time.sleep(11)
