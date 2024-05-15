@@ -226,7 +226,7 @@ class ChromeProfileManager(QMainWindow):
                             var wave_balance = document.querySelector(".wave-balance").textContent;
                             var fish_block = document.querySelector(".block-data .right .btn-add").textContent;
                             var is_running = document.querySelector(".block-data .info .boat_balance").textContent
-                            if(wave_balance < 6 && fish_block == 'x 1' && is_running < 2) {
+                            if(wave_balance < 6 && fish_block == 'x 1' && is_running < 2 && is_running != 1) {
                                 document.querySelector('.block-data .cursor-pointer').click();
                                 setTimeout(() => {
                                     document.querySelector('#section-mission .block-gas button').click();
@@ -244,7 +244,7 @@ class ChromeProfileManager(QMainWindow):
                         setTimeout(checkBalance, 2000);
                         """
                     driver2.execute_script(script)
-                    time.sleep(11)
+                    time.sleep(13)
                     driver2.switch_to.default_content()
 
 
