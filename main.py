@@ -138,12 +138,13 @@ class ChromeProfileManager(QMainWindow):
                     document.querySelector(".body_button .btn-login").click();
                     setTimeout(() => {{
                         document.querySelector("#section-login textarea").value = key;
+                        document.querySelector("#section-login textarea").dispatchEvent(new Event('input'));
                         setTimeout(() => {{
                             document.querySelector("#section-login .btn-continue").click();
-                        }}, 500);
+                        }}, 1000);
                     }}, 1000);
                 }}
-            }}, 2000);
+            }}, 3000);
             """
         script = """
                 function clickButton() {
@@ -192,67 +193,69 @@ class ChromeProfileManager(QMainWindow):
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
                 chrome_options.add_argument('--no-experiments')
                 driver2 = webdriver.Chrome(options=chrome_options)
-                if web is not None:
-                    driver2.get(web)
-                    time.sleep(5)
-
-                try:
-
-                    try:
-                        wait = WebDriverWait(driver2, 20)
-                        play_button = wait.until(EC.presence_of_element_located(
-                            (By.CSS_SELECTOR, 'span.bot-menu-text')))
-                        play_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
-                        start_button.click()
-
+                data_path = f"C:/path/to/data_login/{email}/url.txt"
+                if os.path.exists(data_path):
+                    with open(data_path, 'r') as file:
+                        url = file.read().strip()
+                    driver2.get(url)
                     time.sleep(2)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Launch not found")
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("confirm not found")
-
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 50).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-                    iframe_url = iframe.get_attribute('src')
-                    print("Src attribute of the iframe:", iframe_url)
-                    try:
-                        data_path = f"C:/path/to/data_login/{email}"
-                        if not os.path.exists(data_path):
-                            os.makedirs(data_path)
-                        with open(data_path + '/url.txt', 'w') as file:
-                            file.write(iframe_url)
-                    except Exception as e:
-                        print(f"An error occurred: {e}")
-
-                    driver2.switch_to.frame(iframe)
+                    driver2.execute_script(script_login)
                     driver2.execute_script(script)
                     time.sleep(13)
+                else:
+                    if web is not None:
+                        driver2.get(web)
+                        time.sleep(5)
 
-                    driver2.switch_to.default_content()
-                except (NoSuchElementException, TimeoutException):
-                    data_path = f"C:/path/to/data_login/{email}/url.txt"
-                    if os.path.exists(data_path):
-                        with open(data_path, 'r') as file:
-                            url = file.read().strip()
-                        driver2.get(url)
-                        time.sleep(4)
-                        driver2.execute_script(script_login)
+                    try:
+
+                        try:
+                            wait = WebDriverWait(driver2, 20)
+                            play_button = wait.until(EC.presence_of_element_located(
+                                (By.CSS_SELECTOR, 'span.bot-menu-text')))
+                            play_button.click()
+                        except (NoSuchElementException, TimeoutException):
+                            start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
+                            start_button.click()
+
+                        time.sleep(2)
+
+                        try:
+                            continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
+                            continue_button.click()
+                        except (NoSuchElementException, TimeoutException):
+                            print("Launch not found")
+
+                        try:
+                            continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
+                            continue_button.click()
+                        except (NoSuchElementException, TimeoutException):
+                            print("confirm not found")
+
+                        iframe_allow_attr = 'camera; microphone; geolocation;'
+                        iframe = WebDriverWait(driver2, 50).until(
+                            EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
+                        iframe_url = iframe.get_attribute('src')
+                        print("Src attribute of the iframe:", iframe_url)
+                        try:
+                            data_path = f"C:/path/to/data_login/{email}"
+                            if not os.path.exists(data_path):
+                                os.makedirs(data_path)
+                            with open(data_path + '/url.txt', 'w') as file:
+                                file.write(iframe_url)
+                        except Exception as e:
+                            print(f"An error occurred: {e}")
+
+                        driver2.switch_to.frame(iframe)
                         driver2.execute_script(script)
-                        time.sleep(15)
+                        time.sleep(13)
+
+                        driver2.switch_to.default_content()
+                    except (NoSuchElementException, TimeoutException):
+                        print(f"Lỗi: {str(e)}")
 
             except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi: {str(e)}")
+                print(f"Xảy ra lỗi")
             finally:
                 if driver2 is not None:
                     print('Quit')
