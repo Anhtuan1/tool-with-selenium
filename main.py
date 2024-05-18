@@ -1,12 +1,12 @@
 import sys
 import time
-import os  # Thêm thư viện os
+import os
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from datetime import datetime
-from telethon.sync import TelegramClient, events
-from telethon.sessions import StringSession
-from telethon.tl.types import Channel
-from pyrogram import Client
+# from telethon.sync import TelegramClient, events
+# from telethon.sessions import StringSession
+# from telethon.tl.types import Channel
+# from pyrogram import Client
 
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QFileDialog
 from selenium import webdriver
@@ -14,15 +14,15 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-import requests
-import json
+# import requests
+# import json
 import threading
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
-from selenium.webdriver.common.keys import Keys
+# from selenium.webdriver.common.keys import Keys
 
-import pyperclip
-import re
-import csv
+# import pyperclip
+# import re
+# import csv
 
 accList = {}
 num_thread_running = 0
@@ -164,8 +164,8 @@ class ChromeProfileManager(QMainWindow):
                     var fish_block = document.querySelector(".block-data .right .btn-add").textContent;
                     var is_running = document.querySelector(".block-data .info .boat_balance").textContent
                     var level = document.querySelector(".menu-block .menu_2  .menu_title .time").textContent
-                    if(wave_balance < 6 && fish_block == 'x 1' && is_running < 2 && is_running != 1) {
-                        document.querySelector('.block-data .cursor-pointer').click();
+                    if(wave_balance < 10 && fish_block == 'x 1' && is_running < 2 && is_running != 1) {
+                        document.querySelector(".block-data .absolute .cursor-pointer");
                         setTimeout(() => {
                             document.querySelector('#section-mission .block-gas button').click();
                             setTimeout(() => {
