@@ -165,7 +165,7 @@ class ChromeProfileManager(QMainWindow):
                     var is_running = document.querySelector(".block-data .info .boat_balance").textContent
                     var level = document.querySelector(".menu-block .menu_2  .menu_title .time").textContent
                     if(wave_balance < 10 && fish_block == 'x 1' && is_running < 2 && is_running != 1) {
-                        document.querySelector(".block-data .absolute .cursor-pointer");
+                        document.querySelector(".block-data .absolute .cursor-pointer").click();
                         setTimeout(() => {
                             document.querySelector('#section-mission .block-gas button').click();
                             setTimeout(() => {
