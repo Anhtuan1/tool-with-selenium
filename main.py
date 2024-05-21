@@ -152,32 +152,25 @@ class ChromeProfileManager(QMainWindow):
         else:
             os.makedirs(loaddataSession)
 
-    def on_login_with_session_clicked(self):
-        # Start an event loop to execute the coroutine
-        asyncio.run(self.loginWithSession())
+
 
     async def handle_incoming_message(event):
         otp = re.search(r'\b(\d{5})\b', event.raw_text)
         if otp:
             print("OTP received ✅\nYour login code:", otp.group(0))
             await event.client.disconnect()
+    def on_login_with_session_clicked(self):
+        print('Task login')
+        asyncio.ensure_future(self.on_login_with_session())
 
-    async def loginWithSession(self):
+    async def on_login_with_session(self):
         global accList
         input_text = self.input_text.toPlainText()
         profiles_data = input_text.strip().split('\n')
-        refLink = 'https://t.me/waveonsuibot/walletapp?startapp=1724221'
         for profile_data in profiles_data:
             parts = profile_data.split('|')
             email = parts[0]
-            wallet = parts[1]
-            key = parts[2]
-
-            # Check if ref is provided; use default if not
-            ref = parts[3] if len(parts) > 3 else refLink
-            chrome_options = Options()
-            driver2 = None
-            self.start_asyncio_task(email)
+            await self.login_tele(email)
             self.open_url_setup_game(email)
 
         self.all_acction()
@@ -622,6 +615,7 @@ class ChromeProfileManager(QMainWindow):
         print('Task')
         asyncio.ensure_future(self.login_tele(email))
 
+
     async def login_tele(self, email):
         profile_path = f"C:/path/to/profiles/{email}"
         print('Account')
@@ -715,25 +709,28 @@ class ChromeProfileManager(QMainWindow):
                     driver3.get('https://web.telegram.org/k')
                     driver3.execute_script(script_tele)
                     try:
-                        await asyncio.wait_for(client.run_until_disconnected(), timeout=300)
+                        await asyncio.wait_for(client.run_until_disconnected(), timeout=60)
                     except asyncio.TimeoutError:
                         print("Timeout reached. No OTP received.")
                         await client.disconnect()
             except Exception as e:
                 print("\nUnable to generate the session string. Please ensure you are using a Telethon session file.")
             print('Start tele')
+            class_search = 'chatlist-top'
+            input_search = WebDriverWait(driver3, 20).until(
+                EC.presence_of_element_located((By.CSS_SELECTOR, f'div[class="{class_search}"]')))
 
-            try:
-                class_search = 'chatlist-top'
-                input_search = WebDriverWait(driver3, 120).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, f'div[class="{class_search}"]')))
-                driver3.quit()
-
-
-            except Exception as e:
-                print(f"Not Loading Tele: {e}")
-                if driver3:
-                    driver3.quit()
+            return driver3
+            # try:
+            #     class_search = 'chatlist-top'
+            #     input_search = WebDriverWait(driver3, 120).until(
+            #         EC.presence_of_element_located((By.CSS_SELECTOR, f'div[class="{class_search}"]')))
+            #     return driver3
+            #     driver3.quit()
+            # except Exception as e:
+            #     print(f"Not Loading Tele: {e}")
+            #     if driver3:
+            #         driver3.quit()
 
         except TimeoutException:
             print('Error')
