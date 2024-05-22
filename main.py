@@ -35,7 +35,7 @@ except ModuleNotFoundError:
 accList = {}
 num_thread_running = 0
 futures = []
-url_ref = 'https://web.telegram.org/k/#?tgaddr=tg%3A%2F%2Fresolve%3Fdomain%3Dwaveonsuibot%26startapp%3D'
+url_ref = 'https://web.telegram.org/k/#?tgaddr=tg://resolve?domain=waveonsuibot&startapp='
 class ChromeProfileManager(QMainWindow):
     threads = []
     def __init__(self):
@@ -620,122 +620,125 @@ class ChromeProfileManager(QMainWindow):
         profile_path = f"C:/path/to/profiles/{email}"
         print('Account')
         print(email)
-
-        script_tele = f"""
-                function clickButtonLogin() {{
-                    console.log('Running')
-                    var button_login = document.querySelector('#auth-pages .input-wrapper button')
-                    if(button_login && button_login.textContent == 'Log in by phone Number'){{
-                        button_login.click();
-                    }}
-                    
-                }}
-                function pressInputLogin() {{
-                    var input_login = document.querySelector('#auth-pages .input-wrapper .input-field-phone .input-field-input')
-                    if(input_login){{
-                        input_login.textContent = '+' + {email};
-                        var event = new Event('input', {{
-                            bubbles: true,
-                        }});
-                        input_login.dispatchEvent(event);
-                        input_login.textContent = '+' + {email};
-                        setTimeout(() => {{
-                            var button_next = document.querySelector('#auth-pages .input-wrapper button')
-                            if(button_next && button_next.textContent == 'Next'){{
-                                button_next.click()
-                            }}
-                        }}, 1500)
-                        
+        data_path = f"C:/path/to/data_login/{email}/url.txt"
+        if not os.path.exists(data_path):
+            script_tele = f"""
+                    function clickButtonLogin() {{
+                        console.log('Running')
+                        var button_login = document.querySelector('#auth-pages .input-wrapper button')
+                        if(button_login && button_login.textContent == 'Log in by phone Number'){{
+                            button_login.click();
+                        }}
                         
                     }}
-                    
-                }}
-                setInterval(clickButtonLogin, 3000);
-                setInterval(pressInputLogin, 5000);
-            """
-        if not os.path.exists(profile_path):
-            os.makedirs(profile_path)
-        try:
-            options = Options()
-            options.add_argument(f'--user-data-dir={profile_path}')
-            options.add_argument('--no-experiments')
-            driver3 = webdriver.Chrome(options=options)
-
-            print('Start OTP')
-            api_id = ''
-            api_hash = ''
-            session_name = f"C:/path/to/data_session/{email}/{email}.session"
-
+                    function pressInputLogin() {{
+                        var input_login = document.querySelector('#auth-pages .input-wrapper .input-field-phone .input-field-input')
+                        if(input_login){{
+                            input_login.textContent = '+' + {email};
+                            var event = new Event('input', {{
+                                bubbles: true,
+                            }});
+                            input_login.dispatchEvent(event);
+                            input_login.textContent = '+' + {email};
+                            setTimeout(() => {{
+                                var button_next = document.querySelector('#auth-pages .input-wrapper button')
+                                if(button_next && button_next.textContent == 'Next'){{
+                                    button_next.click()
+                                }}
+                            }}, 1500)
+                            
+                            
+                        }}
+                        
+                    }}
+                    setInterval(clickButtonLogin, 3000);
+                    setInterval(pressInputLogin, 5000);
+                """
+            if not os.path.exists(profile_path):
+                os.makedirs(profile_path)
             try:
-                async with TelegramClient(session_name, api_id, api_hash) as client:
-                    print("Telegram client started")
+                options = Options()
+                options.add_argument(f'--user-data-dir={profile_path}')
+                options.add_argument('--no-experiments')
+                driver3 = webdriver.Chrome(options=options)
 
-                    @client.on(events.NewMessage(from_users=777000))
-                    async def handler(event):
-                        print("Message received:", event.raw_text)
-                        otp_match = re.search(r'\b(\d{5})\b', event.raw_text)
-                        if otp_match:
-                            print("OTP received:", otp_match.group(0))
-                            otp = otp_match.group(0)
+                print('Start OTP')
+                api_id = ''
+                api_hash = ''
+                session_name = f"C:/path/to/data_session/{email}/{email}.session"
 
-                            script_otp = f"""
-                                    setInterval(() => {{
-                                        var input_otp = document.querySelector('#auth-pages .input-wrapper input.input-field-input');
-                                        if(input_otp){{
-                                            input_otp.removeAttribute('disabled');
-                                            input_otp.value = '{otp}';
-                                            var event = new Event('input', {{
-                                                bubbles: true,
-                                            }});
-                                            input_otp.dispatchEvent(event);
-                                            var changeEvent = new Event('change', {{
-                                                bubbles: true
-                                            }});
-                                            input_otp.dispatchEvent(changeEvent);
-                                            input_otp.focus();
-                                        }}
-                                    }},4000);
-                                """
-                            try:
-                                await asyncio.sleep(10)
-                                asyncio.create_task(driver3.execute_script(script_otp))
-                            except Exception as e:
-                                print(f"Error executing script: {e}")
-                                # Print detailed error information
-                                print(f"Script: {script_otp}")
-                                raise
+                try:
+                    async with TelegramClient(session_name, api_id, api_hash) as client:
+                        print("Telegram client started")
+
+                        @client.on(events.NewMessage(from_users=777000))
+                        async def handler(event):
+                            print("Message received:", event.raw_text)
+                            otp_match = re.search(r'\b(\d{5})\b', event.raw_text)
+                            if otp_match:
+                                print("OTP received:", otp_match.group(0))
+                                otp = otp_match.group(0)
+
+                                script_otp = f"""
+                                        setInterval(() => {{
+                                            var input_otp = document.querySelector('#auth-pages .input-wrapper input.input-field-input');
+                                            if(input_otp){{
+                                                input_otp.removeAttribute('disabled');
+                                                input_otp.value = '{otp}';
+                                                var event = new Event('input', {{
+                                                    bubbles: true,
+                                                }});
+                                                input_otp.dispatchEvent(event);
+                                                var changeEvent = new Event('change', {{
+                                                    bubbles: true
+                                                }});
+                                                input_otp.dispatchEvent(changeEvent);
+                                                input_otp.focus();
+                                            }}
+                                        }},4000);
+                                    """
+                                try:
+                                    await asyncio.sleep(10)
+                                    asyncio.create_task(driver3.execute_script(script_otp))
+                                except Exception as e:
+                                    print(f"Error executing script: {e}")
+                                    # Print detailed error information
+                                    print(f"Script: {script_otp}")
+                                    raise
+                                await client.disconnect()
+                        print("Please login to your telegram app. [Listening for OTP...]\n")
+                        driver3.get('https://web.telegram.org/k')
+                        driver3.execute_script(script_tele)
+                        try:
+                            await asyncio.wait_for(client.run_until_disconnected(), timeout=25)
+                        except asyncio.TimeoutError:
+                            print("Timeout reached. No OTP received.")
                             await client.disconnect()
-                    print("Please login to your telegram app. [Listening for OTP...]\n")
-                    driver3.get('https://web.telegram.org/k')
-                    driver3.execute_script(script_tele)
-                    try:
-                        await asyncio.wait_for(client.run_until_disconnected(), timeout=60)
-                    except asyncio.TimeoutError:
-                        print("Timeout reached. No OTP received.")
-                        await client.disconnect()
-            except Exception as e:
-                print("\nUnable to generate the session string. Please ensure you are using a Telethon session file.")
-            print('Start tele')
-            class_search = 'chatlist-top'
-            input_search = WebDriverWait(driver3, 20).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, f'div[class="{class_search}"]')))
+                except Exception as e:
+                    print("\nUnable to generate the session string. Please ensure you are using a Telethon session file.")
+                print('Start tele')
+                class_search = 'chatlist-top'
+                input_search = WebDriverWait(driver3, 20).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, f'div[class="{class_search}"]')))
 
-            return driver3
-            # try:
-            #     class_search = 'chatlist-top'
-            #     input_search = WebDriverWait(driver3, 120).until(
-            #         EC.presence_of_element_located((By.CSS_SELECTOR, f'div[class="{class_search}"]')))
-            #     return driver3
-            #     driver3.quit()
-            # except Exception as e:
-            #     print(f"Not Loading Tele: {e}")
-            #     if driver3:
-            #         driver3.quit()
+                return driver3
+                # try:
+                #     class_search = 'chatlist-top'
+                #     input_search = WebDriverWait(driver3, 120).until(
+                #         EC.presence_of_element_located((By.CSS_SELECTOR, f'div[class="{class_search}"]')))
+                #     return driver3
+                #     driver3.quit()
+                # except Exception as e:
+                #     print(f"Not Loading Tele: {e}")
+                #     if driver3:
+                #         driver3.quit()
 
-        except TimeoutException:
-            print('Error')
-        finally:
-            driver3.quit()
+            except TimeoutException:
+                print('Error')
+            finally:
+                driver3.quit()
+        else:
+            self.open_url_setup_game(email)
 
 
 
