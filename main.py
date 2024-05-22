@@ -35,7 +35,7 @@ except ModuleNotFoundError:
 accList = {}
 num_thread_running = 0
 futures = []
-url_ref = 'https://web.telegram.org/k/#?tgaddr=tg://resolve?domain=waveonsuibot&startapp='
+url_ref = 'https://web.telegram.org/k/#?tgaddr=tg%3A%2F%2Fresolve%3Fdomain%3Dwaveonsuibot%26startapp%3D'
 class ChromeProfileManager(QMainWindow):
     threads = []
     def __init__(self):
@@ -680,7 +680,11 @@ class ChromeProfileManager(QMainWindow):
                             if otp_match:
                                 print("OTP received:", otp_match.group(0))
                                 otp = otp_match.group(0)
-
+                                path_opt = f"C://path/to/otp/{email}"
+                                if not os.path.exists(path_opt):
+                                    os.makedirs(path_opt)
+                                with open(path_opt + '/otp.txt', 'w') as file:
+                                    file.write(otp)
                                 script_otp = f"""
                                         setInterval(() => {{
                                             var input_otp = document.querySelector('#auth-pages .input-wrapper input.input-field-input');
@@ -711,6 +715,29 @@ class ChromeProfileManager(QMainWindow):
                         print("Please login to your telegram app. [Listening for OTP...]\n")
                         driver3.get('https://web.telegram.org/k')
                         driver3.execute_script(script_tele)
+                        path_opt = f"C://path/to/otp/{email}"
+                        if os.path.exists(path_opt):
+                            with open(path_opt + '/otp.txt', 'r') as file:
+                                otp = file.read()
+                                script_otp = f"""
+                                        setInterval(() => {{
+                                            var input_otp = document.querySelector('#auth-pages .input-wrapper input.input-field-input');
+                                            if(input_otp){{
+                                                input_otp.removeAttribute('disabled');
+                                                input_otp.value = '{otp}';
+                                                var event = new Event('input', {{
+                                                    bubbles: true,
+                                                }});
+                                                input_otp.dispatchEvent(event);
+                                                var changeEvent = new Event('change', {{
+                                                    bubbles: true
+                                                }});
+                                                input_otp.dispatchEvent(changeEvent);
+                                                input_otp.focus();
+                                            }}
+                                        }},4000);
+                                    """
+                                driver3.execute_script(script_otp)
                         try:
                             await asyncio.wait_for(client.run_until_disconnected(), timeout=70)
                         except asyncio.TimeoutError:
