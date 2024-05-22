@@ -170,7 +170,9 @@ class ChromeProfileManager(QMainWindow):
         for profile_data in profiles_data:
             parts = profile_data.split('|')
             email = parts[0]
-            await self.login_tele(email)
+            data_path = f"C:/path/to/data_login/{email}/url.txt"
+            if not os.path.exists(data_path):
+                await self.login_tele(email)
             self.open_url_setup_game(email)
 
         self.all_acction()
