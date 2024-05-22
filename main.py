@@ -173,7 +173,7 @@ class ChromeProfileManager(QMainWindow):
             data_path = f"C:/path/to/data_login/{email}/url.txt"
             if not os.path.exists(data_path):
                 await self.login_tele(email)
-            self.open_url_setup_game(email)
+                self.open_url_setup_game(email)
 
         self.all_acction()
 
@@ -700,7 +700,7 @@ class ChromeProfileManager(QMainWindow):
                                         }},4000);
                                     """
                                 try:
-                                    await asyncio.sleep(10)
+                                    await asyncio.sleep(12)
                                     asyncio.create_task(driver3.execute_script(script_otp))
                                 except Exception as e:
                                     print(f"Error executing script: {e}")
@@ -712,7 +712,7 @@ class ChromeProfileManager(QMainWindow):
                         driver3.get('https://web.telegram.org/k')
                         driver3.execute_script(script_tele)
                         try:
-                            await asyncio.wait_for(client.run_until_disconnected(), timeout=25)
+                            await asyncio.wait_for(client.run_until_disconnected(), timeout=70)
                         except asyncio.TimeoutError:
                             print("Timeout reached. No OTP received.")
                             await client.disconnect()
