@@ -242,7 +242,7 @@ class ChromeProfileManager(QMainWindow):
             with open(data_path_ref, 'w') as file:
                 file.write(url_ref + '1724221')
         with open(data_path_ref, 'r') as file:
-            web = file.read()
+            web = file.read().strip()
             chrome_options = Options()
             print(f"Running: {str(email)}")
             driver2 = None
@@ -372,8 +372,14 @@ class ChromeProfileManager(QMainWindow):
                     driver2.execute_script(script_login)
                     driver2.execute_script(script)
                     time.sleep(40)
-                    driver2.get('https://walletapp.waveonsui.com/friends')
-                    time.sleep(5)
+                    data_path = f"C:/path/to/data_login/{email}/url.txt"
+                    if os.path.exists(data_path):
+                        with open(data_path, 'r') as file:
+                            url = file.read().strip()
+                            driver2.get(url)
+                            time.sleep(3)
+                            driver2.get('https://walletapp.waveonsui.com/friends')
+                            time.sleep(5)
                     try:
                         btn_invite = driver2.find_element(By.XPATH, "//button[contains(., 'Invite a Friend')]")
                         btn_invite.click()
@@ -524,8 +530,9 @@ class ChromeProfileManager(QMainWindow):
                             print(f"An error occurred: {e}")
 
                         driver2.switch_to.frame(iframe)
+                        driver2.execute_script(script_login)
                         driver2.execute_script(script)
-                        time.sleep(13)
+                        time.sleep(20)
 
                         driver2.switch_to.default_content()
                     except (NoSuchElementException, TimeoutException):
@@ -681,8 +688,8 @@ class ChromeProfileManager(QMainWindow):
                 driver3 = webdriver.Chrome(options=options)
 
                 print('Start OTP')
-                api_id = '24557220'
-                api_hash = '97ba1039b503de513706ff7229d4873b'
+                api_id = ''
+                api_hash = ''
                 session_name = f"C:/path/to/data_session/{email}/{email}.session"
 
                 try:
@@ -720,7 +727,7 @@ class ChromeProfileManager(QMainWindow):
                                         }},3000);
                                     """
                                 try:
-                                    await asyncio.sleep(10)
+                                    await asyncio.sleep(12)
                                     asyncio.create_task(driver3.execute_script(script_otp))
                                 except Exception as e:
                                     print(f"Error executing script: {e}")
@@ -734,7 +741,7 @@ class ChromeProfileManager(QMainWindow):
                         path_opt = f"C://path/to/otp/{email}"
                         if os.path.exists(path_opt):
                             with open(path_opt + '/otp.txt', 'r') as file:
-                                otp = file.read()
+                                otp = file.read().strip()
                                 script_otp = f"""
                                         setInterval(() => {{
                                             var input_otp = document.querySelector('#auth-pages .input-wrapper input.input-field-input');
