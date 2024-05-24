@@ -755,11 +755,8 @@ class ChromeProfileManager(QMainWindow):
                             await client.disconnect()
                 except Exception as e:
                     print("\nUnable to generate the session string. Please ensure you are using a Telethon session file.")
-                print('Start tele')
-                class_search = 'chatlist-top'
-                input_search = WebDriverWait(driver3, 20).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, f'div[class="{class_search}"]')))
-
+                driver3.get('https://web.telegram.org/a')
+                time.sleep(20)
                 return driver3
                 # try:
                 #     class_search = 'chatlist-top'
