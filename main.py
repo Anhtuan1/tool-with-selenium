@@ -745,29 +745,6 @@ class ChromeProfileManager(QMainWindow):
                         print("Please login to your telegram app. [Listening for OTP...]\n")
                         driver3.get('https://web.telegram.org/k')
                         driver3.execute_script(script_tele)
-                        path_opt = f"C://path/to/otp/{email}"
-                        if os.path.exists(path_opt):
-                            with open(path_opt + '/otp.txt', 'r') as file:
-                                otp = file.read().strip()
-                                script_otp = f"""
-                                        setInterval(() => {{
-                                            var input_otp = document.querySelector('#auth-pages .input-wrapper input.input-field-input');
-                                            if(input_otp){{
-                                                input_otp.removeAttribute('disabled');
-                                                input_otp.value = '{otp}';
-                                                var event = new Event('input', {{
-                                                    bubbles: true,
-                                                }});
-                                                input_otp.dispatchEvent(event);
-                                                var changeEvent = new Event('change', {{
-                                                    bubbles: true
-                                                }});
-                                                input_otp.dispatchEvent(changeEvent);
-                                                input_otp.focus();
-                                            }}
-                                        }},4000);
-                                    """
-                                driver3.execute_script(script_otp)
                         try:
                             await asyncio.wait_for(client.run_until_disconnected(), timeout=110)
                         except asyncio.TimeoutError:
