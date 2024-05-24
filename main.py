@@ -402,7 +402,7 @@ class ChromeProfileManager(QMainWindow):
                         else:
                             print("No match found")
 
-                    except (NoSuchElementException, TimeoutException):
+                    except (NoSuchElementException, TimeoutException) as e:
                         print(f"Lỗi: {str(e)}")
 
                 except (NoSuchElementException, TimeoutException) as e:
