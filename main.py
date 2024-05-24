@@ -337,13 +337,13 @@ class ChromeProfileManager(QMainWindow):
                     driver2.execute_script(script_start_button)
                     time.sleep(8)
                     try:
-                        play_button = WebDriverWait(driver2, 15).until(EC.presence_of_element_located(
+                        play_button = WebDriverWait(driver2, 10).until(EC.presence_of_element_located(
                             (By.CSS_SELECTOR, 'span.bot-menu-text')))
                         play_button.click()
                     except (NoSuchElementException, TimeoutException):
                         print('Play button not found')
                         try:
-                            start_button = WebDriverWait(driver2, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.new-message-bot-commands-view")))
+                            start_button = WebDriverWait(driver2, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.new-message-bot-commands-view")))
                             start_button.click()
                         except (NoSuchElementException, TimeoutException):
                             print('start button not found')
@@ -378,32 +378,35 @@ class ChromeProfileManager(QMainWindow):
                     driver2.switch_to.frame(iframe)
                     driver2.execute_script(script_login)
                     driver2.execute_script(script)
-                    time.sleep(40)
+                    time.sleep(30)
                     data_path = f"C:/path/to/data_login/{email}/url.txt"
                     if os.path.exists(data_path):
                         with open(data_path, 'r') as file:
                             url = file.read().strip()
                             driver2.get(url)
-                            time.sleep(3)
+                            driver2.execute_script(script_login)
+                            driver2.execute_script(script)
+                            time.sleep(20)
                             driver2.get('https://walletapp.waveonsui.com/friends')
                             time.sleep(5)
-                    try:
-                        btn_invite = driver2.find_element(By.XPATH, "//button[contains(., 'Invite a Friend')]")
-                        btn_invite.click()
-                        time.sleep(2)
-                        clipboard_content = pyperclip.paste()
-                        pattern = r"startapp=(\d+)"
-                        match = re.search(pattern, clipboard_content)
-                        if match:
-                            numeric_id = match.group(1)
-                            print(f"Extracted numeric ID: {numeric_id}")
-                            with open('C://path/to/url_ref.txt', 'w') as file:
-                                file.write(url_ref + str(numeric_id))
-                        else:
-                            print("No match found")
+                            try:
+                                btn_invite = driver2.find_element(By.XPATH, "//button[contains(., 'Invite a Friend')]")
+                                btn_invite.click()
+                                time.sleep(1)
+                                clipboard_content = pyperclip.paste()
+                                pattern = r"startapp=(\d+)"
+                                match = re.search(pattern, clipboard_content)
+                                if match:
+                                    numeric_id = match.group(1)
+                                    print(f"Extracted numeric ID: {numeric_id}")
+                                    with open('C://path/to/url_ref.txt', 'w') as file:
+                                        file.write(url_ref + str(numeric_id))
+                                    time.sleep(1)
+                                else:
+                                    print("No match found")
 
-                    except (NoSuchElementException, TimeoutException) as e:
-                        print(f"Lỗi: {str(e)}")
+                            except (NoSuchElementException, TimeoutException) as e:
+                                print(f"Lỗi: {str(e)}")
 
                 except (NoSuchElementException, TimeoutException) as e:
                     print(f"Xảy ra lỗi")
@@ -734,7 +737,7 @@ class ChromeProfileManager(QMainWindow):
                                         }},3000);
                                     """
                                 try:
-                                    await asyncio.sleep(8)
+                                    await asyncio.sleep(12)
                                     asyncio.create_task(driver3.execute_script(script_otp))
                                 except Exception as e:
                                     print(f"Error executing script: {e}")
