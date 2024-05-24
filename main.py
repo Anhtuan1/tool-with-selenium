@@ -15,7 +15,7 @@ from selenium.webdriver.common.by import By
 import requests
 import json
 import threading
-from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from selenium.common.exceptions import NoSuchElementException, TimeoutException, NoAlertPresentException
 from selenium.webdriver.common.keys import Keys
 
 import pyperclip
@@ -35,7 +35,7 @@ except ModuleNotFoundError:
 accList = {}
 num_thread_running = 0
 futures = []
-url_ref = 'https://web.telegram.org/k/#?tgaddr=tg%3A%2F%2Fresolve%3Fdomain%3Dwaveonsuibot%26startapp%3D'
+url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 class ChromeProfileManager(QMainWindow):
     threads = []
     def __init__(self):
@@ -319,38 +319,44 @@ class ChromeProfileManager(QMainWindow):
                 try:
                     chrome_options.add_argument(f'--user-data-dir={profile_path}')
                     chrome_options.add_argument('--no-experiments')
-                    driver2 = webdriver.Chrome(options=chrome_options)
-                    driver2.get(web)
-                    driver2.execute_script(script_start_button)
-                    # time.sleep(5)
-                    # try:
-                    #     wait3 = WebDriverWait(driver2, 20)
-                    #     start_button3 = wait3.until(EC.presence_of_element_located(
-                    #         (By.CSS_SELECTOR, 'button.chat-input-control-button')))
-                    #     start_button3.click()
-                    # except (NoSuchElementException, TimeoutException):
-                    #     print("Start button not found")
 
-                    time.sleep(5)
+                    driver2 = webdriver.Chrome(options=chrome_options)
+
+                    driver2.get(web)
+                    wait = WebDriverWait(driver2, 30)
                     try:
-                        wait = WebDriverWait(driver2, 30)
-                        play_button = wait.until(EC.presence_of_element_located(
+                        element = wait.until(
+                            EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
+                        )
+                        ref_link = element.get_attribute('href')
+                        driver2.get(ref_link)
+                    except TimeoutException:
+                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+
+                    time.sleep(2)
+                    driver2.execute_script(script_start_button)
+                    time.sleep(8)
+                    try:
+                        play_button = WebDriverWait(driver2, 15).until(EC.presence_of_element_located(
                             (By.CSS_SELECTOR, 'span.bot-menu-text')))
                         play_button.click()
                     except (NoSuchElementException, TimeoutException):
-                        start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
-                        start_button.click()
+                        print('Play button not found')
+                        try:
+                            start_button = WebDriverWait(driver2, 15).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.new-message-bot-commands-view")))
+                            start_button.click()
+                        except (NoSuchElementException, TimeoutException):
+                            print('start button not found')
 
-                    time.sleep(2)
 
                     try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
+                        continue_button = WebDriverWait(driver2, 15).until(EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Launch')]")))
                         continue_button.click()
                     except (NoSuchElementException, TimeoutException):
                         print("Launch not found")
 
                     try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
+                        continue_button = WebDriverWait(driver2, 10).until(EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Confirm')]")))
                         continue_button.click()
                     except (NoSuchElementException, TimeoutException):
                         print("confirm not found")
@@ -359,8 +365,7 @@ class ChromeProfileManager(QMainWindow):
                     iframe = WebDriverWait(driver2, 80).until(
                         EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
                     iframe_url = iframe.get_attribute('src')
-                    driver2.get(iframe_url)
-                    time.sleep(15)
+                    # driver2.get(iframe_url)
                     try:
                         data_path = f"C:/path/to/data_login/{email}"
                         if not os.path.exists(data_path):
@@ -369,6 +374,8 @@ class ChromeProfileManager(QMainWindow):
                             file.write(iframe_url)
                     except Exception as e:
                         print(f"An error occurred: {e}")
+
+                    driver2.switch_to.frame(iframe)
                     driver2.execute_script(script_login)
                     driver2.execute_script(script)
                     time.sleep(40)
@@ -727,7 +734,7 @@ class ChromeProfileManager(QMainWindow):
                                         }},3000);
                                     """
                                 try:
-                                    await asyncio.sleep(12)
+                                    await asyncio.sleep(8)
                                     asyncio.create_task(driver3.execute_script(script_otp))
                                 except Exception as e:
                                     print(f"Error executing script: {e}")
@@ -762,7 +769,7 @@ class ChromeProfileManager(QMainWindow):
                                     """
                                 driver3.execute_script(script_otp)
                         try:
-                            await asyncio.wait_for(client.run_until_disconnected(), timeout=100)
+                            await asyncio.wait_for(client.run_until_disconnected(), timeout=110)
                         except asyncio.TimeoutError:
                             print("Timeout reached. No OTP received.")
                             await client.disconnect()
