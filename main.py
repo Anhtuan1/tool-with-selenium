@@ -36,6 +36,8 @@ accList = {}
 num_thread_running = 0
 futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
+url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
+
 class ChromeProfileManager(QMainWindow):
     threads = []
     def __init__(self):
@@ -122,7 +124,7 @@ class ChromeProfileManager(QMainWindow):
 
         self.input_custom = QTextEdit()
         self.input_custom.setFixedHeight(50)
-        self.input_custom.setText('https://web.telegram.org/a/#6430669852')
+        self.input_custom.setText('https://web.telegram.org/a/')
         self.input_custom.setPlaceholderText('Url custom')
 
         self.all_mining = QPushButton('All start')
@@ -630,7 +632,7 @@ class ChromeProfileManager(QMainWindow):
             self.profile_table.setItem(row_position, 0, QTableWidgetItem(email))
             self.profile_table.setItem(row_position, 1, QTableWidgetItem(value.get('wallet', '')))
             self.profile_table.setItem(row_position, 2, QTableWidgetItem(value.get('key', '')))
-            open_profile_button = QPushButton('Add Session')
+            open_profile_button = QPushButton('Go to profile')
             open_profile_button.clicked.connect(lambda _, email=email: self.open_profile(email))
             self.profile_table.setCellWidget(row_position, 3, open_profile_button)
             data_path = f"C:/path/to/data_login/{email}"
@@ -777,8 +779,6 @@ class ChromeProfileManager(QMainWindow):
             self.open_url_setup_game(email)
 
 
-
-
     def open_profile(self, email):
         # Kiểm tra xem thư mục lưu trữ hồ sơ đã tồn tại
         profile_path = f"C:/path/to/profiles/{email}"
@@ -792,27 +792,77 @@ class ChromeProfileManager(QMainWindow):
             options.add_argument('--no-experiments')
             driver3 = webdriver.Chrome(options=options)
             driver3.get('https://web.telegram.org/k')
+            driver3.execute_script('''
+                        function addQuitButton() {
+                            var existingButton = document.getElementById("quit-button");
+                            if (existingButton) {
+                                return; // If the button already exists, don't add it again
+                            }
 
-            iframe_allow_attr = 'camera; microphone; geolocation;'
+                            var button = document.createElement("button");
+                            button.innerHTML = "Quit";
+                            button.id = "quit-button";
+                            document.body.appendChild(button);
 
-            iframe = WebDriverWait(driver3, 500).until(
-                EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-            iframe_url = iframe.get_attribute('src')
-            print("Src attribute of the iframe:", iframe_url)
-            try:
-                data_path = f"C:/path/to/data_login/{email}"
-                if not os.path.exists(data_path):
-                    os.makedirs(data_path)
-                with open(data_path + '/url.txt', 'w') as file:
-                    file.write(iframe_url)
-            except Exception as e:
-                print(f"An error occurred: {e}")
+                            // Apply CSS styles to the button
+                            var css = `
+                                #quit-button {
+                                    position: fixed;
+                                    top: 10px;
+                                    right: 10px;
+                                    padding: 15px 30px;
+                                    font-size: 20px;
+                                    background-color: rgba(255, 77, 77, 0.2); /* Red background with 0.2 opacity */
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                    z-index: 1000; /* Ensure it stays on top */
+                                }
 
-            WebDriverWait(driver3, 800).until(EC.presence_of_element_located((By.ID, 'facebook')))
+                                #quit-button:hover {
+                                    background-color: rgba(255, 26, 26, 0.4); /* Darker red on hover with higher opacity */
+                                }
+                            `;
+                            var style = document.createElement('style');
+                            style.appendChild(document.createTextNode(css));
+                            document.head.appendChild(style);
+
+                            button.addEventListener("click", function() {
+                                var facebookDiv = document.createElement("div");
+                                facebookDiv.id = "facebook";
+                                document.body.appendChild(facebookDiv);
+                                window.close();
+                            });
+                        }
+
+
+                        // Add the button immediately
+                        addQuitButton();
+                    ''')
+
+            WebDriverWait(driver3, 3000).until(EC.presence_of_element_located((By.ID, 'facebook')))
+            # iframe_allow_attr = 'camera; microphone; geolocation;'
+            #
+            # iframe = WebDriverWait(driver3, 500).until(
+            #     EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
+            # iframe_url = iframe.get_attribute('src')
+            # print("Src attribute of the iframe:", iframe_url)
+            # try:
+            #     data_path = f"C:/path/to/data_login/{email}"
+            #     if not os.path.exists(data_path):
+            #         os.makedirs(data_path)
+            #     with open(data_path + '/url.txt', 'w') as file:
+            #         file.write(iframe_url)
+            # except Exception as e:
+            #     print(f"An error occurred: {e}")
+
+
             return driver3
 
         except TimeoutException:
             print('Error')
+            driver3.quit()
         finally:
             driver3.quit()
 
