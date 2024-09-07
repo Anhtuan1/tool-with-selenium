@@ -35,7 +35,8 @@ num_thread_running = 0
 futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
-URL_LIST = 'https://t.me/blum/app?startapp=ref_x2QGrP78j3'
+URL_LIST = 'https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/catsgang_bot/join?startapp=9xaZ15mPrkB6wQaz3DKqH'
+
 CHROME_SIZE = {
     "width": 414,  # user agent
     "height": 736,  # user agent
@@ -437,7 +438,39 @@ class ChromeProfileManager(QMainWindow):
         driver2 = None
         global accList
         key = accList[email]["key"]
+        SCRIPT_GAME_CAT = """
+                (async function () {
+                    await start();
+                })();
 
+                async function start() {
+                	console.log('- start');
+                	return new Promise(resolve => {
+                		setTimeout(async () => {
+                            await clickByLabel(document.querySelectorAll('button'), "Wow, let’s go!", 7000);
+
+                            setTimeout(() => {
+                                resolve();
+                            }, 2000);
+                		}, 2000);
+                	});
+                }
+
+                async function waitClick(btn, time = 1000) {
+                	if (btn) btn.click();
+                	return new Promise(resolve => setTimeout(resolve, time));
+                }
+                async function clickByLabel(btnList, label, time = 1000) {
+                	if (btnList.length && label) {
+                		for (let btnItem of btnList) {
+                			if(btnItem.textContent.includes(label)){
+                				btnItem.click();
+                			}
+                		}
+                	}
+                	return new Promise(resolve => setTimeout(resolve, time));
+                }
+                        """
         SCRIPT_GAME_BLUM = """
         (async function () {
             await start();
@@ -653,6 +686,80 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
+        if 'https://t.me/catsgang_bot' in web:
+            try:
+                chrome_options.add_argument(f'--user-data-dir={profile_path}')
+                chrome_options.add_argument('--no-experiments')
+                # Add the mobile emulation to the chrome options variable
+                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+                chrome_options.add_argument(f"window-size=414,736")
+
+                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
+                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
+                driver2 = webdriver.Chrome(options=chrome_options)
+                if web is not None:
+                    driver2.get(web)
+                    time.sleep(5)
+
+                try:
+                    wait = WebDriverWait(driver2, 30)
+                    try:
+                        element = wait.until(
+                            EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
+                        )
+                        ref_link = element.get_attribute('href')
+                        driver2.get(ref_link)
+                    except TimeoutException:
+                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                    time.sleep(5)
+
+                    try:
+                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
+                        continue_button.click()
+                    except (NoSuchElementException, TimeoutException):
+                        print("Launch not found")
+                    time.sleep(5)
+
+                    try:
+                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
+                        continue_button.click()
+                    except (NoSuchElementException, TimeoutException):
+                        print("confirm not found")
+                    time.sleep(5)
+
+                    iframe_allow_attr = 'camera; microphone; geolocation;'
+                    iframe = WebDriverWait(driver2, 50).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
+                    # get iframe url
+                    iframe_url = iframe.get_attribute('src')
+                    iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace(
+                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
+                    print("Src attribute of the iframe:", iframe_url)
+                    try:
+                        data_path = f"{self.folder_path}/data_login_cats/{email}"
+                        if not os.path.exists(data_path):
+                            os.makedirs(data_path)
+                        with open(data_path + '/url.txt', 'w') as file:
+                            file.write(iframe_url)
+                            print("->iframe url update:", data_path + '/url.txt')
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
+
+                    driver2.switch_to.frame(iframe)
+                    print("- SCRIPT GAME CONTROL")
+                    # driver2.execute_script(script_login)
+                    driver2.execute_script(SCRIPT_GAME_CAT)
+                    time.sleep(15)
+
+                    driver2.switch_to.default_content()
+                except (NoSuchElementException, TimeoutException):
+                    print(f"Lỗi: {str(e)}")
+            except (NoSuchElementException, TimeoutException) as e:
+                print(f"Xảy ra lỗi")
+            finally:
+                if driver2 is not None:
+                    print('Quit')
+                    driver2.quit()
 
     def stop_event(self):
         # Event to indicate whether the threads should continue running
@@ -691,11 +798,13 @@ class ChromeProfileManager(QMainWindow):
         self.all_acction()
 
     def open_url(self, email, event):
-        web = self.input_custom.toPlainText()
+        webStr = self.input_custom.toPlainText()
+        webList = webStr.split(" ")
         profile_path = f"{self.folder_path}/profiles/{email}"
-        if os.path.exists(profile_path):
-            # event.wait()
-            self.open_url_in_thread(profile_path, web, email)
+        for web in webList:
+            if os.path.exists(profile_path):
+                # event.wait()
+                self.open_url_in_thread(profile_path, web, email)
 
     def open_url_login(self, email, event):
         web = self.input_custom.toPlainText()
