@@ -35,7 +35,7 @@ num_thread_running = 0
 futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
-URL_LIST = 'https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/catsgang_bot/join?startapp=9xaZ15mPrkB6wQaz3DKqH'
+URL_LIST = 'https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3'
 
 CHROME_SIZE = {
     "width": 414,  # user agent
@@ -577,7 +577,7 @@ class ChromeProfileManager(QMainWindow):
                     await clickByLabel(document.querySelectorAll('button'), "Create account", 2000);
                     await clickByLabel(document.querySelectorAll('button'), "Continue");
                     await clickByLabel(document.querySelectorAll('button'), "Start farming");
-
+                    await clickByLabel(document.querySelectorAll('.button-label'), "Claim", 3000);
                     setTimeout(() => {
                         resolve();
                     }, 2000);
@@ -657,7 +657,6 @@ class ChromeProfileManager(QMainWindow):
             """
         print('web', web)
         print('profile_path', profile_path)
-        print('web', web == 'https://t.me/blum/app?startapp=ref_x2QGrP78j3')
         if web == 'https://web.telegram.org/k/#@dogshouse_bot':
             try:
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
@@ -769,8 +768,8 @@ class ChromeProfileManager(QMainWindow):
                     print("- SCRIPT GAME CONTROL")
                     # driver2.execute_script(script_login)
                     driver2.execute_script(SCRIPT_GAME_BLUM)
-                    time.sleep(20)
-
+                    time.sleep(30)
+                    print("- Done")
                     driver2.switch_to.default_content()
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
