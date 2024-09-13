@@ -35,7 +35,7 @@ num_thread_running = 0
 futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
-URL_LIST = 'https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3'
+URL_LIST = 'https://t.me/hamster_kombat_boT/start?startapp=kentId1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/bwcwukong_bot/Play?startapp=1641277785'
 
 CHROME_SIZE = {
     "width": 414,  # user agent
@@ -438,6 +438,112 @@ class ChromeProfileManager(QMainWindow):
         driver2 = None
         global accList
         key = accList[email]["key"]
+
+        SCRIPT_GAME_HAMTER = """
+        (async function () {
+            setInterval(() => {
+                if(document.querySelector('.slider-onb-next')){
+                    document.querySelector('.slider-onb-next').click()
+                }
+                if(document.querySelector('.slider-onb-button button')){
+                    document.querySelector('.slider-onb-button button').click()
+                }
+                if(document.querySelector('.user-tap-button-circle')){
+                    document.querySelector('.user-tap-button-circle').click()
+                }
+                if(document.querySelector('.daily-reward-bottom-button')){
+                    document.querySelector('.daily-reward-bottom-button').click()
+                }
+            }, 1000)
+            await start();
+        })();
+
+        async function start() {
+        	console.log('- start');
+        	return new Promise(resolve => {
+        		setTimeout(async () => {
+
+                    await waitClick(document.querySelector('.achievements-show .bottom-sheet-close'), "Play", 1000, true);
+                    await clickByLabel(document.querySelectorAll('.slider-onb-next'), "Next", 1000, true);
+                    await clickByLabel(document.querySelectorAll('.slider-onb-next'), "Next", 1000, true);
+                    await clickByLabel(document.querySelectorAll('.slider-onb-next'), "Next", 1000, true);
+                    await clickByLabel(document.querySelectorAll('.slider-onb-next'), "Next", 1000, true);
+                    await clickByLabel(document.querySelectorAll('button'), "Play", 2000, true);
+
+        			//touch click button
+        			await simulateMouseTouch(document.querySelector('button.user-tap-button'), 2000);
+
+                    resolve();
+        		}, 1000);
+        	});
+        }
+
+
+        async function checkExistElm(elmList, label, time = 0) {
+        	let result = false;
+        	if (elmList.length && label) {
+        		for (let btnItem of elmList) {
+        			if(btnItem.textContent.includes(label)){
+                        console.log('--- elm exist', btnItem);
+                        result = true;
+        				break;
+        			}
+        		}
+        	}
+        	return new Promise(resolve => setTimeout(resolve(result), time));
+        }
+
+        async function simulateMouseClick(el) {
+          let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
+          el.dispatchEvent(new MouseEvent("mousedown", opts));
+          await new Promise(r => setTimeout(r, 50));
+          el.dispatchEvent(new MouseEvent("mouseup", opts));
+          el.dispatchEvent(new MouseEvent("click", opts));
+        }
+
+        async function simulateMouseTouch(el, time = 0) {
+        	const evt1 = new PointerEvent('pointerdown', {clientX: 150, clientY: 300});
+        	const evt2 = new PointerEvent('pointerup', {clientX: 150, clientY: 300});
+
+        	el.dispatchEvent(evt1);
+        	el.dispatchEvent(evt2);
+
+            return new Promise(resolve => setTimeout(resolve, time));
+        }
+
+
+        //For React ≥ 15.6.1
+        async function simulateMouseInput(el, value) {
+            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+              window.HTMLInputElement.prototype,
+              'value').set;
+            nativeInputValueSetter.call(el, value);
+            const event = new Event('input', { bubbles: true });
+            el.dispatchEvent(event);
+        }
+
+        async function waitClick(btn, time = 1000) {
+        	if (btn) {
+                console.log(btn);
+                await simulateMouseClick(btn);
+            }
+        	return new Promise(resolve => setTimeout(resolve, time));
+        }
+        async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
+        	if (btn_list.length && label) {
+                for await (const btnItem of btn_list) {
+                    //console.log('--', btnItem.textContent, btnItem);
+                    if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
+                        console.log('->', btnItem.textContent, btnItem);
+                        await simulateMouseClick(btnItem);
+                        break;
+        			}
+                }
+        	}
+        	return new Promise(resolve => setTimeout(resolve, time));
+        }
+                """
+
         SCRIPT_GAME_WUKONG = """
         (async function () {
             await start();
@@ -928,6 +1034,98 @@ class ChromeProfileManager(QMainWindow):
                 if driver2 is not None:
                     print('Quit')
                     driver2.quit()
+
+        if web == 'https://t.me/hamster_kombat_boT/start?startapp=kentId1641277785' or 'https://t.me/hamster_kombat_boT':
+            try:
+                chrome_options.add_argument(f'--user-data-dir={profile_path}')
+                chrome_options.add_argument('--no-experiments')
+                # Add the mobile emulation to the chrome options variable
+                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+                chrome_options.add_argument(f"window-size=400,884")
+
+                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
+                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
+                driver2 = webdriver.Chrome(options=chrome_options)
+                if web is not None:
+                    driver2.get(web)
+                    time.sleep(5)
+
+                try:
+                    wait = WebDriverWait(driver2, 30)
+                    try:
+                        element = wait.until(
+                            EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
+                        )
+
+                        ref_link = element.get_attribute('href')
+                        ref_link = ref_link.replace('https://web.telegram.org/a/', 'https://web.telegram.org/k/')
+                        driver2.get(ref_link)
+                    except TimeoutException:
+                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                        driver2.quit()
+                    time.sleep(5)
+
+                    try:
+                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
+                        continue_button.click()
+                    except (NoSuchElementException, TimeoutException):
+                        print("Launch not found")
+                    time.sleep(5)
+
+                    try:
+                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
+                        continue_button.click()
+                    except (NoSuchElementException, TimeoutException):
+                        print("confirm not found")
+                    time.sleep(5)
+
+                    iframe_allow_attr = 'camera; microphone; geolocation;'
+                    iframe = WebDriverWait(driver2, 50).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
+                    # get iframe url
+                    iframe_url = iframe.get_attribute('src')
+                    iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace(
+                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
+                    driver2.get(iframe_url)
+                    try:
+                        data_path = f"{self.folder_path}/data_login_hamter/{email}"
+                        if not os.path.exists(data_path):
+                            os.makedirs(data_path)
+                        with open(data_path + '/url.txt', 'w') as file:
+                            file.write(iframe_url)
+                            print("->iframe url update:", data_path + '/url.txt')
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
+
+                    print("- SCRIPT GAME CONTROL")
+                    driver2.execute_script(SCRIPT_GAME_HAMTER)
+                    time.sleep(30)
+                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 90)
+                except (NoSuchElementException, TimeoutException):
+                    print(f"Lỗi: {str(e)}")
+            except (NoSuchElementException, TimeoutException) as e:
+                print(f"Xảy ra lỗi")
+            finally:
+                if driver2 is not None:
+                    print('Quit')
+                    driver2.quit()
+
+    def run_script_from_file(self, driver, file_path, run_time):
+        try:
+            print(f"Start run script from file: {file_path}")
+            if os.path.exists(file_path):
+                with open(file_path, 'r', encoding="utf8") as file:
+                    print(f"opened file")
+                    script_auto_tap = file.read()
+                    driver.execute_script(script_auto_tap)
+                    time.sleep(run_time)
+
+                    file.close()
+            else:
+                print(f"Not exist script file: {file_path}")
+        except Exception as e:
+            print(f"Run script from file error: {e}")
+
     def stop_event(self):
         # Event to indicate whether the threads should continue running
         stop_event = threading.Event()
@@ -938,6 +1136,7 @@ class ChromeProfileManager(QMainWindow):
 
         # Wait for the worker thread to finish
         print("Worker thread stopped")
+
 
 
     def all_acction(self):
