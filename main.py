@@ -448,8 +448,8 @@ class ChromeProfileManager(QMainWindow):
                 if(document.querySelector('.slider-onb-button button')){
                     document.querySelector('.slider-onb-button button').click()
                 }
-                if(document.querySelector('.user-tap-button-circle')){
-                    document.querySelector('.user-tap-button-circle').click()
+                if(document.querySelector('.user-tap-button')){
+                    document.querySelector('.user-tap-button').click()
                 }
                 if(document.querySelector('.daily-reward-bottom-button')){
                     document.querySelector('.daily-reward-bottom-button').click()
@@ -817,7 +817,7 @@ class ChromeProfileManager(QMainWindow):
                 chrome_options.add_argument('--no-experiments')
                 # Add the mobile emulation to the chrome options variable
                 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size=414,736")
+                chrome_options.add_argument(f"window-size=400,886")
 
                 CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
                 chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
@@ -985,6 +985,7 @@ class ChromeProfileManager(QMainWindow):
                         driver2.get(ref_link)
                     except TimeoutException:
                         print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                        driver2.quit()
                     time.sleep(5)
 
                     try:
@@ -1099,8 +1100,8 @@ class ChromeProfileManager(QMainWindow):
 
                     print("- SCRIPT GAME CONTROL")
                     driver2.execute_script(SCRIPT_GAME_HAMTER)
-                    time.sleep(30)
-                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 90)
+                    time.sleep(20)
+                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 60)
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
             except (NoSuchElementException, TimeoutException) as e:
