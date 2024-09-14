@@ -452,7 +452,10 @@ class ChromeProfileManager(QMainWindow):
                     document.querySelector('.user-tap-button').click()
                 }
                 if(document.querySelector('.daily-reward-bottom-button')){
-                    document.querySelector('.daily-reward-bottom-button').click()
+                    document.querySelector('.daily-reward-bottom-button button').click()
+                }
+                if(document.querySelector('.bottom-sheet-button ')){
+                    document.querySelector('.bottom-sheet-button ').click()
                 }
             }, 1000)
             await start();
