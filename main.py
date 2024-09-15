@@ -1103,8 +1103,8 @@ class ChromeProfileManager(QMainWindow):
 
                     print("- SCRIPT GAME CONTROL")
                     driver2.execute_script(SCRIPT_GAME_HAMTER)
-                    time.sleep(20)
-                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 60)
+                    time.sleep(25)
+                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 100)
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
             except (NoSuchElementException, TimeoutException) as e:
