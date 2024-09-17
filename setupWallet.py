@@ -1,4 +1,3 @@
-
 import time
 import os
 import sys
@@ -6,7 +5,8 @@ import asyncio
 import subprocess
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from qasync import QEventLoop
-from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QFileDialog
+from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, \
+    QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QFileDialog
 import qasync
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -22,6 +22,7 @@ import pyperclip
 import re
 
 from tkinter import Tk, Button, filedialog
+
 try:
     from telethon.sync import TelegramClient, events
     from telethon.sessions import StringSession
@@ -35,8 +36,7 @@ num_thread_running = 0
 futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
-URL_LIST = 'https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/hamster_kombat_boT/start?startapp=kentId1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3'
-# https://t.me/bwcwukong_bot/Play?startapp=1641277785
+URL_LIST = 'https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot'
 
 CHROME_SIZE = {
     "width": 414,  # user agent
@@ -52,8 +52,10 @@ mobile_emulation = {
     "userAgent": "Mozilla/5.0 (iPhone; CPU iPhone OS 13_2_3 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/13.0.3 Mobile/15E148 Safari/604.1"
 }
 
+
 class ChromeProfileManager(QMainWindow):
     threads = []
+
     def __init__(self, folder_path):
         super().__init__()
         self.folder_path = folder_path
@@ -112,13 +114,11 @@ class ChromeProfileManager(QMainWindow):
         self.setRefBtn.clicked.connect(self.setRef)
         self.input_layout.addWidget(self.setRefBtn)
 
-
-
-
         # Cột phải - Hiển thị thông tin profile
         self.profile_table = QTableWidget()
         self.profile_table.setColumnCount(7)
-        self.profile_table.setHorizontalHeaderLabels(['ID', 'Wallet', 'Key', 'Action', 'Login', 'Auto Login Telegram', 'Create game'])
+        self.profile_table.setHorizontalHeaderLabels(
+            ['ID', 'Wallet', 'Key', 'Action', 'Login', 'Auto Login Telegram', 'Create game'])
 
         self.right_layout = QVBoxLayout()
         self.right_layout.addWidget(QLabel('Thông tin profile:'))
@@ -181,7 +181,7 @@ class ChromeProfileManager(QMainWindow):
         driver2 = None
         for index in range(len(accList_items)):
             key, value = accList_items[index]
-            if(index == 0):
+            if (index == 0):
                 key1, value1 = accList_items[-1]
                 address = value1['wallet']
             else:
@@ -198,7 +198,7 @@ class ChromeProfileManager(QMainWindow):
                        document.querySelector("#section-bind-inviter input").value = key;
                        setTimeout(() => {{
                            document.querySelector("#section-bind-inviter button").click()
-                          
+
                        }}, 1000);
                    }}
                }}, 3000);
@@ -231,6 +231,7 @@ class ChromeProfileManager(QMainWindow):
         if otp:
             print("OTP received ✅\nYour login code:", otp.group(0))
             await event.client.disconnect()
+
     def on_login_with_session_clicked(self):
         print('Task login')
         asyncio.ensure_future(self.on_login_with_session())
@@ -248,7 +249,6 @@ class ChromeProfileManager(QMainWindow):
                 self.open_url_setup_game(email)
 
         self.all_acction()
-
 
     def open_url_setup_game(self, email):
         # def run_thread():
@@ -308,7 +308,7 @@ class ChromeProfileManager(QMainWindow):
                                             }
                                         },3000)
                                     },1000)
-    
+
                                 }
                                 if(level == '1 /hours' && is_running < 2.5 && wave_balance >= 20){
                                     document.querySelector(".menu-block .menu_2  .block-btn button").click();
@@ -347,7 +347,8 @@ class ChromeProfileManager(QMainWindow):
                         ref_link = element.get_attribute('href')
                         driver2.get(ref_link)
                     except TimeoutException:
-                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                        print(
+                            "Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
 
                     time.sleep(2)
                     driver2.execute_script(script_start_button)
@@ -359,20 +360,22 @@ class ChromeProfileManager(QMainWindow):
                     except (NoSuchElementException, TimeoutException):
                         print('Play button not found')
                         try:
-                            start_button = WebDriverWait(driver2, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, "div.new-message-bot-commands-view")))
+                            start_button = WebDriverWait(driver2, 10).until(
+                                EC.presence_of_element_located((By.CSS_SELECTOR, "div.new-message-bot-commands-view")))
                             start_button.click()
                         except (NoSuchElementException, TimeoutException):
                             print('start button not found')
 
-
                     try:
-                        continue_button = WebDriverWait(driver2, 15).until(EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Launch')]")))
+                        continue_button = WebDriverWait(driver2, 15).until(
+                            EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Launch')]")))
                         continue_button.click()
                     except (NoSuchElementException, TimeoutException):
                         print("Launch not found")
 
                     try:
-                        continue_button = WebDriverWait(driver2, 10).until(EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Confirm')]")))
+                        continue_button = WebDriverWait(driver2, 10).until(
+                            EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Confirm')]")))
                         continue_button.click()
                     except (NoSuchElementException, TimeoutException):
                         print("confirm not found")
@@ -1162,269 +1165,6 @@ class ChromeProfileManager(QMainWindow):
         }
                 """
 
-        SCRIPT_GAME_START = """
-        (async function () {
-            await start();
-        })();
-
-        async function start() {
-            console.log('- start');
-            return new Promise(resolve => {
-                setTimeout(async () => {
-
-                    await waitClick(document.querySelector('.new-message-bot-commands-view'));
-
-                    setTimeout(() => {
-                        resolve();
-                    }, 2000);
-                }, 2000);
-            });
-        }
-
-        async function simulateMouseClick(el) {
-          let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
-          el.dispatchEvent(new MouseEvent("mousedown", opts));
-          await new Promise(r => setTimeout(r, 50));
-          el.dispatchEvent(new MouseEvent("mouseup", opts));
-          el.dispatchEvent(new MouseEvent("click", opts));
-        }
-
-        async function waitClick(btn, time = 1000) {
-        	if (btn) await simulateMouseClick(btn);
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-        """
-
-        SCRIPT_IFRAME_BYPASS_MOBILE = """
-        let iframe = document.querySelector('iframe.payment-verification');
-        if(iframe) {
-            let src = iframe.getAttribute('src');
-            src = src.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-            console.log('new src:', src);
-            iframe.setAttribute('src', src);
-        }
-        """
-
-        SCRIPT_GAME_CONTROL = """
-        (async function () {
-            await startGame();
-        })();
-
-        async function startGame() {
-        	console.log('- startGame');
-        	return new Promise(resolve => {
-        		setTimeout(async () => {
-                    await clickByLabel(document.querySelectorAll('button'), "Thank you,", 2000);
-                    await clickByLabel(document.querySelectorAll('a'), "AirDrop", 1000, true);
-                    await clickByLabel(document.querySelectorAll('div'), "On-chain airdrop", 1000, true);
-                    await clickByLabel(document.querySelectorAll('button'), "Connect wallet", 3000,true);
-                    await clickByLabel(document.querySelectorAll('button'), "Open Wallet in Telegram");
-
-                    resolve();
-        		}, 2000);
-        	});
-        }
-
-
-        async function checkExistElm(elmList, label, time = 0) {
-        	let result = false;
-        	if (elmList.length && label) {
-        		for (let btnItem of elmList) {
-        			if(btnItem.textContent.includes(label)){
-                        console.log('--- elm exist', btnItem);
-                        result = true;
-        				break;
-        			}
-        		}
-        	}
-        	return new Promise(resolve => setTimeout(resolve(result), time));
-        }
-
-        async function simulateMouseClick(el) {
-          let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
-          el.dispatchEvent(new MouseEvent("mousedown", opts));
-          await new Promise(r => setTimeout(r, 50));
-          el.dispatchEvent(new MouseEvent("mouseup", opts));
-          el.dispatchEvent(new MouseEvent("click", opts));
-        }
-
-        //For React ≥ 15.6.1
-        async function simulateMouseInput(el, value) {
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-              window.HTMLInputElement.prototype,
-              'value').set;
-            nativeInputValueSetter.call(el, value);
-            const event = new Event('input', { bubbles: true });
-            el.dispatchEvent(event);
-        }
-
-        async function waitClick(btn, time = 1000) {
-        	if (btn) await simulateMouseClick(btn);
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-        async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
-        	if (btn_list.length && label) {
-                for await (const btnItem of btn_list) {
-                    //console.log('--', btnItem.textContent, btnItem);
-                    if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
-                        //console.log('->', btnItem.textContent, btnItem);
-                        await simulateMouseClick(btnItem);
-                        break;
-        			}
-                }
-        	}
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-                """
-
-        SCRIPT_WALLET_CONTROL = """
-        (async function () {
-            await startConnect();
-        })();
-
-        async function startConnect() {
-        	console.log('- start connect');
-        	return new Promise(resolve => {
-        		setTimeout(async () => {
-                    await clickByLabel(document.querySelectorAll('button'), "Connect Wallet", 5000);
-                    await clickByLabel(document.querySelectorAll('button'), "Back to Hamster Kombat");
-
-                    //click button "Back to Hamster Kombat" is not work: fixed by below code
-                    let iframeList = document.querySelectorAll('div.popup-payment-verification');
-                    console.log('- iframeList length:', iframeList.length);
-                    if(iframeList.length >= 2) {
-                        //iframe connect
-                        iframeList[1].classList.add('hide');
-                    }
-                    if(iframeList.length >= 3) {
-                        //iframe back to game
-                        iframeList[2].classList.add('hide');
-                    }
-                    resolve();
-        		}, 2000);
-        	});
-        }
-
-
-        async function checkExistElm(elmList, label, time = 0) {
-        	let result = false;
-        	if (elmList.length && label) {
-        		for (let btnItem of elmList) {
-        			if(btnItem.textContent.includes(label)){
-                        console.log('--- elm exist', btnItem);
-                        result = true;
-        				break;
-        			}
-        		}
-        	}
-        	return new Promise(resolve => setTimeout(resolve(result), time));
-        }
-
-        async function simulateMouseClick(el) {
-          let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
-          el.dispatchEvent(new MouseEvent("mousedown", opts));
-          await new Promise(r => setTimeout(r, 50));
-          el.dispatchEvent(new MouseEvent("mouseup", opts));
-          el.dispatchEvent(new MouseEvent("click", opts));
-        }
-
-        //For React ≥ 15.6.1
-        async function simulateMouseInput(el, value) {
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-              window.HTMLInputElement.prototype,
-              'value').set;
-            nativeInputValueSetter.call(el, value);
-            const event = new Event('input', { bubbles: true });
-            el.dispatchEvent(event);
-        }
-
-        async function waitClick(btn, time = 1000) {
-        	if (btn) await simulateMouseClick(btn);
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-        async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
-        	if (btn_list.length && label) {
-                for await (const btnItem of btn_list) {
-                    //console.log('--', btnItem.textContent, btnItem);
-                    if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
-                        console.log('->', btnItem.textContent, btnItem);
-                        await simulateMouseClick(btnItem);
-                        // break;
-        			}
-                }
-        	}
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-                """
-
-        SCRIPT_GAME_SET_WALLET_DEFAULT = """
-        (async function () {
-            await setDefaultWallet();
-        })();
-
-        async function setDefaultWallet() {
-        	console.log('- start setDefaultWallet');
-        	return new Promise(resolve => {
-        		setTimeout(async () => {
-                    await clickByLabel(document.querySelectorAll('button'), "Set as default withdrawal option", 3000, true);
-                    await clickByLabel(document.querySelectorAll('button'), "Thanks!");
-                    resolve();
-        		}, 2000);
-        	});
-        }
-
-
-        async function checkExistElm(elmList, label, time = 0) {
-        	let result = false;
-        	if (elmList.length && label) {
-        		for (let btnItem of elmList) {
-        			if(btnItem.textContent.includes(label)){
-                        console.log('--- elm exist', btnItem);
-                        result = true;
-        				break;
-        			}
-        		}
-        	}
-        	return new Promise(resolve => setTimeout(resolve(result), time));
-        }
-
-        async function simulateMouseClick(el) {
-          let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
-          el.dispatchEvent(new MouseEvent("mousedown", opts));
-          await new Promise(r => setTimeout(r, 50));
-          el.dispatchEvent(new MouseEvent("mouseup", opts));
-          el.dispatchEvent(new MouseEvent("click", opts));
-        }
-
-        //For React ≥ 15.6.1
-        async function simulateMouseInput(el, value) {
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-              window.HTMLInputElement.prototype,
-              'value').set;
-            nativeInputValueSetter.call(el, value);
-            const event = new Event('input', { bubbles: true });
-            el.dispatchEvent(event);
-        }
-
-        async function waitClick(btn, time = 1000) {
-        	if (btn) await simulateMouseClick(btn);
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-        async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
-        	if (btn_list.length && label) {
-                for await (const btnItem of btn_list) {
-                    //console.log('--', btnItem.textContent, btnItem);
-                    if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
-                        console.log('->', btnItem.textContent, btnItem);
-                        await simulateMouseClick(btnItem);
-                        break;
-        			}
-                }
-        	}
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-                """
-
         script_popup = f"""
             setInterval(() => {{
                 if(document.querySelector('.popup-confirmation .checkbox-ripple')) {{
@@ -1443,43 +1183,42 @@ class ChromeProfileManager(QMainWindow):
 
         script_click = f"""
             var key = '{key}';
-            
-            
+
+
             setInterval(() => {{
                 console.log('Click Claim');
                 if (document.querySelector("#root ._buttons_1x2ee_142 ._type-white_xn5bt_54")) {{
                     document.querySelector("#root ._buttons_1x2ee_142 ._type-white_xn5bt_54").click()
                 }}
             }},5000)
-            
-           
-            
+
+
+
             setInterval(() => {{
                 if (document.querySelector("#root ._fixedBottom_xn5bt_133")) {{
                     var textCheck = document.querySelector("#root ._fixedBottom_xn5bt_133").textContent;
                     document.querySelector("#root ._fixedBottom_xn5bt_133").click()
                 }}
             }},3000)
-            
+
             setInterval(() => {{
                 if (document.querySelector("#root ._type-white_xn5bt_54")) {{
                     var textCheck = document.querySelector("#root ._type-white_xn5bt_54").textContent;
                     document.querySelector("#root ._type-white_xn5bt_54").click()
                 }}
             }},4000)
-            
-            
-            
+
+
+
             setTimeout(() => {{
                 console.log('Click tele wallet');
                 if(document.querySelectorAll("#tc-widget-root button")){{
                     document.querySelectorAll("#tc-widget-root button")[2].click();
                 }}
-               
-            }}, 13000);
-            
-            """
 
+            }}, 13000);
+
+            """
         print('web', web)
         print('profile_path', profile_path)
         if web == 'https://web.telegram.org/k/#@dogshouse_bot':
@@ -1556,7 +1295,8 @@ class ChromeProfileManager(QMainWindow):
                         ref_link = element.get_attribute('href')
                         driver2.get(ref_link)
                     except TimeoutException:
-                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                        print(
+                            "Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
                     time.sleep(5)
 
                     try:
@@ -1632,7 +1372,8 @@ class ChromeProfileManager(QMainWindow):
                         ref_link = element.get_attribute('href')
                         driver2.get(ref_link)
                     except TimeoutException:
-                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                        print(
+                            "Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
                     time.sleep(5)
 
                     try:
@@ -1707,7 +1448,8 @@ class ChromeProfileManager(QMainWindow):
                         ref_link = element.get_attribute('href')
                         driver2.get(ref_link)
                     except TimeoutException:
-                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                        print(
+                            "Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
                         driver2.quit()
                     time.sleep(5)
 
@@ -1759,7 +1501,7 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
-        if web == 'https://t.me/hamster_kombat_boT/start?startapp=kentId1641277785' or 'https://t.me/hamster_kombat_boT/start' in web:
+        if web == 'https://t.me/hamster_kombat_boT/start?startapp=kentId1641277785' or 'https://t.me/hamster_kombat_boT' in web:
             print('Running Hamter')
             try:
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
@@ -1786,7 +1528,8 @@ class ChromeProfileManager(QMainWindow):
                         ref_link = ref_link.replace('https://web.telegram.org/a/', 'https://web.telegram.org/k/')
                         driver2.get(ref_link)
                     except TimeoutException:
-                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                        print(
+                            "Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
                         driver2.quit()
                     time.sleep(5)
 
@@ -1824,8 +1567,8 @@ class ChromeProfileManager(QMainWindow):
 
                     print("- SCRIPT GAME CONTROL")
                     driver2.execute_script(SCRIPT_GAME_HAMTER)
-                    time.sleep(15)
-                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 80)
+                    time.sleep(25)
+                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 100)
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
             except (NoSuchElementException, TimeoutException) as e:
@@ -1853,18 +1596,17 @@ class ChromeProfileManager(QMainWindow):
                     driver2.execute_script(SCRIPT_TELE_CONTROL_START1)
                     time.sleep(15)
 
-
                     iframe_allow_attr = 'camera; microphone; geolocation;'
                     iframe = WebDriverWait(driver2, 50).until(
                         EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
                     # get iframe url
                     driver2.switch_to.frame(iframe)
                     driver2.execute_script(SCRIPT_WALLET_INIT1)
-                    time.sleep(10)
+                    time.sleep(5)
                     print("- SCRIPT open setting page from telegram")
                     driver2.switch_to.default_content()
                     driver2.execute_script(SCRIPT_TELE_CONTROL_START2)
-                    time.sleep(10)
+                    time.sleep(5)
 
                     # run iframe script
                     print("- SCRIPT enable TON space + go to phrase page")
@@ -1948,93 +1690,6 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
-        if web == 'https://web.telegram.org/k/#@hamster_kombat_bot':
-            try:
-                chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                # Add the mobile emulation to the chrome options variable
-                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size=400,884")
-                driver2 = webdriver.Chrome(options=chrome_options)
-
-                if web is not None:
-                    driver2.get(web)
-                time.sleep(5)
-
-                try:
-                    print("- SCRIPT GAME START")
-                    driver2.execute_script(SCRIPT_GAME_START)
-                    time.sleep(10)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Launch not found")
-                    time.sleep(5)
-
-                    try:
-                        # continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
-                        continue_button = driver2.find_element(By.CSS_SELECTOR, ".confirm-dialog-button")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("confirm not found")
-                    time.sleep(5)
-
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 50).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-
-                    # get iframe url
-                    iframe_url = iframe.get_attribute('src')
-                    iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace(
-                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    print("Src attribute of the iframe:", iframe_url)
-                    try:
-                        data_path = f"{self.folder_path}/hamter_combat/{email}"
-                        if not os.path.exists(data_path):
-                            os.makedirs(data_path)
-                        with open(data_path + '/url.txt', 'w') as file:
-                            file.write(iframe_url)
-                            print("->iframe url update:", data_path + '/url.txt')
-                    except Exception as e:
-                        print(f"An error occurred: {e}")
-
-                    # run in top page
-                    print("- SCRIPT IFRAME BYPASS MOBILE")
-                    driver2.execute_script(SCRIPT_IFRAME_BYPASS_MOBILE)
-                    time.sleep(8)
-
-                    driver2.switch_to.frame(iframe)
-                    print("- SCRIPT GAME CONTROL")
-                    driver2.execute_script(SCRIPT_GAME_CONTROL)
-                    time.sleep(8)
-                    time.sleep(10)
-
-                    print("- SCRIPT WALLET CONTROL")
-                    driver2.switch_to.default_content()
-                    driver2.execute_script(SCRIPT_WALLET_CONTROL)
-                    time.sleep(10)
-
-                    # run browser script
-                    driver2.switch_to.frame(iframe)
-                    print("- SCRIPT GAME SET WALLET DEFAULT")
-                    driver2.execute_script(SCRIPT_GAME_SET_WALLET_DEFAULT)
-                    time.sleep(15)
-
-                    driver2.switch_to.default_content()
-                except (NoSuchElementException, TimeoutException):
-                    print(f"Lỗi: {str(e)}")
-
-
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi")
-            finally:
-
-                if driver2 is not None:
-                    print('Quit')
-                    driver2.quit()
-
     def run_script_from_file(self, driver, file_path, run_time):
         try:
             print(f"Start run script from file: {file_path}")
@@ -2055,14 +1710,11 @@ class ChromeProfileManager(QMainWindow):
         # Event to indicate whether the threads should continue running
         stop_event = threading.Event()
 
-
         time.sleep(5)
         stop_event.set()
 
         # Wait for the worker thread to finish
         print("Worker thread stopped")
-
-
 
     def all_acction(self):
         # input_text = self.input_text.toPlainText()
@@ -2096,8 +1748,6 @@ class ChromeProfileManager(QMainWindow):
             if os.path.exists(profile_path):
                 # event.wait()
                 self.open_url_in_thread(profile_path, web, email)
-
-
 
     def load_profile(self):
         global accList
@@ -2134,12 +1784,11 @@ class ChromeProfileManager(QMainWindow):
                 self.profile_table.setItem(row_position, 4, QTableWidgetItem('-'))
             auto_login_tele = QPushButton('Login tele')
             auto_login_tele.clicked.connect(lambda _, email=email: self.start_asyncio_task(email))
-            self.profile_table.setCellWidget(row_position, 5 , auto_login_tele)
+            self.profile_table.setCellWidget(row_position, 5, auto_login_tele)
 
     def start_asyncio_task(self, email):
         print('Task')
         asyncio.ensure_future(self.login_tele(email))
-
 
     async def login_tele(self, email):
         profile_path = f"{self.folder_path}/profiles/{email}"
@@ -2153,7 +1802,7 @@ class ChromeProfileManager(QMainWindow):
                     if(button_login && button_login.textContent == 'Log in by phone Number'){{
                         button_login.click();
                     }}
-                    
+
                 }}
                 function pressInputLogin() {{
                     var input_login = document.querySelector('#auth-pages .input-wrapper .input-field-phone .input-field-input')
@@ -2170,10 +1819,10 @@ class ChromeProfileManager(QMainWindow):
                                 button_next.click()
                             }}
                         }}, 1500)
-                        
-                        
+
+
                     }}
-                    
+
                 }}
                 setInterval(clickButtonLogin, 3000);
                 setInterval(pressInputLogin, 5000);
@@ -2234,6 +1883,7 @@ class ChromeProfileManager(QMainWindow):
                                 print(f"Script: {script_otp}")
                                 raise
                             await client.disconnect()
+
                     print("Please login to your telegram app. [Listening for OTP...]\n")
                     driver3.get('https://web.telegram.org/k')
                     driver3.execute_script(script_tele)
@@ -2263,7 +1913,6 @@ class ChromeProfileManager(QMainWindow):
             driver3.quit()
         finally:
             driver3.quit()
-
 
     def open_profile(self, email):
         # Kiểm tra xem thư mục lưu trữ hồ sơ đã tồn tại
@@ -2343,7 +1992,6 @@ class ChromeProfileManager(QMainWindow):
             # except Exception as e:
             #     print(f"An error occurred: {e}")
 
-
             return driver3
 
         except TimeoutException:
@@ -2352,11 +2000,13 @@ class ChromeProfileManager(QMainWindow):
         finally:
             driver3.quit()
 
+
 def select_folder():
     root = Tk()
     root.withdraw()  # Hide the root window
     selected_folder = filedialog.askdirectory(initialdir="C:/", title="Select Folder")
     return selected_folder
+
 
 async def main():
     # Create an instance of QApplication
@@ -2379,6 +2029,7 @@ async def main():
     # Start the asyncio event loop
     with loop:
         await loop.run_forever()
+
 
 if __name__ == "__main__":
     asyncio.run(main())
