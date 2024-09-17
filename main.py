@@ -442,6 +442,9 @@ class ChromeProfileManager(QMainWindow):
         SCRIPT_GAME_HAMTER = """
         (async function () {
             setInterval(() => {
+                if(document.querySelector('.season-end-bottom-inner')){
+                    document.querySelector('.season-end-bottom-inner button').click()
+                }
                 if(document.querySelector('.slider-onb-next')){
                     document.querySelector('.slider-onb-next').click()
                 }
