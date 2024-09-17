@@ -1058,7 +1058,7 @@ class ChromeProfileManager(QMainWindow):
                     time.sleep(5)
 
                 try:
-                    wait = WebDriverWait(driver2, 30)
+                    wait = WebDriverWait(driver2, 20)
                     try:
                         element = wait.until(
                             EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
@@ -1179,12 +1179,7 @@ class ChromeProfileManager(QMainWindow):
                 # event.wait()
                 self.open_url_in_thread(profile_path, web, email)
 
-    def open_url_login(self, email, event):
-        web = self.input_custom.toPlainText()
-        profile_path = f"{self.folder_path}/profiles/{email}"
-        if os.path.exists(profile_path):
-            # event.wait()
-            self.open_url_in_thread(profile_path, 'https://www.mycloudwallet.com/signin', email)
+    
 
     def load_profile(self):
         global accList
