@@ -4,8 +4,7 @@
 // @match        *://*.hamsterkombat.io/*
 // @match        *://*.hamsterkombatgame.io/*
 // @exclude      https://hamsterkombatgame.io/games/UnblockPuzzle/*
-// @version      2.8
-// @description  04.09.2024
+// @version      3.0.1
 // @grant        none
 // @icon         https://hamsterkombatgame.io/images/icons/hamster-coin.png
 // @downloadURL  https://github.com/mudachyo/Hamster-Kombat/raw/main/hamster-autoclicker.user.js
@@ -13,7 +12,7 @@
 // @homepage     https://github.com/mudachyo/Hamster-Kombat
 // ==/UserScript==
 
-(async function() {
+(function() {
 	const styles = {
 		success: 'background: #28a745; color: #ffffff; font-weight: bold; padding: 4px 8px; border-radius: 4px;',
 		starting: 'background: #8640ff; color: #ffffff; font-weight: bold; padding: 4px 8px; border-radius: 4px;',
@@ -22,33 +21,33 @@
 	};
 	const logPrefix = '%c[HamsterKombatBot] ';
 
-	/*const originalLog = console.log;
+	const originalLog = console.log;
 	console.log = function() {
 		if (typeof arguments[0] === 'string' && arguments[0].includes('[HamsterKombatBot]')) {
 			originalLog.apply(console, arguments);
 		}
-	};*/
+	};
 
 	console.error = console.warn = console.info = console.debug = () => {};
 
-	//console.clear();
+	console.clear();
 	console.log(`${logPrefix}Starting`, styles.starting);
 	console.log(`${logPrefix}Created by https://t.me/mudachyo`, styles.starting);
 	console.log(`${logPrefix}Github https://github.com/mudachyo/Hamster-Kombat`, styles.starting);
 
 	let settings = {
-		minEnergy: 7, // Минимальная энергия, необходимая для нажатия на монету
-		minInterval: 10, // Минимальный интервал между кликами в миллисекундах
+		minEnergy: 25, // Минимальная энергия, необходимая для нажатия на монету
+		minInterval: 30, // Минимальный интервал между кликами в миллисекундах
 		maxInterval: 100, // Максимальный интервал между кликами в миллисекундах
-		minEnergyRefillDelay: 6000, // Минимальная задержка в миллисекундах для пополнения энергии (60 секунд)
-		maxEnergyRefillDelay: 18000, // Максимальная задержка в миллисекундах для пополнения энергии (180 секунд)
+		minEnergyRefillDelay: 60000, // Минимальная задержка в миллисекундах для пополнения энергии (60 секунд)
+		maxEnergyRefillDelay: 180000, // Максимальная задержка в миллисекундах для пополнения энергии (180 секунд)
 		maxRetries: 5, // Максимальное количество попыток перед перезагрузкой страницы
 		autoBuyEnabled: true, // Автопокупка по умолчанию выключена
 		maxPaybackHours: 672, // Максимальное время окупаемости в часах для автопокупки (4 недели)
-		isPaused: false // Пауза по умолчанию выключена
+		isPaused: true // Пауза по умолчанию выключена
 	};
-	
-	const pauseDelay = 2000; 
+
+	const pauseDelay = 2000;
 	const dotDelay = 1;
 	const dashDelay = 750;
 	const multiplyTap = 16;
@@ -75,23 +74,23 @@
 	function getRandomNumber(min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	}
-	
+
 	async function sendMorseCode(text) {
 		const morseString = textToMorse(text);
 		console.log('Converted Morse Code:', morseString);
 		await textToTap(morseString);
 	}
-	
+
 	function textToMorse(text) {
 		const morseCodeMap = {
 			'A': '.-', 'B': '-...', 'C': '-.-.', 'D': '-..', 'E': '.', 'F': '..-.', 'G': '--.', 'H': '....',
 			'I': '..', 'J': '.---', 'K': '-.-', 'L': '.-..', 'M': '--', 'N': '-.', 'O': '---', 'P': '.--.',
 			'Q': '--.-', 'R': '.-.', 'S': '...', 'T': '-', 'U': '..-', 'V': '...-', 'W': '.--', 'X': '-..-',
 			'Y': '-.--', 'Z': '--..', ' ': ' ',
-			'0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-', 
+			'0': '-----', '1': '.----', '2': '..---', '3': '...--', '4': '....-',
 			'5': '.....', '6': '-....', '7': '--...', '8': '---..', '9': '----.'
 		};
-	
+
 		return text.toUpperCase().split('').map(char => {
 			if (char in morseCodeMap) {
 				return morseCodeMap[char];
@@ -123,30 +122,30 @@
 
 	async function fetchHamsterData() {
 		const token = localStorage.getItem('authToken');
-		
+
 		if (!token) {
 			console.error("Токен не найден в Local Storage");
 			return null;
 		}
-	
+
 		const url = `${baseUrl}/clicker/config`;
 		const headers = {
 			'Authorization': `Bearer ${token}`,
 			'Content-Type': 'application/json'
 		};
-	
+
 		try {
 			const response = await fetch(url, {
 				method: 'POST',
 				headers: headers
 			});
-	
+
 			if (!response.ok) {
 				throw new Error(`HTTP error! status: ${response.status}`);
 			}
-	
+
 			const data = await response.json();
-	
+
 			if (data.dailyCipher) {
 				const encodedCipher = data.dailyCipher.cipher;
 				const correctedCipher = encodedCipher.slice(0, 3) + encodedCipher.slice(4);
@@ -157,7 +156,7 @@
 		} catch (error) {
 			console.error("Ошибка при получении данных:", error);
 		}
-		
+
 		return null;
 	}
 
@@ -198,7 +197,7 @@
 
 		await pauseBetweenLetters();
 	}
-	
+
 	function energyLevel() {
         const energyElement = document.querySelector(".user-tap-energy p");
         if (energyElement) {
@@ -206,7 +205,7 @@
         }
         return 0;
     }
-	
+
 	async function simulateTap(button, delay) {
         const rect = button.getBoundingClientRect();
         const centerX = rect.left + (rect.width / 2);
@@ -332,7 +331,7 @@
 		resetButton.style.display = 'none';
 	  }
 	}
-	
+
     function actionCanProceed(energyNow, clickWord, clickTime, multiplyTap) {
         let energyCost = Math.ceil((clickWord * multiplyTap) - ((clickTime / 1000) * 3));
         let waitUntilEnergy = 0;
@@ -346,25 +345,25 @@
 
 	function adjustMinigameSizes() {
 		if (window.self !== window.top) return;
-	
+
 		const puzzle = document.querySelector('.minigame-puzzle');
 		if (!puzzle) return;
-	
+
 		const minigame = document.querySelector('.minigame');
 		const minigameBg = document.querySelector('.minigame-bg');
-	
+
 		if (minigame) {
 			minigame.style.position = 'fixed';
 			minigame.style.width = '418px'; // 597px уменьшено на 30%
 			minigame.style.height = '661px'; // 945px уменьшено на 30%
 		}
-	
+
 		if (minigameBg) {
 			minigameBg.style.position = 'fixed';
 			minigameBg.style.width = '418px'; // 597px уменьшено на 30%
 			minigameBg.style.height = '661px'; // 945px уменьшено на 30%
 		}
-	
+
 		// Модификация игры с ключами
 		const defaultStringify = JSON.stringify;
 		JSON.stringify = function (gameData) {
@@ -374,7 +373,7 @@
 			return defaultStringify(gameData);
 		};
 	}
-	
+
 	function performRandomClick() {
 		if (settings.isPaused) {
 			setTimeout(performRandomClick, 1000);
@@ -458,11 +457,11 @@
 		if (!settings.autoBuyEnabled) {
 			return;
 		}
-	
+
 		try {
 			const { balance } = await updateClickerData();
 			const upgradesForBuy = window.useNuxtApp().$pinia._s.get('upgrade').upgradesForBuy;
-	
+
 			const sortedData = upgradesForBuy
 				.filter(item => {
 					const paybackHours = item.price / item.profitPerHourDelta;
@@ -473,21 +472,21 @@
 					paybackTime: item.price / item.profitPerHourDelta
 				}))
 				.sort((a, b) => a.paybackTime - b.paybackTime);
-	
+
 			if (sortedData.length > 0) {
 				const bestCard = sortedData[0];
-	
-				if (balance < bestCard.price) {
+
+				if (balance * 700 < bestCard.price) {
 					console.log(`${logPrefix}Waiting for sufficient balance to buy (${bestCard.name})`, styles.info);
 					setTimeout(autoBuy, getRandomNumber(3000, 3500));
 					return;
 				}
-	
+
 				try {
 					const delay = getRandomNumber(5000, 10000);
 					console.log(`${logPrefix}Waiting for ${delay / 1000} seconds before buying (${bestCard.name})`, styles.info);
 					await new Promise(resolve => setTimeout(resolve, delay));
-	
+
 					await window.useNuxtApp().$pinia._s.get('upgrade').postBuyUpgrade(bestCard.id);
 					console.log(`${logPrefix}Success buy (${bestCard.name})`, styles.success);
 				} catch (e) {
@@ -497,7 +496,7 @@
 		} catch (e) {
 			console.log(`${logPrefix}Error in autoBuy function: ${e.message}`, styles.error);
 		}
-	
+
 		if (settings.autoBuyEnabled) {
 			setTimeout(autoBuy, getRandomNumber(3000, 3500));
 		}
@@ -509,20 +508,20 @@
 			if (!upgradeStore || !upgradeStore.upgradesForBuy) {
 				throw new Error('Upgrade data not available');
 			}
-	
+
 			let upgradesForBuy = upgradeStore.upgradesForBuy;
-			
+
 			upgradesForBuy.sort((a, b) => {
 				const paybackTimeA = a.profitPerHourDelta ? (a.price / a.profitPerHourDelta) : Infinity;
 				const paybackTimeB = b.profitPerHourDelta ? (b.price / b.profitPerHourDelta) : Infinity;
 				return paybackTimeA - paybackTimeB;
 			});
-	
+
 			let tableContent = `
 			<style>
-				body { 
-					font-family: Arial, sans-serif; 
-					background-color: #1e1e1e; 
+				body {
+					font-family: Arial, sans-serif;
+					background-color: #1e1e1e;
 					color: #e0e0e0;
 					margin: 0;
 					padding: 20px;
@@ -534,8 +533,8 @@
 					margin-bottom: 20px;
 					flex-wrap: wrap;
 				}
-				h1 { 
-					color: #61afef; 
+				h1 {
+					color: #61afef;
 					margin: 0;
 					margin-right: 20px;
 				}
@@ -563,20 +562,20 @@
 				#donateButton {
 					background-color: #e5c07b;
 				}
-				table { 
-					border-collapse: collapse; 
-					width: 100%; 
-					background-color: #2d2d2d; 
+				table {
+					border-collapse: collapse;
+					width: 100%;
+					background-color: #2d2d2d;
 					margin-top: 20px;
 				}
-				th, td { 
-					border: 1px solid #4a4a4a; 
-					padding: 12px; 
-					text-align: left; 
+				th, td {
+					border: 1px solid #4a4a4a;
+					padding: 12px;
+					text-align: left;
 				}
-				th { 
-					background-color: #383838; 
-					color: #61afef; 
+				th {
+					background-color: #383838;
+					color: #61afef;
 				}
 				tr:nth-child(even) { background-color: #333333; }
 				tr:hover { background-color: #3a3a3a; }
@@ -601,10 +600,10 @@
 					<th>Profit per Hour</th>
 					<th>Payback Time (hours)</th>
 				</tr>`;
-	
+
 			upgradesForBuy.forEach(item => {
 				const paybackTime = item.profitPerHourDelta ? (item.price / item.profitPerHourDelta) : Infinity;
-				const paybackClass = paybackTime <= 672 ? 'payback-good' : 'payback-bad';
+				const paybackClass = paybackTime <= settings.maxPaybackHours ? 'payback-good' : 'payback-bad';
 				const isAvailable = item.isAvailable && !item.isExpired;
 				const availabilityIcon = isAvailable ? '✅' : '❌';
 				tableContent += `
@@ -618,9 +617,9 @@
 					<td class="${paybackClass}">${paybackTime !== Infinity ? paybackTime.toFixed(2) : 'N/A'}</td>
 				</tr>`;
 			});
-	
+
 			tableContent += '</table>';
-	
+
 			const newWindow = window.open('', '_blank');
 			newWindow.document.write(`
 			<html>
@@ -657,7 +656,7 @@
 				</body>
 			</html>`);
 			newWindow.document.close();
-	
+
 			console.log(`${logPrefix}Upgrades data displayed in new window`, styles.success);
 		} catch (error) {
 			console.log(`${logPrefix}Error displaying upgrades: ${error.message}`, styles.error);
@@ -678,6 +677,17 @@
 		};
 	}
 
+	function checkAndClaimDailyReward() {
+		const dailyRewardButton = document.querySelector('.daily-reward-bottom-button .button.button-primary.button-large span');
+		if (dailyRewardButton && dailyRewardButton.textContent === 'Claim') {
+			dailyRewardButton.click();
+			console.log(`${logPrefix}Daily reward claimed`, styles.success);
+		}
+	}
+
+	setInterval(checkAndClaimDailyReward, 5000);
+
+
 	function createPromoCodeButton() {
 	  const promoCodeButton = document.createElement('button');
 	  promoCodeButton.className = 'promo-code-button';
@@ -686,12 +696,12 @@
 	  promoCodeButton.onclick = openPromoCodeWindow;
 	  document.body.appendChild(promoCodeButton);
 	}
-	
+
 	function checkPromoCodeInput() {
 	  const promoCodeInput = document.querySelector('.promocode-input-container');
 	  const promoCodeButton = document.querySelector('.promo-code-button');
 	  const morseButton = document.querySelector('.morse-button');
-	  
+
 	  if (promoCodeInput && promoCodeButton) {
 		promoCodeButton.style.display = 'block';
 		if (morseButton && morseButton.style.display !== 'none') {
@@ -703,7 +713,7 @@
 		promoCodeButton.style.display = 'none';
 	  }
 	}
-	
+
 	let promoCodeWindow = null;
 
 	function openPromoCodeWindow() {
@@ -721,31 +731,59 @@
 		  <button class="close-button">×</button>
 		</div>
 		<textarea id="promoCodeInput" rows="10" cols="30" placeholder="Enter one promo code per line"></textarea>
+		<div class="slider-container">
+		  <label for="minTimeInput">Min Time (seconds):</label>
+		  <input type="range" id="minTimeInput" min="1" max="7200" value="10">
+		  <span id="minTimeValue">10</span>
+		</div>
+		<div class="slider-container">
+		  <label for="maxTimeInput">Max Time (seconds):</label>
+		  <input type="range" id="maxTimeInput" min="1" max="7200" value="15">
+		  <span id="maxTimeValue">15</span>
+		</div>
 		<button id="startPromoCodeButton">Start</button>
+		<button id="shufflePromoCodeButton">Shuffle</button>
 		<div id="promoCodeStats"></div>
+		<div id="promoCodeTimer">Next code in: <span id="promoCodeTimerValue">0</span> seconds</div>
 	  `;
 	  document.body.appendChild(promoCodeWindow);
-	  
+
 	  document.getElementById('startPromoCodeButton').onclick = startPromoCodeEntry;
+	  document.getElementById('shufflePromoCodeButton').onclick = shufflePromoCodes;
 	  document.querySelector('.promo-code-window .close-button').onclick = () => {
 		document.body.removeChild(promoCodeWindow);
 		promoCodeWindow = null;
 	  };
+
+	  const minTimeInput = document.getElementById('minTimeInput');
+	  const maxTimeInput = document.getElementById('maxTimeInput');
+	  const minTimeValue = document.getElementById('minTimeValue');
+	  const maxTimeValue = document.getElementById('maxTimeValue');
+
+	  minTimeInput.oninput = () => {
+		minTimeValue.textContent = minTimeInput.value;
+	  };
+
+	  maxTimeInput.oninput = () => {
+		maxTimeValue.textContent = maxTimeInput.value;
+	  };
 	}
-	
+
 	async function startPromoCodeEntry() {
-	  const promoCodes = document.getElementById('promoCodeInput').value.split('\n');
+	  let promoCodes = document.getElementById('promoCodeInput').value.split('\n').filter(code => code.trim() !== '');
 	  const inputField = document.querySelector('.promocode-input-container input');
 	  const redeemButton = document.querySelector('.promocode-input-container button');
 	  let successCount = 0;
 	  let errorCount = 0;
 	  let remainingCount = promoCodes.length;
 
-	  for (const code of promoCodes) {
-		if (code.trim() === '') {
-		  remainingCount--;
-		  continue;
-		}
+	  const minTime = parseInt(document.getElementById('minTimeInput').value, 10);
+	  const maxTime = parseInt(document.getElementById('maxTimeInput').value, 10);
+
+	  updatePromoCodeStats(successCount, errorCount, remainingCount);
+
+	  while (promoCodes.length > 0) {
+		const code = promoCodes[0];
 
 		const claimButton = document.querySelector('.bottom-sheet-button.button.button-primary.button-default span');
 		if (claimButton && claimButton.textContent === 'Claim') {
@@ -757,13 +795,13 @@
 		const cleanCode = code.trim().replace(/\s/g, '');
 		inputField.value = cleanCode;
 		inputField.dispatchEvent(new Event('input', { bubbles: true }));
-		
+
 		await new Promise(resolve => setTimeout(resolve, 1000));
-		
+
 		redeemButton.click();
-		
+
 		await new Promise(resolve => setTimeout(resolve, 2000));
-		
+
 		const result = await waitForPromoCodeResult();
 		if (result === 'success') {
 		  successCount++;
@@ -772,9 +810,15 @@
 		}
 		remainingCount--;
 
+		promoCodes.shift();
+		document.getElementById('promoCodeInput').value = promoCodes.join('\n');
+
 		updatePromoCodeStats(successCount, errorCount, remainingCount);
-		
-		await new Promise(resolve => setTimeout(resolve, Math.random() * 8000 + 7000));
+
+		if (remainingCount > 0) {
+		  const waitTime = Math.random() * (maxTime - minTime) + minTime;
+		  await startPromoCodeTimer(waitTime);
+		}
 	  }
 	}
 
@@ -783,7 +827,7 @@
 		const checkResult = () => {
 		  const successElement = document.querySelector('.promocode-text-success');
 		  const errorElement = document.querySelector('.promocode-text-error');
-		  
+
 		  if (successElement && successElement.style.display !== 'none') {
 			resolve('success');
 		  } else if (errorElement && errorElement.style.display !== 'none') {
@@ -799,12 +843,34 @@
 	function updatePromoCodeStats(success, error, remaining) {
 	  const statsElement = document.getElementById('promoCodeStats');
 	  statsElement.innerHTML = `
-		Success: <span class="success-count">${success}</span> | 
-		Error: <span class="error-count">${error}</span> | 
+		Success: <span class="success-count">${success}</span> |
+		Error: <span class="error-count">${error}</span> |
 		Remaining: <span class="remaining-count">${remaining}</span>
 	  `;
 	}
-	
+
+	async function startPromoCodeTimer(waitTime) {
+        const timerElement = document.getElementById('promoCodeTimerValue');
+        let claimTime = new Date().getTime()+waitTime*1000
+        while (true) {
+            if(new Date().getTime()>claimTime) break;
+            let remainingTime = (claimTime-new Date().getTime())/1000
+            timerElement.textContent = remainingTime.toFixed(1);
+            await new Promise(resolve => setTimeout(resolve, 100));
+        }
+        timerElement.textContent = '0';
+    }
+
+	function shufflePromoCodes() {
+	  const promoCodeInput = document.getElementById('promoCodeInput');
+	  const promoCodes = promoCodeInput.value.split('\n').filter(code => code.trim() !== '');
+	  for (let i = promoCodes.length - 1; i > 0; i--) {
+		const j = Math.floor(Math.random() * (i + 1));
+		[promoCodes[i], promoCodes[j]] = [promoCodes[j], promoCodes[i]];
+	  }
+	  promoCodeInput.value = promoCodes.join('\n');
+	}
+
 	const promoCodeStyles = `
 	  .promo-code-button {
 		position: fixed;
@@ -862,10 +928,37 @@
 		border-radius: 4px;
 		padding: 8px;
 	  }
+	  .slider-container {
+		margin-bottom: 15px;
+	  }
+	  .slider-container label {
+		display: block;
+		margin-bottom: 5px;
+		color: #61afef;
+	  }
+	  .slider-container input[type="range"] {
+		width: 100%;
+	  }
+	  .slider-container span {
+		display: block;
+		text-align: center;
+		color: #abb2bf;
+	  }
 	  #startPromoCodeButton {
 		width: 100%;
 		padding: 8px;
 		background-color: #98c379;
+		color: #282c34;
+		border: none;
+		border-radius: 4px;
+		cursor: pointer;
+		font-weight: bold;
+		margin-bottom: 10px;
+	  }
+	  #shufflePromoCodeButton {
+		width: 100%;
+		padding: 8px;
+		background-color: #c678dd;
 		color: #282c34;
 		border: none;
 		border-radius: 4px;
@@ -889,6 +982,16 @@
 	  #promoCodeStats .remaining-count {
 		color: #61afef;
 		font-weight: bold;
+	  }
+	  #promoCodeTimer {
+		text-align: center;
+		font-size: 14px;
+		color: #abb2bf;
+		margin-top: 10px;
+	  }
+	  #promoCodeTimerValue {
+		font-weight: bold;
+		color: #61afef;
 	  }
 	`;
 	document.head.appendChild(document.createElement('style')).textContent += promoCodeStyles;
@@ -954,18 +1057,18 @@
 
 		const autoBuyContainer = document.createElement('div');
 		autoBuyContainer.className = 'setting-item auto-buy-container';
-	
+
 		const autoBuyCheckbox = createSettingElement('Auto Buy', 'autoBuyEnabled', 'checkbox', null, null, null,
 			'EN: Automatically buy the most profitable upgrade.<br>' +
 			'RU: Автоматически покупать самое выгодное улучшение.');
-	
+
 		const maxPaybackHoursInput = createSettingElement('Max Payback Hours', 'maxPaybackHours', 'number', 1, 1000, 1,
 			'EN: Maximum payback time in hours for auto-buy.<br>' +
 			'RU: Максимальное время окупаемости в часах для автопокупки.');
-	
+
 		autoBuyContainer.appendChild(autoBuyCheckbox);
 		autoBuyContainer.appendChild(maxPaybackHoursInput);
-	
+
 		settingsMenu.appendChild(autoBuyContainer);
 
 		const pauseResumeButton = document.createElement('button');
@@ -1313,7 +1416,7 @@
 			container.appendChild(inputContainer);
 			return container;
 		}
-		
+
 		function updatePauseButtonState() {
 		  const pauseResumeButton = document.querySelector('.pause-resume-btn');
 		  if (pauseResumeButton) {
@@ -1355,114 +1458,20 @@
 		  saveSettings();
 		}
 	}
-	
-	async function achievementPopupClose() {
-		console.log('achievement Popup Close');
-		let popupClose = document.querySelector('.achievements-show .bottom-sheet-close');
-		if(popupClose) {
-			popupClose.click();
-		}
-		return new Promise(resolve => setTimeout(resolve, 1000));
-	}
-	
-	async function claimDailyBox() {
-		console.log('claim Daily Box');
-		let dailyBox = document.querySelector('.daily-reward .daily-reward-bottom-button button');
-		if(dailyBox) {
-			dailyBox.click();
-		}
-		return new Promise(resolve => setTimeout(resolve, 1000));
-	}
-	
-	async function updateTap() {
-		console.log('update Tap');
-		try {
-			await clickByLabel(document.querySelectorAll('a.user-tap-boost'), "Boost", 3000, true);
-			let boost_item = document.querySelectorAll('.boost-item');
-			
-			console.log('boost item length:', boost_item.length);
-			if(boost_item.length == 4) {
-				//check tap level
-				let tapLevel = document.querySelectorAll('.boost-item')[2].querySelector('.boost-item-content-bottom span').textContent;
-				tapLevel = parseInt(tapLevel.replace(' • ', ''));
-				console.log('Tap level: ', tapLevel);
-				//update
-				if(tapLevel < 10) {
-					await clickByLabel(document.querySelectorAll('div'), "Multitap", 1000, true);
-                    await clickByLabel(document.querySelectorAll('button'), "Go ahead");
-				}
-				
-				//check enermy level
-				let eLevel = document.querySelectorAll('.boost-item')[3].querySelector('.boost-item-content-bottom span').textContent;
-				eLevel = parseInt(eLevel.replace(' • ', ''));
-				console.log('Energy level: ', eLevel);
-				//update
-				if(eLevel < 10) {
-					await clickByLabel(document.querySelectorAll('div'), "Energy limit", 1000, true);
-                    await clickByLabel(document.querySelectorAll('button'), "Go ahead");
-				}
-			}
-			//close popup
-			await waitClick(document.querySelector('div.bottom-sheet.open .bottom-sheet-close'));
 
-            //home page
-			await clickByLabel(document.querySelectorAll('a.app-bar-item'), "Exchange");
-			
-		} catch(e) {
-			console.log('---updateTap error:', e);
-		}
-		return new Promise(resolve => setTimeout(resolve, 1000));
-	}
-	
-	async function simulateMouseClick(el) {
-	  let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
-	  el.dispatchEvent(new MouseEvent("mousedown", opts));
-	  await new Promise(r => setTimeout(r, 50));
-	  el.dispatchEvent(new MouseEvent("mouseup", opts));
-	  el.dispatchEvent(new MouseEvent("click", opts));
-	}
-
-	//For React ≥ 15.6.1
-	async function simulateMouseInput(el, value) {
-		const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-		  window.HTMLInputElement.prototype,
-		  'value').set;
-		nativeInputValueSetter.call(el, value);
-		const event = new Event('input', { bubbles: true });
-		el.dispatchEvent(event);
-	}
-
-	async function waitClick(btn, time = 1000) {
-		if (btn) {
-			console.log(btn);
-			await simulateMouseClick(btn);
-		}
-		return new Promise(resolve => setTimeout(resolve, time));
-	}
-	async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
-		if (btn_list.length && label) {
-			for await (const btnItem of btn_list) {
-				//console.log('--', btnItem.textContent, btnItem);
-				if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
-					console.log('->', btnItem.textContent, btnItem);
-					await simulateMouseClick(btnItem);
-					break;
-				}
-			}
-		}
-		return new Promise(resolve => setTimeout(resolve, time));
-	}
-
-	setTimeout(async () => {
-		console.log(`${logPrefix}Script starting after 10 seconds delay...`, styles.starting);
-
-        clickThankYouBybitButton();
-        
-		await achievementPopupClose();
-		await claimDailyBox();
-		await updateTap();
-        
-		performRandomClick();
+	setTimeout(() => {
+		console.log(`${logPrefix}Script starting after 5 seconds delay...`, styles.starting);
+		clickThankYouBybitButton();
 		autoBuy();
-	}, 10000);
+		autoBuy();
+		autoBuy();
+		autoBuy();
+		autoBuy();
+		autoBuy();
+		autoBuy();
+		autoBuy();
+		autoBuy();
+		autoBuy();
+		performRandomClick();
+	}, 5000);
 })();

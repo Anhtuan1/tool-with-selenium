@@ -35,8 +35,8 @@ num_thread_running = 0
 futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
-URL_LIST = 'https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/hamster_kombat_boT/start?startapp=kentId1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3'
-# https://t.me/bwcwukong_bot/Play?startapp=1641277785
+URL_LIST = 'https://t.me/hamster_kombat_boT/start?startapp=kentId1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3'
+# https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot
 
 CHROME_SIZE = {
     "width": 414,  # user agent
@@ -1825,7 +1825,7 @@ class ChromeProfileManager(QMainWindow):
                     print("- SCRIPT GAME CONTROL")
                     driver2.execute_script(SCRIPT_GAME_HAMTER)
                     time.sleep(15)
-                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 80)
+                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 140)
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
             except (NoSuchElementException, TimeoutException) as e:
@@ -2270,14 +2270,55 @@ class ChromeProfileManager(QMainWindow):
         profile_path = f"{self.folder_path}/profiles/{email}"
         print('Account')
         print(email)
+        SCRIPT_GAME_START = """
+                (async function () {
+                    await start();
+                })();
+
+                async function start() {
+                    console.log('- start');
+                    return new Promise(resolve => {
+                        setTimeout(async () => {
+
+                            await waitClick(document.querySelector('.new-message-bot-commands-view'));
+
+                            setTimeout(() => {
+                                resolve();
+                            }, 2000);
+                        }, 2000);
+                    });
+                }
+
+                async function simulateMouseClick(el) {
+                  let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
+                  el.dispatchEvent(new MouseEvent("mousedown", opts));
+                  await new Promise(r => setTimeout(r, 50));
+                  el.dispatchEvent(new MouseEvent("mouseup", opts));
+                  el.dispatchEvent(new MouseEvent("click", opts));
+                }
+
+                async function waitClick(btn, time = 1000) {
+                	if (btn) await simulateMouseClick(btn);
+                	return new Promise(resolve => setTimeout(resolve, time));
+                }
+                """
+        chrome_options = Options()
+        driver3 = None
         if not os.path.exists(profile_path):
             os.makedirs(profile_path)
         try:
-            options = Options()
-            options.add_argument(f'--user-data-dir={profile_path}')
-            options.add_argument('--no-experiments')
-            driver3 = webdriver.Chrome(options=options)
-            driver3.get('https://web.telegram.org/k')
+            chrome_options.add_argument(f'--user-data-dir={profile_path}')
+            chrome_options.add_argument('--no-experiments')
+            # Add the mobile emulation to the chrome options variable
+            chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+            chrome_options.add_argument(f"window-size=400,886")
+
+            CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
+            chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
+            driver3 = webdriver.Chrome(options=chrome_options)
+            time.sleep(2)
+            driver3.get('https://web.telegram.org/k/#@hamster_kombat_bot')
+
             driver3.execute_script('''
                         function addQuitButton() {
                             var existingButton = document.getElementById("quit-button");
@@ -2326,23 +2367,21 @@ class ChromeProfileManager(QMainWindow):
                         // Add the button immediately
                         addQuitButton();
                     ''')
+            driver3.execute_script(SCRIPT_GAME_START)
+            try:
+                iframe_allow_attr = 'camera; microphone; geolocation;'
+                iframe = WebDriverWait(driver3, 50).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
 
-            WebDriverWait(driver3, 3000).until(EC.presence_of_element_located((By.ID, 'facebook')))
-            # iframe_allow_attr = 'camera; microphone; geolocation;'
-            #
-            # iframe = WebDriverWait(driver3, 500).until(
-            #     EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-            # iframe_url = iframe.get_attribute('src')
-            # print("Src attribute of the iframe:", iframe_url)
-            # try:
-            #     data_path = f"C:/path/to/data_login/{email}"
-            #     if not os.path.exists(data_path):
-            #         os.makedirs(data_path)
-            #     with open(data_path + '/url.txt', 'w') as file:
-            #         file.write(iframe_url)
-            # except Exception as e:
-            #     print(f"An error occurred: {e}")
-
+                # get iframe url
+                iframe_url = iframe.get_attribute('src')
+                iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace(
+                    "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
+                print("Src attribute of the iframe:", iframe_url)
+                driver3.get(iframe_url)
+                WebDriverWait(driver3, 3000).until(EC.presence_of_element_located((By.ID, 'facebook')))
+            except TimeoutException:
+                print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
 
             return driver3
 
