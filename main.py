@@ -2379,6 +2379,54 @@ class ChromeProfileManager(QMainWindow):
                     "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
                 print("Src attribute of the iframe:", iframe_url)
                 driver3.get(iframe_url)
+                driver3.execute_script('''
+                        function addQuitButton() {
+                            var existingButton = document.getElementById("quit-button");
+                            if (existingButton) {
+                                return; // If the button already exists, don't add it again
+                            }
+
+                            var button = document.createElement("button");
+                            button.innerHTML = "Quit";
+                            button.id = "quit-button";
+                            document.body.appendChild(button);
+
+                            // Apply CSS styles to the button
+                            var css = `
+                                #quit-button {
+                                    position: fixed;
+                                    top: 10px;
+                                    right: 10px;
+                                    padding: 15px 30px;
+                                    font-size: 20px;
+                                    background-color: rgba(255, 77, 77, 0.2); /* Red background with 0.2 opacity */
+                                    color: white;
+                                    border: none;
+                                    border-radius: 5px;
+                                    cursor: pointer;
+                                    z-index: 1000; /* Ensure it stays on top */
+                                }
+
+                                #quit-button:hover {
+                                    background-color: rgba(255, 26, 26, 0.4); /* Darker red on hover with higher opacity */
+                                }
+                            `;
+                            var style = document.createElement('style');
+                            style.appendChild(document.createTextNode(css));
+                            document.head.appendChild(style);
+
+                            button.addEventListener("click", function() {
+                                var facebookDiv = document.createElement("div");
+                                facebookDiv.id = "facebook";
+                                document.body.appendChild(facebookDiv);
+                                window.close();
+                            });
+                        }
+
+
+                        // Add the button immediately
+                        addQuitButton();
+                    ''')
                 WebDriverWait(driver3, 3000).until(EC.presence_of_element_located((By.ID, 'facebook')))
             except TimeoutException:
                 print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
