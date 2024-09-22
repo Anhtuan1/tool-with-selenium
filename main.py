@@ -35,7 +35,7 @@ num_thread_running = 0
 futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
-URL_LIST = 'https://t.me/hamster_kombat_boT/start?startapp=kentId1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3'
+URL_LIST = 'https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/bwcwukong_bot/Play?startapp=1641277785'
 # https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot
 
 CHROME_SIZE = {
@@ -1128,6 +1128,12 @@ class ChromeProfileManager(QMainWindow):
                         """
         SCRIPT_GAME_BLUM = """
         (async function () {
+            setTimeout(() => {
+                if(document.querySelector('.play-btn')){
+                    document.querySelector('.play-btn').click()
+                }
+                
+            }, 16000);
             await start();
         })();
 
@@ -1161,7 +1167,47 @@ class ChromeProfileManager(QMainWindow):
         	return new Promise(resolve => setTimeout(resolve, time));
         }
                 """
+        SCRIPT_GAME_TOMARKET = """
+        (async function () {
+            setInterval(() => {
+                if(document.querySelector('.play-btn')){
+                    document.querySelector('.play-btn').click()
+                }
+                
+            }, 1000);
+            await start();
+        })();
 
+        async function start() {
+        	console.log('- start');
+        	return new Promise(resolve => {
+        		setTimeout(async () => {
+                    await clickByLabel(document.querySelectorAll('button'), "Create account", 2000);
+                    await clickByLabel(document.querySelectorAll('button'), "Continue");
+                    await clickByLabel(document.querySelectorAll('button'), "Start farming");
+                    await clickByLabel(document.querySelectorAll('.button-label'), "Claim", 3000);
+                    setTimeout(() => {
+                        resolve();
+                    }, 2000);
+        		}, 2000);
+        	});
+        }
+
+        async function waitClick(btn, time = 1000) {
+        	if (btn) btn.click();
+        	return new Promise(resolve => setTimeout(resolve, time));
+        }
+        async function clickByLabel(btnList, label, time = 1000) {
+        	if (btnList.length && label) {
+        		for (let btnItem of btnList) {
+        			if(btnItem.textContent.includes(label)){
+        				btnItem.click();
+        			}
+        		}
+        	}
+        	return new Promise(resolve => setTimeout(resolve, time));
+        }
+                """
         SCRIPT_GAME_START = """
         (async function () {
             await start();
@@ -1595,9 +1641,11 @@ class ChromeProfileManager(QMainWindow):
                     print("- SCRIPT GAME CONTROL")
                     # driver2.execute_script(script_login)
                     driver2.execute_script(SCRIPT_GAME_BLUM)
-                    time.sleep(30)
+                    time.sleep(20)
+                    self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 34)
                     print("- Done")
                     driver2.switch_to.default_content()
+
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
             except (NoSuchElementException, TimeoutException) as e:
@@ -1834,7 +1882,82 @@ class ChromeProfileManager(QMainWindow):
                 if driver2 is not None:
                     print('Quit')
                     driver2.quit()
+        if web == 'https://t.me/Tomarket_ai_bot/app?startapp=00020R5H' or 'https://t.me/Tomarket_ai_bot/app' in web:
+            print('Running Tomarket')
+            try:
+                chrome_options.add_argument(f'--user-data-dir={profile_path}')
+                chrome_options.add_argument('--no-experiments')
+                # Add the mobile emulation to the chrome options variable
+                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+                chrome_options.add_argument(f"window-size=400,884")
 
+                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
+                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
+                driver2 = webdriver.Chrome(options=chrome_options)
+                if web is not None:
+                    driver2.get(web)
+                    time.sleep(5)
+
+                try:
+                    wait = WebDriverWait(driver2, 20)
+                    try:
+                        element = wait.until(
+                            EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
+                        )
+
+                        ref_link = element.get_attribute('href')
+                        ref_link = ref_link.replace('https://web.telegram.org/a/', 'https://web.telegram.org/k/')
+                        driver2.get(ref_link)
+                    except TimeoutException:
+                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                        driver2.quit()
+                    time.sleep(5)
+
+                    try:
+                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
+                        continue_button.click()
+                    except (NoSuchElementException, TimeoutException):
+                        print("Launch not found")
+                    time.sleep(5)
+
+                    try:
+                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
+                        continue_button.click()
+                    except (NoSuchElementException, TimeoutException):
+                        print("confirm not found")
+                    time.sleep(5)
+
+                    iframe_allow_attr = 'camera; microphone; geolocation;'
+                    iframe = WebDriverWait(driver2, 20).until(
+                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
+                    # get iframe url
+                    iframe_url = iframe.get_attribute('src')
+                    iframe_url = iframe_url.replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios").replace(
+                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
+                    print(iframe_url)
+                    driver2.get(iframe_url)
+                    try:
+                        data_path = f"{self.folder_path}/data_login_tomarket/{email}"
+                        if not os.path.exists(data_path):
+                            os.makedirs(data_path)
+                        with open(data_path + '/url.txt', 'w') as file:
+                            file.write(iframe_url)
+                            print("->iframe url update:", data_path + '/url.txt')
+                    except Exception as e:
+                        print(f"An error occurred: {e}")
+
+                    print("- SCRIPT GAME CONTROL")
+                    driver2.execute_script(SCRIPT_GAME_TOMARKET)
+                    time.sleep(300)
+
+                except (NoSuchElementException, TimeoutException):
+                    print(f"Lỗi: {str(e)}")
+            except (NoSuchElementException, TimeoutException) as e:
+                print(f"Xảy ra lỗi")
+            finally:
+                if driver2 is not None:
+                    print('Quit')
+                    driver2.quit()
         if web == 'https://web.telegram.org/k/#@wallet':
             print('Running Wallet')
             try:
