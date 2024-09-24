@@ -19,7 +19,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException,
 from selenium.webdriver.common.keys import Keys
 import pyperclip
 import re
-import urllib.parse
+from urllib.parse import urlparse, parse_qs, unquote
 
 from tkinter import Tk, Button, filedialog
 try:
@@ -1152,7 +1152,7 @@ SCRIPT_GAME_MAJOR = """
             console.log('- start');
             return new Promise(resolve => {
                 setTimeout(async () => {
-                    await clickByLabel(document.querySelectorAll('button'), "Let's get started!", 1000, true);
+                    await clickByLabel(document.querySelectorAll('button'), "Let's get started!", 2000, true);
                     //close popup
                     if(await checkExistElm(document.querySelectorAll('h1'), "Take your daily bonus", 1000, true)) {
                         let modal = await getElementByClass(document.querySelectorAll('div'), '_modalBottom');
@@ -1162,7 +1162,7 @@ SCRIPT_GAME_MAJOR = """
                     }
                     
                     resolve();
-                }, 2000);
+                }, 5000);
             });
         }
         
@@ -1770,7 +1770,7 @@ class ChromeProfileManager(QMainWindow):
                         driver2.get(ref_link)
                     except TimeoutException:
                         print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
-                    time.sleep(12)
+                    time.sleep(10)
 
                     try:
                         continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
@@ -2118,7 +2118,7 @@ class ChromeProfileManager(QMainWindow):
                     driver2.quit()
 
         if web == 'https://t.me/major/start?startapp=1641277785' or 'https://t.me/major' in web:
-            print('Running Tomarket')
+            print('Running Major')
             try:
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
                 chrome_options.add_argument('--no-experiments')
@@ -2147,7 +2147,7 @@ class ChromeProfileManager(QMainWindow):
                         print(
                             "Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
                         driver2.quit()
-                    time.sleep(15)
+                    time.sleep(10)
 
                     try:
                         continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
@@ -2172,10 +2172,34 @@ class ChromeProfileManager(QMainWindow):
                         "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
                     print(iframe_url)
                     driver2.switch_to.frame(iframe)
+                    time.sleep(3)
                     driver2.execute_script(SCRIPT_GAME_MAJOR)
+                    time.sleep(15)
+                    parsed_url = urlparse(iframe_url)
+                    fragment = parsed_url.fragment
 
-                    time.sleep(25)
+                    # Parse the fragment part to get key-value pairs
+                    params = parse_qs(fragment)
 
+                    # Extract the 'tgWebAppData' parameter
+                    tg_web_app_data = params.get('tgWebAppData', [None])[0]
+                    print('tg_web_app_data', tg_web_app_data)
+                    query=tg_web_app_data
+                    token = get_token(query, 'https://major.bot/api/auth/tg/', 'https://major.bot/')
+                    tasks = self.get_task_major(token, "true") + self.get_task_major(token, "false")
+                    if tasks is None:
+                        return
+
+                    for task in tasks:
+                        if not task.get('is_completed'):
+                            task_name = task.get("title", "").replace("\n", "")
+                            awarded = task.get("award", "")
+                            completed = self.do_task_major(token, task.get("id", ""))
+                            if completed:
+                                print(f"Completed {task_name} Get: {awarded}")
+                            else:
+                                time.sleep(5)
+                    time.sleep(10)
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
             except (NoSuchElementException, TimeoutException) as e:
@@ -2447,7 +2471,44 @@ class ChromeProfileManager(QMainWindow):
                 # event.wait()
                 self.open_url_in_thread(profile_path, web, email)
 
+    def request(self, method, url, token, proxies=None, json=None, url_root="https://major.bot/"):
+        try:
+            response = requests.request(
+                method, url, headers=headers(token=token, url_root=url_root), proxies=proxies, json=json, timeout=20
+            )
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            return None
 
+    def get_task_major(self, token, task_type, proxies=None):
+        url = f"https://major.bot/api/tasks/?is_daily={task_type}"
+        try:
+            response = self.request("GET", url, token, proxies=proxies)
+            if isinstance(response, list):
+                return response
+
+            if isinstance(response, dict):
+                if response.get("status") in [500, 520]:
+                    print("Server Major Down")
+                    return None
+                return response
+            return None
+        except (requests.exceptions.Timeout, requests.exceptions.HTTPError) as e:
+            print(f"Error occurred while getting tasks: {e}")
+            return None
+
+    def do_task_major(self, token, task_id, proxies=None):
+        url = "https://major.bot/api/tasks/"
+        payload = {'task_id': task_id}
+
+        try:
+            response = self.request("POST", url, token, proxies=proxies, json=payload, url_root="https://major.bot/")
+            if response and 'is_completed' in response:
+                return response['is_completed']
+            return False
+        except (requests.exceptions.Timeout, requests.exceptions.HTTPError) as e:
+            print(f"Error occurred while completing tasks: {e}")
+            return False
 
     def load_profile(self):
         global accList
