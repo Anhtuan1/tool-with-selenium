@@ -9,7 +9,7 @@
   setInterval(() => {
     const canvas = document.querySelector("canvas");
     if (canvas) findAndClickGreenObjects(canvas);
-  }, 200);
+  }, 300);
 
   function findAndClickGreenObjects(screenCanvas) {
     const context = screenCanvas.getContext('2d');
