@@ -3,25 +3,25 @@ import time
 import os
 import sys
 import asyncio
+import random
+import requests
+import json
+import threading
+import pyperclip
+import re
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from qasync import QEventLoop
 from PyQt5.QtWidgets import QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QLabel, QTextEdit, QPushButton, QLineEdit, QTableWidget, QTableWidgetItem, QFileDialog
-
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
-import requests
-import json
-import threading
-from selenium.common.exceptions import NoSuchElementException, TimeoutException, NoAlertPresentException
-from selenium.webdriver.common.keys import Keys
-import pyperclip
-import re
+from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from urllib.parse import urlparse, parse_qs, unquote
-
 from tkinter import Tk, Button, filedialog
+
 try:
     from telethon.sync import TelegramClient, events
     from telethon.sessions import StringSession
@@ -35,7 +35,7 @@ num_thread_running = 0
 futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
-URL_LIST = 'https://t.me/major/start?startapp=1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3'
+URL_LIST = 'https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://t.me/major/start?startapp=1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
 # https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H
 api_id = ''
 api_hash = ''
@@ -1265,7 +1265,20 @@ script_popup = f"""
                         }}
             }}, 10000)
         """
-
+headers_tomarket = {
+            "host": "api-web.tomarket.ai",
+            "connection": "keep-alive",
+            "accept": "application/json, text/plain, */*",
+            "user-agent": "Mozilla/5.0 (Linux; Android 10; Redmi 4A / 5A Build/QQ3A.200805.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/86.0.4240.185 Mobile Safari/537.36",
+            "content-type": "application/json",
+            "origin": "https://mini-app.tomarket.ai",
+            "x-requested-with": "tw.nekomimi.nekogram",
+            "sec-fetch-site": "same-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "referer": "https://mini-app.tomarket.ai/",
+            "accept-language": "en-US,en;q=0.9",
+        }
 class ChromeProfileManager(QMainWindow):
     threads = []
     def __init__(self, folder_path):
@@ -1653,6 +1666,7 @@ class ChromeProfileManager(QMainWindow):
         driver2 = None
         global accList
         key = accList[email]["key"]
+        CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
         script_click = f"""
                     var key = '{key}';
 
@@ -1692,9 +1706,6 @@ class ChromeProfileManager(QMainWindow):
 
                     """
 
-
-        print('web', web)
-        print('profile_path', profile_path)
         if web == 'https://web.telegram.org/k/#@dogshouse_bot':
             print('Running Dogs')
             try:
@@ -2061,7 +2072,6 @@ class ChromeProfileManager(QMainWindow):
                 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
                 chrome_options.add_argument(f"window-size=400,884")
 
-                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
                 chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
                 driver2 = webdriver.Chrome(options=chrome_options)
                 if web is not None:
@@ -2100,13 +2110,39 @@ class ChromeProfileManager(QMainWindow):
                     iframe_allow_attr = 'camera; microphone; geolocation;'
                     iframe = WebDriverWait(driver2, 20).until(
                         EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-                    # get iframe url
+
                     iframe_url = iframe.get_attribute('src')
                     iframe_url = iframe_url.replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios").replace(
                         "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    print(iframe_url)
-                    driver2.execute_script(SCRIPT_IFRAME_BYPASS_MOBILE)
-                    time.sleep(300)
+                    driver2.switch_to.frame(iframe)
+                    time.sleep(3)
+                    driver2.execute_script(SCRIPT_GAME_TOMARKET)
+                    time.sleep(10)
+                    parsed_url = urlparse(iframe_url)
+                    fragment = parsed_url.fragment
+                    params = parse_qs(fragment)
+                    tg_web_app_data = params.get('tgWebAppData', [None])[0]
+                    print('tg_web_app_data', tg_web_app_data)
+                    query = tg_web_app_data
+                    try:
+                        token = get_token_tomarket(query, 'https://api-web.tomarket.ai/tomarket-game/v1/user/login', 'https://mini-app.tomarket.ai/')
+                        print('token-tomarket', token)
+                        start_game = self.start_game_tomarket(token=token)
+                        if start_game.status_code == 200:
+                            print(f"Playing game in 30s...")
+                            time.sleep(30)
+                            point = random.randint(500, 600)
+                            claim_game = self.claim_game_tomarket(
+                                token=token, point=point
+                            )
+                            if claim_game.status_code == 200:
+                                print(f"Claim point from game success")
+                            else:
+                                print(f"Claim point from game failed")
+                        else:
+                            print(f"Start game failed")
+                    except (NoSuchElementException, TimeoutException):
+                        print(f"Lỗi: {str(e)}")
 
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
@@ -2126,7 +2162,7 @@ class ChromeProfileManager(QMainWindow):
                 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
                 chrome_options.add_argument(f"window-size=400,884")
 
-                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
+
                 chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
                 driver2 = webdriver.Chrome(options=chrome_options)
                 if web is not None:
@@ -2170,36 +2206,35 @@ class ChromeProfileManager(QMainWindow):
                     iframe_url = iframe.get_attribute('src')
                     iframe_url = iframe_url.replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios").replace(
                         "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    print(iframe_url)
                     driver2.switch_to.frame(iframe)
                     time.sleep(3)
                     driver2.execute_script(SCRIPT_GAME_MAJOR)
-                    time.sleep(15)
+                    time.sleep(10)
                     parsed_url = urlparse(iframe_url)
                     fragment = parsed_url.fragment
-
-                    # Parse the fragment part to get key-value pairs
                     params = parse_qs(fragment)
-
-                    # Extract the 'tgWebAppData' parameter
                     tg_web_app_data = params.get('tgWebAppData', [None])[0]
                     print('tg_web_app_data', tg_web_app_data)
                     query=tg_web_app_data
-                    token = get_token(query, 'https://major.bot/api/auth/tg/', 'https://major.bot/')
-                    tasks = self.get_task_major(token, "true") + self.get_task_major(token, "false")
-                    if tasks is None:
-                        return
-
-                    for task in tasks:
-                        if not task.get('is_completed'):
-                            task_name = task.get("title", "").replace("\n", "")
-                            awarded = task.get("award", "")
-                            completed = self.do_task_major(token, task.get("id", ""))
-                            if completed:
-                                print(f"Completed {task_name} Get: {awarded}")
-                            else:
-                                time.sleep(5)
-                    time.sleep(10)
+                    try:
+                        token = get_token(query, 'https://major.bot/api/auth/tg/', 'https://major.bot/')
+                        print('token', token)
+                        coins_hold = random.randint(800, 915)
+                        success = self.hold_coin(token, coins_hold)
+                        if success:
+                            print(f"Success Hold Coin | Reward {coins_hold} Coins")
+                            time.sleep(3)
+                        coins_swipe = random.randint(1900, 2400)
+                        success = self.swipe_coin(token, coins_swipe)
+                        if success:
+                            print(f"Success Swipe Coin | Reward {coins_swipe} Coins")
+                            time.sleep(3)
+                        auto_spin = self.spin(token)
+                        if auto_spin:
+                            print(f"Spin Success | Reward {auto_spin} points")
+                            time.sleep(3)
+                    except (NoSuchElementException, TimeoutException):
+                        print(f"Lỗi: {str(e)}")
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
             except (NoSuchElementException, TimeoutException) as e:
@@ -2509,6 +2544,98 @@ class ChromeProfileManager(QMainWindow):
         except (requests.exceptions.Timeout, requests.exceptions.HTTPError) as e:
             print(f"Error occurred while completing tasks: {e}")
             return False
+
+    def hold_coin(self, token, coins_hold, proxies=None):
+        url = "https://major.bot/api/bonuses/coins/"
+        payload = {"coins": coins_hold}
+        data = self.request("POST", url, token, proxies=proxies, json=payload)
+
+        if data:
+            if data.get("success", False):
+                return True
+
+            detail = data.get("detail", {})
+            blocked_until = detail.get("blocked_until")
+
+            if blocked_until is not None:
+                blocked_until_time = datetime.fromtimestamp(blocked_until).strftime('%Y-%m-%d %H:%M:%S')
+        return False
+
+    def swipe_coin(self, token, coins_swipe, proxies=None):
+        url = "https://major.bot/api/swipe_coin/"
+        payload = {"coins": coins_swipe}
+        data = self.request("POST", url, token, proxies=proxies, json=payload)
+
+        if data:
+            if data.get("success", False):
+                return True
+
+            detail = data.get("detail", {})
+            blocked_until = detail.get("blocked_until")
+
+            if blocked_until is not None:
+                blocked_until_time = datetime.fromtimestamp(blocked_until).strftime('%Y-%m-%d %H:%M:%S')
+        return False
+
+    def spin(self, token, proxies=None):
+        url = "https://major.bot/api/roulette/"
+        data = self.request("POST", url, token, proxies=proxies)
+
+        if isinstance(data, str):
+            try:
+                data = json.loads(data)
+            except json.JSONDecodeError as e:
+                return 0
+
+        if data:
+            if data.get("success", False):
+                return True
+
+            detail = data.get("detail", {})
+            blocked_until = detail.get("blocked_until")
+
+            if blocked_until is not None:
+                blocked_until_time = datetime.fromtimestamp(blocked_until).strftime('%Y-%m-%d %H:%M:%S')
+
+            return data.get("rating_award", 0)
+
+        return 0
+
+    def start_game_tomarket(self, token):
+        url = "https://api-web.tomarket.ai/tomarket-game/v1/game/play"
+        print('Playing game tomarket')
+        headers = headers_tomarket
+
+        headers["Authorization"] = token
+
+        payload = {"game_id": "59bcd12e-04e2-404c-a172-311a0084587d"}
+
+        data = json.dumps(payload)
+
+        headers["Content-Length"] = str(len(data))
+        headers["Content-Type"] = "application/json"
+
+        response = requests.post(url=url, headers=headers, data=data)
+
+        return response
+
+    def claim_game_tomarket(self, token, point):
+        url = "https://api-web.tomarket.ai/tomarket-game/v1/game/claim"
+        print('Claim game tomarket')
+        headers = headers_tomarket
+
+        headers["Authorization"] = token
+
+        payload = {"game_id": "59bcd12e-04e2-404c-a172-311a0084587d", "points": point}
+
+        data = json.dumps(payload)
+
+        headers["Content-Length"] = str(len(data))
+        headers["Content-Type"] = "application/json"
+
+        response = requests.post(url=url, headers=headers, data=data)
+
+        return response
 
     def load_profile(self):
         global accList
@@ -2880,6 +3007,7 @@ def headers(token=None, url_root="https://major.bot/"):
 def get_token(data, urlAuth, url_root):
     url = urlAuth
     payload = {"init_data": data}
+    print('Get Token')
     try:
         response = requests.post(
             url=url, headers=headers(None, url_root), json=payload, timeout=20
@@ -2889,6 +3017,27 @@ def get_token(data, urlAuth, url_root):
         return token
     except:
         return None
+
+def get_token_tomarket(data, urlAuth, url_root):
+    url = "https://api-web.tomarket.ai/tomarket-game/v1/user/login"
+    data = json.dumps(
+        {
+            "init_data": data,
+            "invite_code": "",
+        }
+    )
+    headers = headers_tomarket
+    print('Get Token Tomarket')
+    try:
+        response = requests.post(
+            url=url, headers=headers, data=data, timeout=20
+        )
+        data_res = response.json().get("data")
+        token = data_res.get("access_token")
+        return token
+    except:
+        return None
+
 
 async def main():
     # Create an instance of QApplication
