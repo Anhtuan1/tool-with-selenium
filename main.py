@@ -35,8 +35,8 @@ num_thread_running = 0
 futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
-URL_LIST = 'https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://t.me/major/start?startapp=1641277785 https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
-# https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H
+URL_LIST = 'https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
+# https://t.me/major/start?startapp=1641277785 https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H
 api_id = ''
 api_hash = ''
 CHROME_SIZE = {
@@ -735,12 +735,13 @@ SCRIPT_GAME_CAT = """
                         """
 SCRIPT_GAME_BLUM = """
         (async function () {
-            setTimeout(() => {
+            setInterval(() => {
                 if(document.querySelector('.play-btn')){
                     document.querySelector('.play-btn').click()
                 }
 
-            }, 16000);
+            }, 7000);
+            
             await start();
         })();
 
@@ -862,6 +863,8 @@ SCRIPT_GAME_TOMARKET = """
                     await clickByLabel(document.querySelectorAll('div'), "Start earning TOMATO", 4000);
                     await clickByLabel(document.querySelectorAll('div'), "Continue", 1000);
                     await clickByLabel(document.querySelectorAll('div'), "PLAY NOW", 2000);
+                    await clickByLabel(document.querySelectorAll('div'), "Start farming", 2000);
+                    await clickByLabel(document.querySelectorAll('span'), "Harvest", 3000);
                     await clickByLabel(document.querySelectorAll('div'), "Start farming", 2000);
                     setTimeout(() => {
                         resolve();
@@ -1819,10 +1822,10 @@ class ChromeProfileManager(QMainWindow):
                     print("- SCRIPT GAME CONTROL")
                     # driver2.execute_script(script_login)
                     driver2.execute_script(SCRIPT_GAME_BLUM)
-                    time.sleep(20)
+                    time.sleep(17)
                     token = driver2.execute_script("return localStorage;")
                     print(token)
-                    self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 34)
+                    self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 36)
 
                     print("- Done")
                     driver2.switch_to.default_content()
