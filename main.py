@@ -9,6 +9,7 @@ import json
 import threading
 import pyperclip
 import re
+import math
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from qasync import QEventLoop
@@ -21,6 +22,7 @@ from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from urllib.parse import urlparse, parse_qs, unquote
 from tkinter import Tk, Button, filedialog
+
 # +12565409036
 try:
     from telethon.sync import TelegramClient, events
@@ -1498,21 +1500,24 @@ class ChromeProfileManager(QMainWindow):
         print(f"Running: {str(email)}")
         driver2 = None
         global accList
-        width = 330
-        height = 796
+        num_threads_text = int(self.input_thread.toPlainText()) 
+        width = 360
+        height = 846
         scale = 0.6
-        cols = 8
         rows = 3
+        cols = math.ceil(num_threads_text / rows)
         key = accList[email]["key"]
-        email_keys = list(accList.keys())
-        index = email_keys.index(email) % 24
         
-        col = index % cols
-        row = (index % (cols * rows))  // cols
-
+        email_keys = list(accList.keys())
+        index = email_keys.index(email) % (num_threads_text)
+        
+        row = index % rows
+        col = math.floor(index / rows)
         # Calculate the position for the window based on scale
-        x_position = int(col * (width + 20))
-        y_position = int(row * (height))
+        x_position = int(col * (width + 120))
+        y_position = int(row * (height + 20))
+        scaled_width = int(width * scale)
+        scaled_height = int(height)
         CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
         script_click = f"""
                     var key = '{key}';
@@ -1560,7 +1565,7 @@ class ChromeProfileManager(QMainWindow):
                 driver2 = webdriver.Chrome(options=chrome_options)
                 driver2.get(web)
                 driver2.execute_script(script_popup)
-                time.sleep(5)
+                time.sleep(7)
                 try:
                     start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
                     start_button.click()
@@ -1608,7 +1613,7 @@ class ChromeProfileManager(QMainWindow):
                 chrome_options.add_argument('--no-experiments')
                 # Add the mobile emulation to the chrome options variable
                 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size={width * scale},{height * scale}")
+                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
                 chrome_options.add_argument(f"window-position={x_position},{y_position}")
                 chrome_options.add_argument("force-device-scale-factor=0.6") 
                 
@@ -1694,80 +1699,6 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
-        if web == 'https://t.me/catsgang_bot/join?startapp=9xaZ15mPrkB6wQaz3DKqH' or 'https://t.me/catsgang_bot' in web:
-            print('Running Cat')
-            try:
-                chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                # Add the mobile emulation to the chrome options variable
-                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size=414,736")
-
-                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
-                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
-                driver2 = webdriver.Chrome(options=chrome_options)
-                if web is not None:
-                    driver2.get(web)
-                    time.sleep(5)
-
-                try:
-                    wait = WebDriverWait(driver2, 30)
-                    try:
-                        element = wait.until(
-                            EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
-                        )
-                        ref_link = element.get_attribute('href')
-                        driver2.get(ref_link)
-                    except TimeoutException:
-                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
-                    time.sleep(5)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Launch not found")
-                    time.sleep(5)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("confirm not found")
-                    time.sleep(5)
-
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 50).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-                    # get iframe url
-                    iframe_url = iframe.get_attribute('src')
-                    iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace(
-                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    print("Src attribute of the iframe:", iframe_url)
-                    try:
-                        data_path = f"{self.folder_path}/data_login_cats/{email}"
-                        if not os.path.exists(data_path):
-                            os.makedirs(data_path)
-                        with open(data_path + '/url.txt', 'w') as file:
-                            file.write(iframe_url)
-                    except Exception as e:
-                        print(f"An error occurred: {e}")
-
-                    driver2.switch_to.frame(iframe)
-                    print("- SCRIPT GAME CONTROL")
-                    # driver2.execute_script(script_login)
-                    driver2.execute_script(SCRIPT_GAME_CAT)
-                    time.sleep(20)
-
-                    driver2.switch_to.default_content()
-                except (NoSuchElementException, TimeoutException):
-                    print(f"Lỗi: {str(e)}")
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi")
-            finally:
-                if driver2 is not None:
-                    print('Quit')
-                    driver2.quit()
         if web == 'https://t.me/bwcwukong_bot/Play?startapp=1641277785' or 'https://t.me/bwcwukong_bot' in web:
             print('Running Wukong')
             try:
@@ -1845,81 +1776,7 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
-        if web == 'https://t.me/hamster_kombat_boT/start?startapp=kentId1641277785' or 'https://t.me/hamster_kombat_boT/start' in web:
-            print('Running Hamter')
-            try:
-                chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                # Add the mobile emulation to the chrome options variable
-                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size=400,884")
-
-                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
-                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
-                driver2 = webdriver.Chrome(options=chrome_options)
-                if web is not None:
-                    driver2.get(web)
-                    time.sleep(5)
-
-                try:
-                    wait = WebDriverWait(driver2, 20)
-                    try:
-                        element = wait.until(
-                            EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
-                        )
-
-                        ref_link = element.get_attribute('href')
-                        ref_link = ref_link.replace('https://web.telegram.org/a/', 'https://web.telegram.org/k/')
-                        driver2.get(ref_link)
-                    except TimeoutException:
-                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
-                        driver2.quit()
-                    time.sleep(5)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Launch not found")
-                    time.sleep(5)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("confirm not found")
-                    time.sleep(5)
-
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 50).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-                    # get iframe url
-                    iframe_url = iframe.get_attribute('src')
-                    iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace(
-                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    driver2.get(iframe_url)
-                    try:
-                        data_path = f"{self.folder_path}/data_login_hamter/{email}"
-                        if not os.path.exists(data_path):
-                            os.makedirs(data_path)
-                        with open(data_path + '/url.txt', 'w') as file:
-                            file.write(iframe_url)
-                            print("->iframe url update:", data_path + '/url.txt')
-                    except Exception as e:
-                        print(f"An error occurred: {e}")
-
-                    print("- SCRIPT GAME CONTROL")
-                    driver2.execute_script(SCRIPT_GAME_HAMTER)
-                    time.sleep(15)
-                    self.run_script_from_file(driver2, self.folder_path + "/hamster_kombat_auto_click.txt", 140)
-                except (NoSuchElementException, TimeoutException):
-                    print(f"Lỗi: {str(e)}")
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi")
-            finally:
-                if driver2 is not None:
-                    print('Quit')
-                    driver2.quit()
+        
         if web == 'https://web.telegram.org/k/#@Tomarket_ai_bot' or web == 'https://t.me/Tomarket_ai_bot/app?startapp=00020R5H' or 'https://t.me/Tomarket_ai_bot/app' in web:
             print('Running Tomarket')
             try:
@@ -1927,7 +1784,7 @@ class ChromeProfileManager(QMainWindow):
                 chrome_options.add_argument('--no-experiments')
                 # Add the mobile emulation to the chrome options variable
                 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size={width*scale},{height*scale}")
+                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
                 chrome_options.add_argument(f"window-position={x_position},{y_position}")
                 chrome_options.add_argument("force-device-scale-factor=0.6") 
 
@@ -2028,7 +1885,7 @@ class ChromeProfileManager(QMainWindow):
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
                 chrome_options.add_argument('--no-experiments')
                 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size={width*scale},{height*scale}")
+                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
                 chrome_options.add_argument(f"window-position={x_position},{y_position}")
                 chrome_options.add_argument("force-device-scale-factor=0.6") 
 
@@ -2166,7 +2023,7 @@ class ChromeProfileManager(QMainWindow):
                         phrase_elm = driver2.find_elements(By.CSS_SELECTOR, 'div[variant="body"] > div[variant="body"]')
                         phrase = []
                         for word in phrase_elm:
-                            phrase.append(word.text);
+                            phrase.append(word.text)
                         phrase = ' '.join(phrase)
                         print('phrase:', phrase)
 
@@ -2237,99 +2094,12 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
-        if web == 'https://web.telegram.org/k/#@hamster_kombat_bot':
-            try:
-                chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                # Add the mobile emulation to the chrome options variable
-                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size=400,884")
-                driver2 = webdriver.Chrome(options=chrome_options)
-
-                if web is not None:
-                    driver2.get(web)
-                time.sleep(5)
-
-                try:
-                    print("- SCRIPT GAME START")
-                    driver2.execute_script(SCRIPT_GAME_START)
-                    time.sleep(10)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Launch not found")
-                    time.sleep(5)
-
-                    try:
-                        # continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
-                        continue_button = driver2.find_element(By.CSS_SELECTOR, ".confirm-dialog-button")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("confirm not found")
-                    time.sleep(5)
-
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 50).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-
-                    # get iframe url
-                    iframe_url = iframe.get_attribute('src')
-                    iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace(
-                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    print("Src attribute of the iframe:", iframe_url)
-                    try:
-                        data_path = f"{self.folder_path}/hamter_combat/{email}"
-                        if not os.path.exists(data_path):
-                            os.makedirs(data_path)
-                        with open(data_path + '/url.txt', 'w') as file:
-                            file.write(iframe_url)
-                            print("->iframe url update:", data_path + '/url.txt')
-                    except Exception as e:
-                        print(f"An error occurred: {e}")
-
-                    # run in top page
-                    print("- SCRIPT IFRAME BYPASS MOBILE")
-                    driver2.execute_script(SCRIPT_IFRAME_BYPASS_MOBILE)
-                    time.sleep(8)
-
-                    driver2.switch_to.frame(iframe)
-                    print("- SCRIPT GAME CONTROL")
-                    driver2.execute_script(SCRIPT_GAME_CONTROL)
-                    time.sleep(8)
-                    time.sleep(10)
-
-                    print("- SCRIPT WALLET CONTROL")
-                    driver2.switch_to.default_content()
-                    driver2.execute_script(SCRIPT_WALLET_CONTROL)
-                    time.sleep(10)
-
-                    # run browser script
-                    driver2.switch_to.frame(iframe)
-                    print("- SCRIPT GAME SET WALLET DEFAULT")
-                    driver2.execute_script(SCRIPT_GAME_SET_WALLET_DEFAULT)
-                    time.sleep(15)
-
-                    driver2.switch_to.default_content()
-                except (NoSuchElementException, TimeoutException):
-                    print(f"Lỗi: {str(e)}")
-
-
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi")
-            finally:
-
-                if driver2 is not None:
-                    print('Quit')
-                    driver2.quit()
-
+        
     def run_script_from_file(self, driver, file_path, run_time):
         try:
             print(f"Start run script from file: {file_path}")
             if os.path.exists(file_path):
                 with open(file_path, 'r', encoding="utf8") as file:
-                    print(f"opened file")
                     script_auto_tap = file.read()
                     driver.execute_script(script_auto_tap)
                     time.sleep(run_time)
@@ -2545,7 +2315,7 @@ class ChromeProfileManager(QMainWindow):
             open_profile_button = QPushButton('Go to profile')
             open_profile_button.clicked.connect(lambda _, email=email: self.open_profile(email))
             self.profile_table.setCellWidget(row_position, 3, open_profile_button)
-            data_path = f"{self.folder_path}/data_login/{email}"
+            data_path = f"{self.folder_path}/data_login_blums/{email}"
             if os.path.exists(data_path):
                 self.profile_table.setItem(row_position, 4, QTableWidgetItem('Login OK'))
             else:
@@ -2742,14 +2512,14 @@ class ChromeProfileManager(QMainWindow):
             chrome_options.add_argument(f'--user-data-dir={profile_path}')
             chrome_options.add_argument('--no-experiments')
             # Add the mobile emulation to the chrome options variable
-            chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+            # chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
             chrome_options.add_argument(f"window-size=400,886")
 
-            CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
-            chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
+            # CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
+            # chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
             driver3 = webdriver.Chrome(options=chrome_options)
             time.sleep(2)
-            driver3.get('https://web.telegram.org/k/#@hamster_kombat_bot')
+            driver3.get('https://web.telegram.org/k')
 
             driver3.execute_script('''
                         function addQuitButton() {
@@ -2799,66 +2569,7 @@ class ChromeProfileManager(QMainWindow):
                         // Add the button immediately
                         addQuitButton();
                     ''')
-            driver3.execute_script(SCRIPT_GAME_START)
             try:
-                iframe_allow_attr = 'camera; microphone; geolocation;'
-                iframe = WebDriverWait(driver3, 50).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-
-                # get iframe url
-                iframe_url = iframe.get_attribute('src')
-                iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace(
-                    "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                print("Src attribute of the iframe:", iframe_url)
-                driver3.get(iframe_url)
-                driver3.execute_script('''
-                        function addQuitButton() {
-                            var existingButton = document.getElementById("quit-button");
-                            if (existingButton) {
-                                return; // If the button already exists, don't add it again
-                            }
-
-                            var button = document.createElement("button");
-                            button.innerHTML = "Quit";
-                            button.id = "quit-button";
-                            document.body.appendChild(button);
-
-                            // Apply CSS styles to the button
-                            var css = `
-                                #quit-button {
-                                    position: fixed;
-                                    top: 10px;
-                                    right: 10px;
-                                    padding: 15px 30px;
-                                    font-size: 20px;
-                                    background-color: rgba(255, 77, 77, 0.2); /* Red background with 0.2 opacity */
-                                    color: white;
-                                    border: none;
-                                    border-radius: 5px;
-                                    cursor: pointer;
-                                    z-index: 1000; /* Ensure it stays on top */
-                                }
-
-                                #quit-button:hover {
-                                    background-color: rgba(255, 26, 26, 0.4); /* Darker red on hover with higher opacity */
-                                }
-                            `;
-                            var style = document.createElement('style');
-                            style.appendChild(document.createTextNode(css));
-                            document.head.appendChild(style);
-
-                            button.addEventListener("click", function() {
-                                var facebookDiv = document.createElement("div");
-                                facebookDiv.id = "facebook";
-                                document.body.appendChild(facebookDiv);
-                                window.close();
-                            });
-                        }
-
-
-                        // Add the button immediately
-                        addQuitButton();
-                    ''')
                 WebDriverWait(driver3, 3000).until(EC.presence_of_element_located((By.ID, 'facebook')))
             except TimeoutException:
                 print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
