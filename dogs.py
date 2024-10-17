@@ -576,7 +576,7 @@ class ChromeProfileManager(QMainWindow):
                     driver2.quit()
                 # threading.Thread(target=run_thread).start()
 
-        if web == 'https://web.telegram.org/k'
+        if web == 'https://web.telegram.org/k':
             try:
                 chrome_options.add_argument(f'--user-data-dir={profile_path}')
                 chrome_options.add_argument('--no-experiments')
