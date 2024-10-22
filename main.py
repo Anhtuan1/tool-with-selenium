@@ -44,12 +44,13 @@ futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
 # URL_LIST = 'https://t.me/drop_shit_game_bot?start=null'
-URL_LIST = 'https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot https://web.telegram.org/k/#@major https://web.telegram.org/k/#@BlumCryptoBot'
+URL_LIST = 'https://web.telegram.org/k/#@BlumCryptoBot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
+# URL_LIST = 'https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot https://t.me/major/start?startapp=1641277785 https://web.telegram.org/k/#@BlumCryptoBot'
 #https://web.telegram.org/k/#@BlumCryptoBot https://t.me/major/start?startapp=1641277785 https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H
 
 CHROME_SIZE = {
     "width": 380,  # user agent
-    "height": 696,  # user agent
+    "height": 686,  # user agent
     "height_window": 790,  # height chrome windows
 }
 
@@ -83,6 +84,7 @@ SCRIPT_GAME_HAMTER = """
                     document.querySelector('.bottom-sheet-button ').click()
                 }
             }, 1000)
+            
             await start();
         })();
 
@@ -100,9 +102,9 @@ SCRIPT_GAME_HAMTER = """
 
         			//touch click button
         			await simulateMouseTouch(document.querySelector('button.user-tap-button'), 2000);
-
+                    await clickByLabel(document.querySelectorAll('button'), "Play", 2000, true);
                     resolve();
-        		}, 1000);
+        		}, 2000);
         	});
         }
 
@@ -787,81 +789,21 @@ SCRIPT_GAME_BLUM = """
 SCRIPT_GAME_TOMARKET = """
         (async function () {
             await start();
-            
-            setTimeout(() => {
-                console.log(localStorage)
-                const dataGame = JSON.stringify({ "game_id": "59bcd12e-04e2-404c-a172-311a0084587d" });
-                const startUrl = "https://api-web.tomarket.ai/tomarket-game/v1/game/play";
-                const claimUrl = "https://api-web.tomarket.ai/tomarket-game/v1/game/claim";
+            setInterval(() => { 
+                document.querySelector('._levelWrapper_1tlfu_120').click()
                 
-                // Hàm để gửi yêu cầu HTTP
-                async function sendHttpRequest(url, headers, data) {
-                    try {
-                        const response = await fetch(url, {
-                            method: 'POST',
-                            headers: headers,
-                            body: data
-                        });
-                
-                        // Kiểm tra trạng thái phản hồi
-                        if (!response.ok) {
-                            throw new Error(`HTTP error! status: ${response.status}`);
-                        }
-                        
-                        return response;
-                    } catch (error) {
-                        console.error(`Error occurred: ${error.message}`);
-                        return null;
+                 setTimeout(async () => {
+                    if(document.querySelector('._btn_1i45r_156')){
+                        document.querySelector('._btn_1i45r_156').click()
                     }
-                }
+                    await clickByLabel(document.querySelectorAll('button'), "Level Up", 2000, true);
+                    
+                }, 3000)
+                setTimeout(async () => {
+                    await clickByLabel(document.querySelectorAll('button'), "Use", 2000, true);
+                }, 4000)   
                 
-                // Hàm để thực hiện logic của game
-                async function playGame(headers, amountPass, gameLowPoint, gameHighPoint) {
-                    for (let i = 0; i < amountPass; i++) {
-                        // Gửi yêu cầu bắt đầu game
-                        let res = await sendHttpRequest(startUrl, headers, dataGame);
-                        if (!res) {
-                            console.log("failed start game !");
-                            return;
-                        }
-                        console.log("success start game!");
-                
-                        // Đợi 30 giây
-                        await countdown(30);
-                
-                        // Chọn điểm ngẫu nhiên
-                        const point = Math.floor(Math.random() * (gameHighPoint - gameLowPoint + 1)) + gameLowPoint;
-                        const dataClaim = JSON.stringify({
-                            "game_id": "59bcd12e-04e2-404c-a172-311a0084587d",
-                            "points": point
-                        });
-                
-                        // Gửi yêu cầu yêu cầu nhận điểm
-                        res = await sendHttpRequest(claimUrl, headers, dataClaim);
-                        if (!res) {
-                            console.log("failed claim game point!");
-                            continue;
-                        }
-                        console.log(`success claim game point: ${point}`);
-                    }
-                }
-                
-                // Hàm countdown để chờ đợi
-                function countdown(seconds) {
-                    return new Promise((resolve) => setTimeout(resolve, seconds * 1000));
-                }
-                
-                // Ví dụ sử dụng
-                const headers = {
-                    "Content-Type": "application/json",
-                };
-                const amountPass = 3;  // Số lần thực hiện game
-                const gameLowPoint = 490;
-                const gameHighPoint = 500;
-                
-                playGame(headers, amountPass, gameLowPoint, gameHighPoint);
-            }, 10000)
-            
+            }, 12000)
         })();
         async function start() {
         	console.log('- start');
@@ -876,7 +818,7 @@ SCRIPT_GAME_TOMARKET = """
                     await clickByLabel(document.querySelectorAll('div'), "Start farming", 2000);
                     await clickByLabel(document.querySelectorAll('span'), "Harvest", 3000);
                     await clickByLabel(document.querySelectorAll('div'), "Start farming", 2000);
-                    
+                    await clickByLabel(document.querySelectorAll('div'), "PLAY NOW", 2000);
                     setTimeout(() => {
                         resolve();
                     }, 2000);
@@ -1157,113 +1099,6 @@ SCRIPT_GAME_SET_WALLET_DEFAULT = """
         	return new Promise(resolve => setTimeout(resolve, time));
         }
                 """
-SCRIPT_GAME_MAJOR = """
-        (async function () {
-            await start();
-        })();
-        
-        async function start() {
-            console.log('- start');
-            return new Promise(resolve => {
-                setTimeout(async () => {
-                    await clickByLabel(document.querySelectorAll('button'), "Let's get started!", 2000, true);
-                    //close popup
-                    if(await checkExistElm(document.querySelectorAll('h1'), "Take your daily bonus", 1000, true)) {
-                        let modal = await getElementByClass(document.querySelectorAll('div'), '_modalBottom');
-                        if(modal) {
-                            await waitClick(modal.querySelector('svg.m-auto'));
-                        }
-                    }
-                    
-                    resolve();
-                }, 5000);
-            });
-        }
-        
-        async function getElementByClass(elmList, className, time = 0, must_same = false) {
-            let result = null;
-            if (elmList.length && className) {
-                for (let item of elmList) {
-                    let classStr = item.getAttribute('class');
-                    //console.log(classStr, className);
-                    if(!classStr) continue;
-                    if((!must_same && classStr.includes(className)) || (must_same && classStr.split(' ').indexOf(className))) {
-                        console.log('--- elm class exist', item);
-                        result = item;
-                        break;
-                    }
-                }
-            }
-            return new Promise(resolve => setTimeout(resolve(result), time));
-        }
-        
-        async function checkExistElm(elmList, label, time = 0, must_same = false) {
-            let result = false;
-            if (elmList.length && label) {
-                for (let btnItem of elmList) {
-                    if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
-                        console.log('--- elm exist', btnItem);
-                        result = true;
-                        break;
-                    }
-                }
-            }
-            return new Promise(resolve => setTimeout(resolve(result), time));
-        }
-        
-        async function simulateMouseClick(el, click_event_option = {}) {
-          let opts = {
-              ...click_event_option,
-              view: window, bubbles: true, cancelable: true, buttons: 1
-          };
-          el.dispatchEvent(new MouseEvent("mousedown", opts));
-          await new Promise(r => setTimeout(r, 50));
-          el.dispatchEvent(new MouseEvent("mouseup", opts));
-          el.dispatchEvent(new MouseEvent("click", opts));
-        }
-        
-        async function simulateMouseTouch(el, time = 0) {
-            const evt1 = new PointerEvent('pointerdown', {clientX: 245, clientY: 700});
-            const evt2 = new PointerEvent('pointerup', {clientX: 245, clientY: 700});
-        
-            el.dispatchEvent(evt1);
-            el.dispatchEvent(evt2);
-        
-            return new Promise(resolve => setTimeout(resolve, time));
-        }
-        
-        
-        //For React ≥ 15.6.1
-        async function simulateMouseInput(el, value) {
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-              window.HTMLInputElement.prototype,
-              'value').set;
-            nativeInputValueSetter.call(el, value);
-            const event = new Event('input', { bubbles: true });
-            el.dispatchEvent(event);
-        }
-        
-        async function waitClick(btn, time = 1000, click_event_option = {}) {
-            if (btn) {
-                console.log(btn);
-                await simulateMouseClick(btn, click_event_option);
-            }
-            return new Promise(resolve => setTimeout(resolve, time));
-        }
-        async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
-            if (btn_list.length && label) {
-                for await (const btnItem of btn_list) {
-                    //console.log('--', btnItem.textContent, btnItem);
-                    if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
-                        console.log('->', btnItem.textContent, btnItem);
-                        await simulateMouseClick(btnItem);
-                        break;
-                    }
-                }
-            }
-            return new Promise(resolve => setTimeout(resolve, time));
-        }
-"""
 script_popup = f"""
             setInterval(() => {{
                 if(document.querySelector('.popup-confirmation .checkbox-ripple')) {{
@@ -1547,7 +1382,7 @@ class ChromeProfileManager(QMainWindow):
         col = math.floor(index / rows)
         # Calculate the position for the window based on scale
         x_position = int(col * (width + 120))
-        y_position = int(row * (height - 30))
+        y_position = int(row * (height - 40))
         scaled_width = int(width * scale)
         scaled_height = int(height)
         CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
@@ -1723,7 +1558,6 @@ class ChromeProfileManager(QMainWindow):
                     driver2.execute_script(SCRIPT_GAME_BLUM)
                     time.sleep(13)
                     token = driver2.execute_script("return localStorage;")
-                    print(token)
                     self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 36)
 
                     print("- Done")
@@ -1873,7 +1707,7 @@ class ChromeProfileManager(QMainWindow):
                         except TimeoutException:
                             print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
                             driver2.quit()
-                    time.sleep(5)
+                    time.sleep(10)
 
                     try:
                         continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
@@ -1904,11 +1738,11 @@ class ChromeProfileManager(QMainWindow):
                     fragment = parsed_url.fragment
                     params = parse_qs(fragment)
                     tg_web_app_data = params.get('tgWebAppData', [None])[0]
-                    print('tg_web_app_data', tg_web_app_data)
+                    time.sleep(50)
                     query = tg_web_app_data
                     try:
                         token = get_token_tomarket(query, 'https://api-web.tomarket.ai/tomarket-game/v1/user/login', 'https://mini-app.tomarket.ai/', proxyHeader)
-                        print('token-tomarket', token)
+                        print('token-tomarket done')
                         start_game = self.start_game_tomarket(token=token, proxy=proxyHeader)
                         if start_game.status_code == 200:
                             print(f"Playing game in 30s...")
@@ -1935,108 +1769,7 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
-        if web== 'https://web.telegram.org/k/#@major' or web == 'https://t.me/major/start?startapp=1641277785' or 'https://t.me/major' in web:
-            print('Running Major')
-            try:
-                chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
-                chrome_options.add_argument(f"window-position={x_position},{y_position}")
-                chrome_options.add_argument("force-device-scale-factor=0.6") 
-
-
-                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
-                driver2 = webdriver.Chrome(options=chrome_options)
-                if web is not None:
-                    driver2.get(web)
-                    time.sleep(3)
-
-                try:
-                    if web == 'https://web.telegram.org/k/#@major':
-                        driver2.execute_script(script_popup)
-                        time.sleep(5)
-                        try:
-                            start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
-                            start_button.click()
-                        except (NoSuchElementException, TimeoutException):
-                            continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'START')]")
-                            continue_button.click()
-                    else:
-                        wait = WebDriverWait(driver2, 20)
-                        try:
-                            element = wait.until(
-                                EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
-                            )
-
-                            ref_link = element.get_attribute('href')
-                            ref_link = ref_link.replace('https://web.telegram.org/a/', 'https://web.telegram.org/k/')
-                            driver2.get(ref_link)
-                        except TimeoutException:
-                            print(
-                                "Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
-                            driver2.quit()
-                    time.sleep(5)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Launch not found")
-                    time.sleep(2)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("confirm not found")
-                    time.sleep(2)
-
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 20).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-                    # get iframe url
-                    iframe_url = iframe.get_attribute('src')
-                    iframe_url = iframe_url.replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios").replace(
-                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    driver2.switch_to.frame(iframe)
-                    time.sleep(3)
-                    driver2.execute_script(SCRIPT_GAME_MAJOR)
-                    time.sleep(10)
-                    parsed_url = urlparse(iframe_url)
-                    fragment = parsed_url.fragment
-                    params = parse_qs(fragment)
-                    tg_web_app_data = params.get('tgWebAppData', [None])[0]
-                    print('tg_web_app_data', tg_web_app_data)
-                    query=tg_web_app_data
-                    try:
-                        token = get_token(query, 'https://major.bot/api/auth/tg/', 'https://major.bot/')
-                        print('token', token)
-                        coins_hold = random.randint(800, 915)
-                        success = self.hold_coin(token, coins_hold)
-                        if success:
-                            print(f"Success Hold Coin | Reward {coins_hold} Coins")
-                            time.sleep(3)
-                        coins_swipe = random.randint(1900, 2400)
-                        success = self.swipe_coin(token, coins_swipe)
-                        if success:
-                            print(f"Success Swipe Coin | Reward {coins_swipe} Coins")
-                            time.sleep(3)
-                        auto_spin = self.spin(token)
-                        if auto_spin:
-                            print(f"Spin Success | Reward {auto_spin} points")
-                            time.sleep(3)
-                    except (NoSuchElementException, TimeoutException):
-                        print(f"Lỗi: {str(e)}")
-                except (NoSuchElementException, TimeoutException):
-                    print(f"Lỗi: {str(e)}")
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi")
-            finally:
-                if driver2 is not None:
-                    print('Quit')
-                    driver2.quit()
-
+        
         if web == 'https://web.telegram.org/k/#@wallet':
             print('Running Wallet')
             try:
