@@ -44,7 +44,7 @@ futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
 # URL_LIST = 'https://t.me/drop_shit_game_bot?start=null'
-URL_LIST = 'https://web.telegram.org/k/#@BlumCryptoBot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
+URL_LIST = 'https://web.telegram.org/a https://web.telegram.org/k/#@BlumCryptoBot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
 # URL_LIST = 'https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot https://t.me/major/start?startapp=1641277785 https://web.telegram.org/k/#@BlumCryptoBot'
 #https://web.telegram.org/k/#@BlumCryptoBot https://t.me/major/start?startapp=1641277785 https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H
 
@@ -789,6 +789,8 @@ SCRIPT_GAME_BLUM = """
 SCRIPT_GAME_TOMARKET = """
         (async function () {
             await start();
+            
+
             setInterval(() => { 
                 document.querySelector('._levelWrapper_1tlfu_120').click()
                 
@@ -796,6 +798,8 @@ SCRIPT_GAME_TOMARKET = """
                     if(document.querySelector('._btn_1i45r_156')){
                         document.querySelector('._btn_1i45r_156').click()
                     }
+                    await clickByLabel(document.querySelectorAll('button'), "Reveal Your Level", 2000, true);
+                    
                     await clickByLabel(document.querySelectorAll('button'), "Level Up", 2000, true);
                     
                 }, 3000)
@@ -803,7 +807,9 @@ SCRIPT_GAME_TOMARKET = """
                     await clickByLabel(document.querySelectorAll('button'), "Use", 2000, true);
                 }, 4000)   
                 
-            }, 12000)
+            }, 20000)
+            
+            
         })();
         async function start() {
         	console.log('- start');
@@ -812,19 +818,28 @@ SCRIPT_GAME_TOMARKET = """
 
         		    await clickByLabel(document.querySelectorAll('div'), "View My Level", 2000);
                     await clickByLabel(document.querySelectorAll('div'), "Start earning TOMATO", 2000);
-                    await clickByLabel(document.querySelectorAll('div'), "Continue", 1000);
-                    await clickByLabel(document.querySelectorAll('div'), "PLAY NOW", 2000);
-                    await clickByLabel(document.querySelectorAll('div'), "Enter", 2000);
+                    await clickByLabel(document.querySelectorAll('div'), "Continue", 2000);
+                    await clickByLabel(document.querySelectorAll('div'), "PLAY NOW", 1000);
+                    await clickByLabel(document.querySelectorAll('div'), "Enter", 1000);
                     await clickByLabel(document.querySelectorAll('div'), "Start farming", 2000);
-                    await clickByLabel(document.querySelectorAll('span'), "Harvest", 3000);
+                    
+                    await clickByLabel(document.querySelectorAll('span'), "Harvest", 2000);
                     await clickByLabel(document.querySelectorAll('div'), "Start farming", 2000);
                     await clickByLabel(document.querySelectorAll('div'), "PLAY NOW", 2000);
+                    await clickByLabel(document.querySelectorAll('div'), "Tasks", 3000);
+                    if(document.querySelector('._btnStart_1wyk3_425')){
+                        document.querySelector('._btnStart_1wyk3_425').click()
+                    }
+                    await clickByLabel(document.querySelectorAll('div'), "Complete Step 1", 3000);
+                    await clickByLabel(document.querySelectorAll('div'), "Home", 2000);
                     setTimeout(() => {
                         resolve();
                     }, 2000);
         		}, 2000);
         	});
         }
+
+        
 
         async function waitClick(btn, time = 1000) {
         	if (btn) btn.click();
@@ -871,6 +886,126 @@ SCRIPT_GAME_START = """
         async function waitClick(btn, time = 1000) {
         	if (btn) await simulateMouseClick(btn);
         	return new Promise(resolve => setTimeout(resolve, time));
+        }
+        """
+
+SCRIPT_SET_NAME = """
+       (async function () {
+            await openSetUserNamePage();
+        })();
+
+        async function openSetUserNamePage() {
+            console.log('- openSetUserNamePage');
+            return new Promise(resolve => {
+                setTimeout(async () => {
+                    let openMenuLoop = setInterval(() => {
+                        let ribbonMenu = document.querySelector('button[title="Open menu"]');
+                        if(ribbonMenu) {
+                            ribbonMenu.click();
+                            clearInterval(openMenuLoop);
+
+                            setTimeout(async () => {
+                                //open setting page
+                                await clickByLabel(document.querySelectorAll('div[role="menuitem"]'), 'Settings');
+                            
+                                setTimeout(async () => {
+                                    //open profile page
+                                    document.querySelector('button[title="Edit profile"]').click();
+                                    await getUserName();
+                                    //click save
+                                    let saveBtn = document.querySelector('button[aria-label="Save"]');
+                                    await simulateMouseClick(saveBtn);
+
+                                    setTimeout(() => {
+                                        resolve();
+                                    }, 2000);
+                                }, 1000);
+                            }, 1000);
+                        }
+                    }, 500);
+                }, 2000);
+            });
+        }
+
+        async function getUserName() {
+            console.log('- getUserName');
+            return new Promise(resolve => {
+                setTimeout(async () => {
+                    let firstName = document.querySelector('input[aria-label="First name (required)"]').value;
+                    let lastName = document.querySelector('input[aria-label="Last name (optional)"]').value;
+                    let userNameInput =  document.querySelector('input[aria-label="Username"');
+                    let userNameVal =  userNameInput.value;
+                    
+                    
+                    let userName = firstName ? (firstName.toLowerCase() + '_' ): '';
+                    userName += makeid(3);
+                    userName += lastName ? lastName.toLowerCase() : '';
+                    //remove number at start string
+                    userName = userName.replace(/^\d{0,}/, '');
+                    userName = userName.replace('🍅', '');
+                    userName = userName.replace('🍅', '');
+                    console.log('--- set username: ', userName);
+                    if(!firstName.includes('🍅')){
+                        document.querySelector('input[aria-label="First name (required)"]').value = firstName + '🍅';
+                        await simulateMouseInput(document.querySelector('input[aria-label="First name (required)"]'));
+                    }
+                    if(!lastName.includes('🍅')){ 
+                        document.querySelector('input[aria-label="Last name (optional)"]').value = lastName + '🍅';
+                        await simulateMouseInput(document.querySelector('input[aria-label="Last name (optional)"]'));
+                    }
+                    
+                    userNameInput.value = 'a' + userName + 'tu';
+                    await simulateMouseInput(userNameInput);
+                    
+                    
+                    setTimeout(() => {
+                        resolve();
+                    }, 3000);
+                }, 2000);
+            });
+        }
+
+        function makeid(length) {
+            let result = '';
+            const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+            const charactersLength = characters.length;
+            let counter = 0;
+            while (counter < length) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+            counter += 1;
+            }
+            return result;
+        }
+
+        async function simulateMouseClick(el) {
+        let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
+        el.dispatchEvent(new MouseEvent("mousedown", opts));
+        await new Promise(r => setTimeout(r, 50));
+        el.dispatchEvent(new MouseEvent("mouseup", opts));
+        el.dispatchEvent(new MouseEvent("click", opts));
+        }
+
+        async function simulateMouseInput(el) {
+        let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
+        el.dispatchEvent(new MouseEvent("mousedown", opts));
+        await new Promise(r => setTimeout(r, 50));
+        el.dispatchEvent(new MouseEvent("mouseup", opts));
+        el.dispatchEvent(new MouseEvent("input", opts));
+        }
+
+        async function waitClick(btn, time = 1000) {
+            if (btn) await simulateMouseClick(btn);
+            return new Promise(resolve => setTimeout(resolve, time));
+        }
+        async function clickByLabel(btnList, label, time = 1000) {
+            if (btnList.length && label) {
+                for (let btnItem of btnList) {
+                    if(btnItem.textContent.includes(label)){
+                        await simulateMouseClick(btnItem);
+                    }
+                }
+            }
+            return new Promise(resolve => setTimeout(resolve, time));
         }
         """
 SCRIPT_IFRAME_BYPASS_MOBILE = """
@@ -1351,7 +1486,7 @@ class ChromeProfileManager(QMainWindow):
         global accList
         global proxy
         num_threads_text = int(self.input_thread.toPlainText()) 
-        width = 360
+        width = 480
         height = 816
         scale = 0.6
         rows = 3
@@ -1381,8 +1516,8 @@ class ChromeProfileManager(QMainWindow):
         row = index % rows
         col = math.floor(index / rows)
         # Calculate the position for the window based on scale
-        x_position = int(col * (width + 120))
-        y_position = int(row * (height - 40))
+        x_position = int(col * (width))
+        y_position = int(row * (height - 30))
         scaled_width = int(width * scale)
         scaled_height = int(height)
         CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
@@ -1666,6 +1801,35 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
+        if web == 'https://web.telegram.org/a':
+            print('Running set name')
+            try:
+                chrome_options.add_argument(f'--user-data-dir={profile_path}')
+                chrome_options.add_argument('--no-experiments')
+                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
+                chrome_options.add_argument(f"window-position={x_position},{y_position}")
+                chrome_options.add_argument("force-device-scale-factor=0.55") 
+                driver2 = webdriver.Chrome(options=chrome_options)
+
+                #run by tele web
+                if web is not None:
+                    driver2.get(web)
+                    time.sleep(5)
+
+                try:
+                    print("- SCRIPT Set Name")
+                    driver2.execute_script(SCRIPT_SET_NAME)
+                    time.sleep(30)
+                except (NoSuchElementException, TimeoutException):
+                    print(f"Lỗi: {str(e)}")
+
+            except (NoSuchElementException, TimeoutException) as e:
+                print(f"Xảy ra lỗi")
+            finally:
+                if driver2 is not None:
+                    print('Quit')
+                    driver2.quit()
         
         if web == 'https://web.telegram.org/k/#@Tomarket_ai_bot' or web == 'https://t.me/Tomarket_ai_bot/app?startapp=00020R5H' or 'https://t.me/Tomarket_ai_bot/app' in web:
             print('Running Tomarket')
@@ -1733,12 +1897,12 @@ class ChromeProfileManager(QMainWindow):
                     driver2.switch_to.frame(iframe)
                     time.sleep(3)
                     driver2.execute_script(SCRIPT_GAME_TOMARKET)
-                    time.sleep(10)
+                    time.sleep(60)
                     parsed_url = urlparse(iframe_url)
                     fragment = parsed_url.fragment
                     params = parse_qs(fragment)
                     tg_web_app_data = params.get('tgWebAppData', [None])[0]
-                    time.sleep(50)
+                    
                     query = tg_web_app_data
                     try:
                         token = get_token_tomarket(query, 'https://api-web.tomarket.ai/tomarket-game/v1/user/login', 'https://mini-app.tomarket.ai/', proxyHeader)
@@ -1759,6 +1923,7 @@ class ChromeProfileManager(QMainWindow):
                             print(f"Start game failed")
                     except (NoSuchElementException, TimeoutException):
                         print(f"Lỗi: {str(e)}")
+                    time.sleep(5)
 
                 except (NoSuchElementException, TimeoutException):
                     print(f"Lỗi: {str(e)}")
@@ -1934,6 +2099,7 @@ class ChromeProfileManager(QMainWindow):
                 email = keys_list[i]
                 future = executor.submit(self.open_url, email, event)
                 futures.append(future)
+                time.sleep(1)
         self.all_acction()
 
     def open_url(self, email, event):
@@ -1954,92 +2120,7 @@ class ChromeProfileManager(QMainWindow):
         except requests.exceptions.RequestException as e:
             return None
 
-    def get_task_major(self, token, task_type, proxies=None):
-        url = f"https://major.bot/api/tasks/?is_daily={task_type}"
-        try:
-            response = self.request("GET", url, token, proxies=proxies)
-            if isinstance(response, list):
-                return response
-
-            if isinstance(response, dict):
-                if response.get("status") in [500, 520]:
-                    print("Server Major Down")
-                    return None
-                return response
-            return None
-        except (requests.exceptions.Timeout, requests.exceptions.HTTPError) as e:
-            print(f"Error occurred while getting tasks: {e}")
-            return None
-
-    def do_task_major(self, token, task_id, proxies=None):
-        url = "https://major.bot/api/tasks/"
-        payload = {'task_id': task_id}
-
-        try:
-            response = self.request("POST", url, token, proxies=proxies, json=payload, url_root="https://major.bot/")
-            if response and 'is_completed' in response:
-                return response['is_completed']
-            return False
-        except (requests.exceptions.Timeout, requests.exceptions.HTTPError) as e:
-            print(f"Error occurred while completing tasks: {e}")
-            return False
-
-    def hold_coin(self, token, coins_hold, proxies=None):
-        url = "https://major.bot/api/bonuses/coins/"
-        payload = {"coins": coins_hold}
-        data = self.request("POST", url, token, proxies=proxies, json=payload)
-
-        if data:
-            if data.get("success", False):
-                return True
-
-            detail = data.get("detail", {})
-            blocked_until = detail.get("blocked_until")
-
-            if blocked_until is not None:
-                blocked_until_time = datetime.fromtimestamp(blocked_until).strftime('%Y-%m-%d %H:%M:%S')
-        return False
-
-    def swipe_coin(self, token, coins_swipe, proxies=None):
-        url = "https://major.bot/api/swipe_coin/"
-        payload = {"coins": coins_swipe}
-        data = self.request("POST", url, token, proxies=proxies, json=payload)
-
-        if data:
-            if data.get("success", False):
-                return True
-
-            detail = data.get("detail", {})
-            blocked_until = detail.get("blocked_until")
-
-            if blocked_until is not None:
-                blocked_until_time = datetime.fromtimestamp(blocked_until).strftime('%Y-%m-%d %H:%M:%S')
-        return False
-
-    def spin(self, token, proxies=None):
-        url = "https://major.bot/api/roulette/"
-        data = self.request("POST", url, token, proxies=proxies)
-
-        if isinstance(data, str):
-            try:
-                data = json.loads(data)
-            except json.JSONDecodeError as e:
-                return 0
-
-        if data:
-            if data.get("success", False):
-                return True
-
-            detail = data.get("detail", {})
-            blocked_until = detail.get("blocked_until")
-
-            if blocked_until is not None:
-                blocked_until_time = datetime.fromtimestamp(blocked_until).strftime('%Y-%m-%d %H:%M:%S')
-
-            return data.get("rating_award", 0)
-
-        return 0
-
+    
     def start_game_tomarket(self, token, proxy=None):
         url = "https://api-web.tomarket.ai/tomarket-game/v1/game/play"
         print('Playing game tomarket')
