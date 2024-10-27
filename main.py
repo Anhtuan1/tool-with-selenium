@@ -44,8 +44,10 @@ futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
 # URL_LIST = 'https://t.me/drop_shit_game_bot?start=null'
-URL_LIST = 'https://web.telegram.org/a https://web.telegram.org/k/#@BlumCryptoBot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
-# URL_LIST = 'https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot https://t.me/major/start?startapp=1641277785 https://web.telegram.org/k/#@BlumCryptoBot'
+URL_LIST = 'https://web.telegram.org/k/#@wallet https://t.me/notpixel/app?startapp=f1641277785 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://web.telegram.org/k/#@BlumCryptoBot'
+URL_INFO = 'https://web.telegram.org/a https://web.telegram.org/k/#@wallet'
+URL_INFO1 = 'https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot'
+URL_INFO2 = 'https://t.me/major/start?startapp=1641277785 https://t.me/notpixel/app?startapp=f164127778'
 #https://web.telegram.org/k/#@BlumCryptoBot https://t.me/major/start?startapp=1641277785 https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H
 
 CHROME_SIZE = {
@@ -789,25 +791,23 @@ SCRIPT_GAME_BLUM = """
 SCRIPT_GAME_TOMARKET = """
         (async function () {
             await start();
-            
 
             setInterval(() => { 
                 document.querySelector('._levelWrapper_1tlfu_120').click()
                 
                  setTimeout(async () => {
+                    
+                    await clickByLabel(document.querySelectorAll('button'), "Reveal Your Level", 4000, true);
+                    await clickByLabel(document.querySelectorAll('button'), "Reveal Your Level", 4000, true);
                     if(document.querySelector('._btn_1i45r_156')){
                         document.querySelector('._btn_1i45r_156').click()
                     }
-                    await clickByLabel(document.querySelectorAll('button'), "Reveal Your Level", 2000, true);
+                    await clickByLabel(document.querySelectorAll('button'), "Level Up", 3000, true);
+                    await clickByLabel(document.querySelectorAll('button'), "Use", 3000, true);
                     
-                    await clickByLabel(document.querySelectorAll('button'), "Level Up", 2000, true);
-                    
-                }, 3000)
-                setTimeout(async () => {
-                    await clickByLabel(document.querySelectorAll('button'), "Use", 2000, true);
-                }, 4000)   
+                }, 7000)   
                 
-            }, 20000)
+            }, 12000)
             
             
         })();
@@ -815,7 +815,7 @@ SCRIPT_GAME_TOMARKET = """
         	console.log('- start');
         	return new Promise(resolve => {
         		setTimeout(async () => {
-
+                    
         		    await clickByLabel(document.querySelectorAll('div'), "View My Level", 2000);
                     await clickByLabel(document.querySelectorAll('div'), "Start earning TOMATO", 2000);
                     await clickByLabel(document.querySelectorAll('div'), "Continue", 2000);
@@ -824,12 +824,15 @@ SCRIPT_GAME_TOMARKET = """
                     await clickByLabel(document.querySelectorAll('div'), "Start farming", 2000);
                     
                     await clickByLabel(document.querySelectorAll('span'), "Harvest", 2000);
-                    await clickByLabel(document.querySelectorAll('div'), "Start farming", 2000);
                     await clickByLabel(document.querySelectorAll('div'), "PLAY NOW", 2000);
-                    await clickByLabel(document.querySelectorAll('div'), "Tasks", 3000);
-                    if(document.querySelector('._btnStart_1wyk3_425')){
-                        document.querySelector('._btnStart_1wyk3_425').click()
+                    await clickByLabel(document.querySelectorAll('div'), "Tasks", 4000);
+                    if(document.querySelector('._btnStart_9ibh7_429')){
+                        document.querySelector('._btnStart_9ibh7_429').click()
                     }
+                    if(document.querySelector('._btnStart_9ibh7_429')[1]){
+                        document.querySelector('._btnStart_9ibh7_429')[1].click()
+                    }
+                    await clickByLabel(document.querySelectorAll('div'), "Complete Step 1", 3000);
                     await clickByLabel(document.querySelectorAll('div'), "Complete Step 1", 3000);
                     await clickByLabel(document.querySelectorAll('div'), "Home", 2000);
                     setTimeout(() => {
@@ -857,37 +860,79 @@ SCRIPT_GAME_TOMARKET = """
         }
 """
 SCRIPT_GAME_START = """
-        (async function () {
-            await start();
-        })();
+    (async function () {
+        await start();
+    })();
 
-        async function start() {
-            console.log('- start');
-            return new Promise(resolve => {
-                setTimeout(async () => {
+    async function start() {
+        console.log('- start');
+        return new Promise(resolve => {
+            setTimeout(async () => {
+                
+                await waitClick(document.querySelector('.new-message-bot-commands-view'), 2000);
 
-                    await waitClick(document.querySelector('.new-message-bot-commands-view'));
+                await clickByLabel(document.querySelectorAll('button'), 'Launch', 2000);
+                await clickByLabel(document.querySelectorAll('button'), 'Confirm');
 
-                    setTimeout(() => {
-                        resolve();
-                    }, 2000);
+                setTimeout(() => {
+                    resolve();
                 }, 2000);
-            });
-        }
+            }, 2000);
+        });
+    }
 
-        async function simulateMouseClick(el) {
-          let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
-          el.dispatchEvent(new MouseEvent("mousedown", opts));
-          await new Promise(r => setTimeout(r, 50));
-          el.dispatchEvent(new MouseEvent("mouseup", opts));
-          el.dispatchEvent(new MouseEvent("click", opts));
-        }
 
-        async function waitClick(btn, time = 1000) {
-        	if (btn) await simulateMouseClick(btn);
-        	return new Promise(resolve => setTimeout(resolve, time));
+
+    async function checkExistElm(elmList, label, time = 0) {
+        let result = false;
+        if (elmList.length && label) {
+            for (let btnItem of elmList) {
+                if(btnItem.textContent.includes(label)){
+                    console.log('--- elm exist', btnItem);
+                    result = true;
+                    break;
+                }
+            }
         }
-        """
+        return new Promise(resolve => setTimeout(resolve(result), time));
+    }
+
+    async function simulateMouseClick(el) {
+    let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
+    el.dispatchEvent(new MouseEvent("mousedown", opts));
+    await new Promise(r => setTimeout(r, 50));
+    el.dispatchEvent(new MouseEvent("mouseup", opts));
+    el.dispatchEvent(new MouseEvent("click", opts));
+    }
+
+    //For React ≥ 15.6.1
+    async function simulateMouseInput(el, value) {
+        const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value').set;
+        nativeInputValueSetter.call(el, value);
+        const event = new Event('input', { bubbles: true });
+        el.dispatchEvent(event);
+    }
+
+    async function waitClick(btn, time = 1000) {
+        if (btn) await simulateMouseClick(btn);
+        return new Promise(resolve => setTimeout(resolve, time));
+    }
+    async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
+        if (btn_list.length && label) {
+            for await (const btnItem of btn_list) {
+                //console.log('--', btnItem.textContent, btnItem);
+                if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
+                    //console.log('->', btnItem.textContent, btnItem);
+                    await simulateMouseClick(btnItem);
+                    break;
+                }
+            }
+        }
+        return new Promise(resolve => setTimeout(resolve, time));
+    }
+    """
 
 SCRIPT_SET_NAME = """
        (async function () {
@@ -1017,223 +1062,226 @@ SCRIPT_IFRAME_BYPASS_MOBILE = """
             iframe.setAttribute('src', src);
         }
         """
+
 SCRIPT_GAME_CONTROL = """
-        (async function () {
-            await startGame();
-        })();
+(async function () {
+    await startGame();
+})();
 
-        async function startGame() {
-        	console.log('- startGame');
-        	return new Promise(resolve => {
-        		setTimeout(async () => {
-                    await clickByLabel(document.querySelectorAll('button'), "Thank you,", 2000);
-                    await clickByLabel(document.querySelectorAll('a'), "AirDrop", 1000, true);
-                    await clickByLabel(document.querySelectorAll('div'), "On-chain airdrop", 1000, true);
-                    await clickByLabel(document.querySelectorAll('button'), "Connect wallet", 3000,true);
-                    await clickByLabel(document.querySelectorAll('button'), "Open Wallet in Telegram");
+async function startGame() {
+	console.log('- startGame');
+	return new Promise(resolve => {
+		setTimeout(async () => {
+            await waitClick(document.querySelector('.tabs a[href="/wallet"]'));
+            await clickByLabel(document.querySelectorAll('button'), "Connect wallet", 3000,true);
+            await clickByLabel(document.querySelectorAll('button'), "Open Wallet in Telegram", 2000);
+            await clickByLabel(document.querySelectorAll('button'), 'Launch');
+            
+            resolve();
+		}, 2000);
+	});
+}
 
-                    resolve();
-        		}, 2000);
-        	});
+
+async function checkExistElm(elmList, label, time = 0) {
+	let result = false;
+	if (elmList.length && label) {
+		for (let btnItem of elmList) {
+			if(btnItem.textContent.includes(label)){
+                console.log('--- elm exist', btnItem);
+                result = true;
+				break;
+			}
+		}
+	}
+	return new Promise(resolve => setTimeout(resolve(result), time));
+}
+
+async function simulateMouseClick(el) {
+  let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
+  el.dispatchEvent(new MouseEvent("mousedown", opts));
+  await new Promise(r => setTimeout(r, 50));
+  el.dispatchEvent(new MouseEvent("mouseup", opts));
+  el.dispatchEvent(new MouseEvent("click", opts));
+}
+
+//For React ≥ 15.6.1
+async function simulateMouseInput(el, value) {
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value').set;
+    nativeInputValueSetter.call(el, value);
+    const event = new Event('input', { bubbles: true });
+    el.dispatchEvent(event);
+}
+
+async function waitClick(btn, time = 1000) {
+	if (btn) await simulateMouseClick(btn);
+	return new Promise(resolve => setTimeout(resolve, time));
+}
+async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
+	if (btn_list.length && label) {
+        for await (const btnItem of btn_list) {
+            //console.log('--', btnItem.textContent, btnItem);
+            if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
+                //console.log('->', btnItem.textContent, btnItem);
+                await simulateMouseClick(btnItem);
+                break;
+			}
         }
+	}
+	return new Promise(resolve => setTimeout(resolve, time));
+}
+        """
 
-
-        async function checkExistElm(elmList, label, time = 0) {
-        	let result = false;
-        	if (elmList.length && label) {
-        		for (let btnItem of elmList) {
-        			if(btnItem.textContent.includes(label)){
-                        console.log('--- elm exist', btnItem);
-                        result = true;
-        				break;
-        			}
-        		}
-        	}
-        	return new Promise(resolve => setTimeout(resolve(result), time));
-        }
-
-        async function simulateMouseClick(el) {
-          let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
-          el.dispatchEvent(new MouseEvent("mousedown", opts));
-          await new Promise(r => setTimeout(r, 50));
-          el.dispatchEvent(new MouseEvent("mouseup", opts));
-          el.dispatchEvent(new MouseEvent("click", opts));
-        }
-
-        //For React ≥ 15.6.1
-        async function simulateMouseInput(el, value) {
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-              window.HTMLInputElement.prototype,
-              'value').set;
-            nativeInputValueSetter.call(el, value);
-            const event = new Event('input', { bubbles: true });
-            el.dispatchEvent(event);
-        }
-
-        async function waitClick(btn, time = 1000) {
-        	if (btn) await simulateMouseClick(btn);
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-        async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
-        	if (btn_list.length && label) {
-                for await (const btnItem of btn_list) {
-                    //console.log('--', btnItem.textContent, btnItem);
-                    if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
-                        //console.log('->', btnItem.textContent, btnItem);
-                        await simulateMouseClick(btnItem);
-                        break;
-        			}
-                }
-        	}
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-                """
 SCRIPT_WALLET_CONTROL = """
-        (async function () {
-            await startConnect();
-        })();
+(async function () {
+    await startConnect();
+})();
 
-        async function startConnect() {
-        	console.log('- start connect');
-        	return new Promise(resolve => {
-        		setTimeout(async () => {
-                    await clickByLabel(document.querySelectorAll('button'), "Connect Wallet", 5000);
-                    await clickByLabel(document.querySelectorAll('button'), "Back to Hamster Kombat");
+async function startConnect() {
+	console.log('- start connect');
+	return new Promise(resolve => {
+		setTimeout(async () => {
+            await clickByLabel(document.querySelectorAll('button'), "Connect Wallet", 5000);
+            await clickByLabel(document.querySelectorAll('button'), "Back to Hamster Kombat");
+            
+            //click button "Back to Hamster Kombat" is not work: fixed by below code
+            let iframeList = document.querySelectorAll('div.popup-payment-verification');
+            console.log('- iframeList length:', iframeList.length);
+            if(iframeList.length >= 2) {
+                //iframe connect
+                iframeList[1].classList.add('hide');
+            }
+            if(iframeList.length >= 3) {
+                //iframe back to game
+                iframeList[2].classList.add('hide');
+            }
+            resolve();
+		}, 2000);
+	});
+}
 
-                    //click button "Back to Hamster Kombat" is not work: fixed by below code
-                    let iframeList = document.querySelectorAll('div.popup-payment-verification');
-                    console.log('- iframeList length:', iframeList.length);
-                    if(iframeList.length >= 2) {
-                        //iframe connect
-                        iframeList[1].classList.add('hide');
-                    }
-                    if(iframeList.length >= 3) {
-                        //iframe back to game
-                        iframeList[2].classList.add('hide');
-                    }
-                    resolve();
-        		}, 2000);
-        	});
+
+async function checkExistElm(elmList, label, time = 0) {
+	let result = false;
+	if (elmList.length && label) {
+		for (let btnItem of elmList) {
+			if(btnItem.textContent.includes(label)){
+                console.log('--- elm exist', btnItem);
+                result = true;
+				break;
+			}
+		}
+	}
+	return new Promise(resolve => setTimeout(resolve(result), time));
+}
+
+async function simulateMouseClick(el) {
+  let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
+  el.dispatchEvent(new MouseEvent("mousedown", opts));
+  await new Promise(r => setTimeout(r, 50));
+  el.dispatchEvent(new MouseEvent("mouseup", opts));
+  el.dispatchEvent(new MouseEvent("click", opts));
+}
+
+//For React ≥ 15.6.1
+async function simulateMouseInput(el, value) {
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value').set;
+    nativeInputValueSetter.call(el, value);
+    const event = new Event('input', { bubbles: true });
+    el.dispatchEvent(event);
+}
+
+async function waitClick(btn, time = 1000) {
+	if (btn) await simulateMouseClick(btn);
+	return new Promise(resolve => setTimeout(resolve, time));
+}
+async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
+	if (btn_list.length && label) {
+        for await (const btnItem of btn_list) {
+            //console.log('--', btnItem.textContent, btnItem);
+            if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
+                console.log('->', btnItem.textContent, btnItem);
+                await simulateMouseClick(btnItem);
+                // break;
+			}
         }
+	}
+	return new Promise(resolve => setTimeout(resolve, time));
+}
+        """
 
-
-        async function checkExistElm(elmList, label, time = 0) {
-        	let result = false;
-        	if (elmList.length && label) {
-        		for (let btnItem of elmList) {
-        			if(btnItem.textContent.includes(label)){
-                        console.log('--- elm exist', btnItem);
-                        result = true;
-        				break;
-        			}
-        		}
-        	}
-        	return new Promise(resolve => setTimeout(resolve(result), time));
-        }
-
-        async function simulateMouseClick(el) {
-          let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
-          el.dispatchEvent(new MouseEvent("mousedown", opts));
-          await new Promise(r => setTimeout(r, 50));
-          el.dispatchEvent(new MouseEvent("mouseup", opts));
-          el.dispatchEvent(new MouseEvent("click", opts));
-        }
-
-        //For React ≥ 15.6.1
-        async function simulateMouseInput(el, value) {
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-              window.HTMLInputElement.prototype,
-              'value').set;
-            nativeInputValueSetter.call(el, value);
-            const event = new Event('input', { bubbles: true });
-            el.dispatchEvent(event);
-        }
-
-        async function waitClick(btn, time = 1000) {
-        	if (btn) await simulateMouseClick(btn);
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-        async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
-        	if (btn_list.length && label) {
-                for await (const btnItem of btn_list) {
-                    //console.log('--', btnItem.textContent, btnItem);
-                    if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
-                        console.log('->', btnItem.textContent, btnItem);
-                        await simulateMouseClick(btnItem);
-                        // break;
-        			}
-                }
-        	}
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-                """
 SCRIPT_GAME_SET_WALLET_DEFAULT = """
-        (async function () {
-            await setDefaultWallet();
-        })();
+(async function () {
+    await setDefaultWallet();
+})();
 
-        async function setDefaultWallet() {
-        	console.log('- start setDefaultWallet');
-        	return new Promise(resolve => {
-        		setTimeout(async () => {
-                    await clickByLabel(document.querySelectorAll('button'), "Set as default withdrawal option", 3000, true);
-                    await clickByLabel(document.querySelectorAll('button'), "Thanks!");
-                    resolve();
-        		}, 2000);
-        	});
-        }
+async function setDefaultWallet() {
+	console.log('- start setDefaultWallet');
+	return new Promise(resolve => {
+		setTimeout(async () => {
+            await clickByLabel(document.querySelectorAll('button'), "Set as default withdrawal option", 3000, true);
+            await clickByLabel(document.querySelectorAll('button'), "Thanks!");
+            resolve();
+		}, 2000);
+	});
+}
 
 
-        async function checkExistElm(elmList, label, time = 0) {
-        	let result = false;
-        	if (elmList.length && label) {
-        		for (let btnItem of elmList) {
-        			if(btnItem.textContent.includes(label)){
-                        console.log('--- elm exist', btnItem);
-                        result = true;
-        				break;
-        			}
-        		}
-        	}
-        	return new Promise(resolve => setTimeout(resolve(result), time));
-        }
+async function checkExistElm(elmList, label, time = 0) {
+	let result = false;
+	if (elmList.length && label) {
+		for (let btnItem of elmList) {
+			if(btnItem.textContent.includes(label)){
+                console.log('--- elm exist', btnItem);
+                result = true;
+				break;
+			}
+		}
+	}
+	return new Promise(resolve => setTimeout(resolve(result), time));
+}
 
-        async function simulateMouseClick(el) {
-          let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
-          el.dispatchEvent(new MouseEvent("mousedown", opts));
-          await new Promise(r => setTimeout(r, 50));
-          el.dispatchEvent(new MouseEvent("mouseup", opts));
-          el.dispatchEvent(new MouseEvent("click", opts));
-        }
+async function simulateMouseClick(el) {
+  let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
+  el.dispatchEvent(new MouseEvent("mousedown", opts));
+  await new Promise(r => setTimeout(r, 50));
+  el.dispatchEvent(new MouseEvent("mouseup", opts));
+  el.dispatchEvent(new MouseEvent("click", opts));
+}
 
-        //For React ≥ 15.6.1
-        async function simulateMouseInput(el, value) {
-            const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
-              window.HTMLInputElement.prototype,
-              'value').set;
-            nativeInputValueSetter.call(el, value);
-            const event = new Event('input', { bubbles: true });
-            el.dispatchEvent(event);
-        }
+//For React ≥ 15.6.1
+async function simulateMouseInput(el, value) {
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value').set;
+    nativeInputValueSetter.call(el, value);
+    const event = new Event('input', { bubbles: true });
+    el.dispatchEvent(event);
+}
 
-        async function waitClick(btn, time = 1000) {
-        	if (btn) await simulateMouseClick(btn);
-        	return new Promise(resolve => setTimeout(resolve, time));
+async function waitClick(btn, time = 1000) {
+	if (btn) await simulateMouseClick(btn);
+	return new Promise(resolve => setTimeout(resolve, time));
+}
+async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
+	if (btn_list.length && label) {
+        for await (const btnItem of btn_list) {
+            //console.log('--', btnItem.textContent, btnItem);
+            if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
+                console.log('->', btnItem.textContent, btnItem);
+                await simulateMouseClick(btnItem);
+                break;
+			}
         }
-        async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
-        	if (btn_list.length && label) {
-                for await (const btnItem of btn_list) {
-                    //console.log('--', btnItem.textContent, btnItem);
-                    if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
-                        console.log('->', btnItem.textContent, btnItem);
-                        await simulateMouseClick(btnItem);
-                        break;
-        			}
-                }
-        	}
-        	return new Promise(resolve => setTimeout(resolve, time));
-        }
-                """
+	}
+	return new Promise(resolve => setTimeout(resolve, time));
+}
+        """
+
 script_popup = f"""
             setInterval(() => {{
                 if(document.querySelector('.popup-confirmation .checkbox-ripple')) {{
@@ -1332,12 +1380,15 @@ class ChromeProfileManager(QMainWindow):
         self.load_button.clicked.connect(self.load_profile)
         self.input_layout.addWidget(self.load_button)
 
-        self.setRefBtn = QPushButton('Set referent')
-        self.setRefBtn.clicked.connect(self.setRef)
-        self.input_layout.addWidget(self.setRefBtn)
-
-
-
+        # self.setRefBtn = QPushButton('Set referent')
+        # self.setRefBtn.clicked.connect(self.setRef)
+        # self.input_layout.addWidget(self.setRefBtn)
+        self.input_label_info = QLabel(URL_INFO)
+        self.input_layout.addWidget(self.input_label_info)
+        self.input_label_info1 = QLabel(URL_INFO1)
+        self.input_layout.addWidget(self.input_label_info1)
+        self.input_label_info2 = QLabel(URL_INFO2)
+        self.input_layout.addWidget(self.input_label_info2)
 
         # Cột phải - Hiển thị thông tin profile
         self.profile_table = QTableWidget()
@@ -1353,7 +1404,7 @@ class ChromeProfileManager(QMainWindow):
 
         self.input_thread = QTextEdit()
         self.input_thread.setFixedHeight(30)
-        self.input_thread.setText('1')
+        self.input_thread.setText('3')
         self.input_thread.setPlaceholderText('Number thread')
 
         self.input_custom = QTextEdit()
@@ -1361,11 +1412,17 @@ class ChromeProfileManager(QMainWindow):
         self.input_custom.setText(URL_LIST)
         self.input_custom.setPlaceholderText('Url custom')
 
+        self.input_rows = QTextEdit()
+        self.input_rows.setPlaceholderText('Number Row')
+        self.input_rows.setFixedHeight(30)
+        self.input_rows.setText('3')
+
         self.all_mining = QPushButton('All start')
         self.stop_mining = QPushButton('Stop')
 
         self.actionLayout.addWidget(self.input_custom)
         self.actionLayout.addWidget(self.input_thread)
+        self.actionLayout.addWidget(self.input_rows)
         self.actionLayout.addWidget(self.all_mining)
         self.actionLayout.addWidget(self.stop_mining)
         self.all_mining.clicked.connect(self.all_acction)
@@ -1489,7 +1546,8 @@ class ChromeProfileManager(QMainWindow):
         width = 480
         height = 816
         scale = 0.6
-        rows = 3
+        rows = int(self.input_rows.toPlainText()) 
+        
         cols = math.ceil(num_threads_text / rows)
         key = accList[email]["key"]
         
@@ -1686,14 +1744,37 @@ class ChromeProfileManager(QMainWindow):
                             file.write(iframe_url)
                     except Exception as e:
                         print(f"An error occurred: {e}")
+                    if web == 'https://web.telegram.org/k/#@BlumCryptoBot':
+                        driver2.switch_to.frame(iframe)
+                        print("- SCRIPT GAME CONTROL")
+                        # driver2.execute_script(script_login)
+                        driver2.execute_script(SCRIPT_GAME_BLUM)
+                        time.sleep(13)
+                        token = driver2.execute_script("return localStorage;")
+                        self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 36)
+                    else:
+                        driver2.execute_script(SCRIPT_GAME_START)
+                        time.sleep(10)
+                        
 
-                    driver2.switch_to.frame(iframe)
-                    print("- SCRIPT GAME CONTROL")
-                    # driver2.execute_script(script_login)
-                    driver2.execute_script(SCRIPT_GAME_BLUM)
-                    time.sleep(13)
-                    token = driver2.execute_script("return localStorage;")
-                    self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 36)
+                        driver2.switch_to.frame(iframe)
+                        print("- SCRIPT WALLET")
+                        driver2.execute_script(SCRIPT_GAME_CONTROL)
+                        time.sleep(10)
+                        #wait for show wallet
+                        time.sleep(10)
+
+
+                        print("- SCRIPT WALLET CONTROL")
+                        driver2.switch_to.default_content()
+                        driver2.execute_script(SCRIPT_WALLET_CONTROL)
+                        time.sleep(10)
+
+                        #run browser script
+                        driver2.switch_to.frame(iframe)
+                        print("- SCRIPT GAME SET WALLET DEFAULT")
+                        driver2.execute_script(SCRIPT_GAME_SET_WALLET_DEFAULT)
+                        time.sleep(15)
 
                     print("- Done")
                     driver2.switch_to.default_content()
@@ -1895,9 +1976,9 @@ class ChromeProfileManager(QMainWindow):
                     iframe_url = iframe_url.replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios").replace(
                         "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
                     driver2.switch_to.frame(iframe)
-                    time.sleep(3)
+                    time.sleep(10)
                     driver2.execute_script(SCRIPT_GAME_TOMARKET)
-                    time.sleep(60)
+                    time.sleep(50)
                     parsed_url = urlparse(iframe_url)
                     fragment = parsed_url.fragment
                     params = parse_qs(fragment)
@@ -1934,6 +2015,73 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
+        if web == 'https://t.me/notpixel/app?startapp=f1641277785':
+            print('Running NotPixcel')
+            try:
+                chrome_options.add_argument(f'--user-data-dir={profile_path}')
+                chrome_options.add_argument('--no-experiments')
+                # Add the mobile emulation to the chrome options variable
+                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
+                chrome_options.add_argument(f"window-position={x_position},{y_position}")
+                chrome_options.add_argument("force-device-scale-factor=0.6") 
+
+                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
+                driver2 = webdriver.Chrome(options=chrome_options)
+                if web is not None:
+                    driver2.get(web)
+                    time.sleep(3)
+                wait = WebDriverWait(driver2, 30)
+                try:
+                    element = wait.until(
+                        EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
+                    )
+                    ref_link = element.get_attribute('href')
+                    ref_link = ref_link.replace('https://web.telegram.org/a/', 'https://web.telegram.org/k/')
+                    driver2.get(ref_link)
+                except TimeoutException:
+                    print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
+                time.sleep(5)
+                try:
+                    continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
+                    continue_button.click()
+                except (NoSuchElementException, TimeoutException):
+                    print("Launch not found")
+                time.sleep(5)
+
+                try:
+                    continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
+                    continue_button.click()
+                except (NoSuchElementException, TimeoutException):
+                    print("confirm not found")
+                time.sleep(5)
+
+                iframe_allow_attr = 'camera; microphone; geolocation;'
+                iframe = WebDriverWait(driver2, 20).until(
+                    EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
+
+                iframe_url = iframe.get_attribute('src')
+                iframe_url = iframe_url.replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios").replace(
+                    "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
+                try:
+                    data_path = f"{self.folder_path}/data_login_notpixcel/{email}"
+                    if not os.path.exists(data_path):
+                        os.makedirs(data_path)
+                    with open(data_path + '/url.txt', 'w') as file:
+                        file.write(iframe_url)
+                except Exception as e:
+                    print(f"An error occurred: {e}")
+
+                time.sleep(10)
+                driver2.switch_to.frame(iframe)
+                self.run_script_from_file(driver2, self.folder_path + "/notpixel.txt", 36)
+
+            except (NoSuchElementException, TimeoutException) as e:
+                print(f"Xảy ra lỗi")
+            finally:
+                if driver2 is not None:
+                    print('Quit')
+                    driver2.quit()
         
         if web == 'https://web.telegram.org/k/#@wallet':
             print('Running Wallet')
@@ -1942,7 +2090,9 @@ class ChromeProfileManager(QMainWindow):
                 chrome_options.add_argument('--no-experiments')
                 # Add the mobile emulation to the chrome options variable
                 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size=400,884")
+                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
+                chrome_options.add_argument(f"window-position={x_position},{y_position}")
+                chrome_options.add_argument("force-device-scale-factor=0.6") 
 
                 driver2 = webdriver.Chrome(options=chrome_options)
                 if web is not None:
@@ -2005,7 +2155,7 @@ class ChromeProfileManager(QMainWindow):
                         driver2.execute_script(SCRIPT_WALLET_INIT4)
                         time.sleep(8)
 
-                        accWalletUpdate = f'{email}|wallet|key';
+                        accWalletUpdate = f'{email}|wallet|key'
                         try:
                             copy_button = WebDriverWait(driver2, 10).until(
                                 EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Copy Address')]")))
@@ -2014,16 +2164,16 @@ class ChromeProfileManager(QMainWindow):
                             wallet = pyperclip.paste()
                             print('wallet:', wallet)
                             if wallet is not None:
-                                accWalletUpdate = accWalletUpdate.replace('wallet', wallet);
+                                accWalletUpdate = accWalletUpdate.replace('wallet', wallet)
                             if phrase is not None:
-                                accWalletUpdate = accWalletUpdate.replace('key', phrase);
+                                accWalletUpdate = accWalletUpdate.replace('key', phrase)
 
                             print('file update data:', accWalletUpdate)
 
                             # replace "12345667|wallet|key" -> "12345667|0x111..|text test .."
                             fileOpen = open(self.folder_path + '/loaddata.txt', "r+")
                             loadDataText = fileOpen.read()
-                            loadDataText = loadDataText.replace(f'{email}|wallet|key', accWalletUpdate);
+                            loadDataText = loadDataText.replace(f'{email}|wallet|key', accWalletUpdate)
                             with open(self.folder_path + '/loaddata.txt', 'w') as file:
                                 file.write(loadDataText)
 
