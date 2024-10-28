@@ -44,7 +44,7 @@ futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
 # URL_LIST = 'https://t.me/drop_shit_game_bot?start=null'
-URL_LIST = 'https://web.telegram.org/k/#@wallet https://t.me/notpixel/app?startapp=f1641277785 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://web.telegram.org/k/#@BlumCryptoBot'
+URL_LIST = 'https://t.me/notpixel/app?startapp=f1641277785 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://web.telegram.org/k/#@BlumCryptoBot'
 URL_INFO = 'https://web.telegram.org/a https://web.telegram.org/k/#@wallet'
 URL_INFO1 = 'https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot'
 URL_INFO2 = 'https://t.me/major/start?startapp=1641277785 https://t.me/notpixel/app?startapp=f164127778'
@@ -1749,9 +1749,9 @@ class ChromeProfileManager(QMainWindow):
                         print("- SCRIPT GAME CONTROL")
                         # driver2.execute_script(script_login)
                         driver2.execute_script(SCRIPT_GAME_BLUM)
-                        time.sleep(13)
+                        time.sleep(10)
                         token = driver2.execute_script("return localStorage;")
-                        self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 36)
+                        self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 42)
                     else:
                         driver2.execute_script(SCRIPT_GAME_START)
                         time.sleep(10)
