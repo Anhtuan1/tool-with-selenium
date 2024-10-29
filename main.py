@@ -44,7 +44,8 @@ futures = []
 url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
 # URL_LIST = 'https://t.me/drop_shit_game_bot?start=null'
-URL_LIST = 'https://t.me/notpixel/app?startapp=f1641277785 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://web.telegram.org/k/#@BlumCryptoBot'
+# URL_LIST = 'https://t.me/notpixel/app?startapp=f1641277785 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://web.telegram.org/k/#@BlumCryptoBot'
+URL_LIST = 'https://web.telegram.org/k/#@wallet https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
 URL_INFO = 'https://web.telegram.org/a https://web.telegram.org/k/#@wallet'
 URL_INFO1 = 'https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot'
 URL_INFO2 = 'https://t.me/major/start?startapp=1641277785 https://t.me/notpixel/app?startapp=f164127778'
@@ -362,9 +363,9 @@ SCRIPT_WALLET_INIT2 = """
 
                     setTimeout(async () => {
                         await clickByLabel(document.querySelectorAll('span'), "TON Space");
-                        await clickByLabel(document.querySelectorAll('div'), "Start exploring TON", 3000);
+                        await clickByLabel(document.querySelectorAll('div'), "Start Exploring TON", 6000);
                         //python get phrase key
-                        await clickByLabel(document.querySelectorAll('div'), "Back up manually", 2000);
+                        await clickByLabel(document.querySelectorAll('div'), "Back Up Manually", 3000);
                         resolve();
                     }, 1000);
         		}, 2000);
@@ -1550,7 +1551,8 @@ class ChromeProfileManager(QMainWindow):
         
         cols = math.ceil(num_threads_text / rows)
         key = accList[email]["key"]
-        
+        wallet = accList[email]["wallet"]
+        print(wallet)
         email_keys = list(accList.keys())
         index = email_keys.index(email) % (num_threads_text)
         proxyHeader = None
@@ -1988,7 +1990,13 @@ class ChromeProfileManager(QMainWindow):
                     try:
                         token = get_token_tomarket(query, 'https://api-web.tomarket.ai/tomarket-game/v1/user/login', 'https://mini-app.tomarket.ai/', proxyHeader)
                         print('token-tomarket done')
+                        if(wallet != 'wallet'):
+                            start_connect =  self.set_wallet_game_tomarket(token=token, wallet=wallet, proxy=proxyHeader)
+                            if start_connect.status_code == 200:
+                                print(f"Connect done...{wallet}")
+
                         start_game = self.start_game_tomarket(token=token, proxy=proxyHeader)
+                        
                         if start_game.status_code == 200:
                             print(f"Playing game in 30s...")
                             time.sleep(30)
@@ -2092,7 +2100,6 @@ class ChromeProfileManager(QMainWindow):
                 chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
                 chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
                 chrome_options.add_argument(f"window-position={x_position},{y_position}")
-                chrome_options.add_argument("force-device-scale-factor=0.6") 
 
                 driver2 = webdriver.Chrome(options=chrome_options)
                 if web is not None:
@@ -2120,7 +2127,7 @@ class ChromeProfileManager(QMainWindow):
                     print("- SCRIPT enable TON space + go to phrase page")
                     driver2.switch_to.frame(iframe)
                     driver2.execute_script(SCRIPT_WALLET_INIT2)
-                    time.sleep(10)
+                    time.sleep(30)
 
                     try:
                         print("- GET PHRASE KEY")
@@ -2135,29 +2142,29 @@ class ChromeProfileManager(QMainWindow):
                         print("- SCRIPT click continue from telegram")
                         driver2.switch_to.default_content()
                         driver2.execute_script(SCRIPT_TELE_CONTROL_START3)
-                        time.sleep(5)
+                        time.sleep(10)
 
                         # run iframe script
                         print("- SCRIPT verify phrase key")
                         driver2.switch_to.frame(iframe)
                         driver2.execute_script(SCRIPT_WALLET_INIT3.replace('_PHRASE_KEY_', phrase))
-                        time.sleep(5)
+                        time.sleep(10)
 
                         # run root page script
                         print("- SCRIPT click next from telegram")
                         driver2.switch_to.default_content()
                         driver2.execute_script(SCRIPT_TELE_CONTROL_START4)
-                        time.sleep(5)
+                        time.sleep(10)
 
                         # run iframe script
                         print("- SCRIPT View TON Space")
                         driver2.switch_to.frame(iframe)
                         driver2.execute_script(SCRIPT_WALLET_INIT4)
-                        time.sleep(8)
-
+                        time.sleep(15)
+                        driver2.switch_to.frame(iframe)
                         accWalletUpdate = f'{email}|wallet|key'
                         try:
-                            copy_button = WebDriverWait(driver2, 10).until(
+                            copy_button = WebDriverWait(driver2, 30).until(
                                 EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Copy Address')]")))
                             copy_button.click()
 
@@ -2176,10 +2183,10 @@ class ChromeProfileManager(QMainWindow):
                             loadDataText = loadDataText.replace(f'{email}|wallet|key', accWalletUpdate)
                             with open(self.folder_path + '/loaddata.txt', 'w') as file:
                                 file.write(loadDataText)
-
+                            time.sleep(5)
                         except (NoSuchElementException, TimeoutException):
                             print("Copy button not found")
-
+                        time.sleep(10)
                         print("- LOG TO FILE")
                         data_path = f"{self.folder_path}/data_login_wallet/{email}"
                         if not os.path.exists(data_path):
@@ -2290,7 +2297,27 @@ class ChromeProfileManager(QMainWindow):
             response = requests.post(url=url, headers=headers, data=data)
 
         return response
+    
+    def set_wallet_game_tomarket(self, token, wallet, proxy=None):
+        url = "https://api-web.tomarket.ai/tomarket-game/v1/tasks/address"
+        print('wallet game tomarket')
+        headers = headers_tomarket
 
+        headers["Authorization"] = token
+
+        payload = {"wallet_address": wallet}
+
+        data = json.dumps(payload)
+
+        headers["Content-Length"] = str(len(data))
+        headers["Content-Type"] = "application/json"
+        if proxy:
+            response = requests.post(url=url, headers=headers, data=data, proxies=proxy)
+        else:
+            response = requests.post(url=url, headers=headers, data=data)
+
+        return response
+    
     def claim_game_tomarket(self, token, point, proxy=None):
         url = "https://api-web.tomarket.ai/tomarket-game/v1/game/claim"
         print('Claim game tomarket')
