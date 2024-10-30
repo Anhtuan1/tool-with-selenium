@@ -11,6 +11,7 @@ import pyperclip
 import re
 import math
 import shutil
+import sqlite3
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, wait, as_completed
 from qasync import QEventLoop
@@ -32,11 +33,12 @@ from tkinter import Tk, Button, filedialog
 try:
     from telethon.sync import TelegramClient, events
     from telethon.sessions import StringSession
+    from telethon import functions, errors as t_errors
     from telethon.tl.types import Channel
-    from telethon import functions
-    import telethon.errors
-except ModuleNotFoundError:
-    print("Error: Telethon library is not installed. Please install it using 'pip install telethon'")
+except (ImportError, ModuleNotFoundError):
+    print("\n―― ⚠️ The Telethon library is not installed.")
+    print("―― Please install it by running: `pip install telethon`")
+    sys.exit()
 accList = {}
 proxy = []
 num_thread_running = 0
@@ -45,7 +47,7 @@ url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
 # URL_LIST = 'https://t.me/drop_shit_game_bot?start=null'
 # URL_LIST = 'https://t.me/notpixel/app?startapp=f1641277785 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://web.telegram.org/k/#@BlumCryptoBot'
-URL_LIST = 'https://web.telegram.org/k/#@wallet https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
+URL_LIST = 'https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@wallet https://t.me/Tomarket_ai_bot/app?startapp=00020R5H'
 URL_INFO = 'https://web.telegram.org/a https://web.telegram.org/k/#@wallet'
 URL_INFO1 = 'https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot'
 URL_INFO2 = 'https://t.me/major/start?startapp=1641277785 https://t.me/notpixel/app?startapp=f164127778'
@@ -1690,6 +1692,7 @@ class ChromeProfileManager(QMainWindow):
                 CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
                 chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
                 driver2 = webdriver.Chrome(options=chrome_options)
+                data_path = f"{self.folder_path}/data_login_blums/{email}/url.txt"
                 if web is not None:
                     driver2.get(web)
                     time.sleep(3)
@@ -1746,6 +1749,7 @@ class ChromeProfileManager(QMainWindow):
                             file.write(iframe_url)
                     except Exception as e:
                         print(f"An error occurred: {e}")
+
                     if web == 'https://web.telegram.org/k/#@BlumCryptoBot':
                         driver2.switch_to.frame(iframe)
                         print("- SCRIPT GAME CONTROL")
@@ -2434,6 +2438,7 @@ class ChromeProfileManager(QMainWindow):
             driver3 = webdriver.Chrome(options=options)
             driver3.get('https://web.telegram.org/k')
             driver3.execute_script(script_tele)
+
             time.sleep(15)
             WebDriverWait(driver3, 25).until(EC.presence_of_element_located((By.ID, 'auth-pages')))
             
@@ -2442,19 +2447,19 @@ class ChromeProfileManager(QMainWindow):
             session_name = f"{self.folder_path}/data_session/{email}/{email}.session"
             api_id = '24557220'
             api_hash = ''
-            client = TelegramClient(session_name, api_id, api_hash)
-            time.sleep(10)
+            
             try:
-                with client:
-                    print("Telegram client started")
-                    time.sleep(15)
-                    @client.on(events.NewMessage(from_users=777000))
-                    async def handler(event):
-                        otp_match = re.search(r'\b(\d{5})\b', event.raw_text)
-                        
-                        if otp_match:
-                            print("OTP received:", otp_match.group(0))
-                            otp = otp_match.group(0)
+                client = TelegramClient(session_name, api_id, api_hash)
+                client.connect()
+                time.sleep(3)
+                if client.is_user_authorized():
+                    print("\n―― 🟢 User Authorized!")
+
+                    @client.on(events.NewMessage(from_users=777000))  # '777000' is the ID of Telegram Notification Service.
+                    async def catch_msg(event):
+                        otp = re.search(r'\b(\d{5})\b', event.raw_text)
+                        if otp:
+                            print("\n―― OTP received ✅\n―― Your login code:", otp.group(0))
                             path_opt = f"{self.folder_path}/otp/{email}"
                             
                             if not os.path.exists(path_opt):
@@ -2481,12 +2486,8 @@ class ChromeProfileManager(QMainWindow):
                                     }}
                                 }}, 3000);
                             """
-                            
-                            # Simulate executing script with some delay
                             await asyncio.sleep(15)
                             asyncio.create_task(driver3.execute_script(script_otp))
-
-                        
 
                     print("Please login to your telegram app. [Listening for OTP...]\n")
                     driver3.get('https://web.telegram.org/k')
@@ -2502,19 +2503,18 @@ class ChromeProfileManager(QMainWindow):
                         await client.disconnect()
                         driver3.quit()
                         return
-            except asyncio.CancelledError:
-                print("\nUnable to generate the session string. Please ensure you are using a Telethon session file.")
-                print(f"Error: {e}")
-                driver3.quit()
-                return
-            except Exception as e: 
-                client.session.delete()
-                if driver3 is not None:
-                    driver3.quit()
-                print(
-                    "Your old session was invalid and has been automatically deleted! "
-                    "Run the script again to generate a new session."
-                )   
+                    
+                else:
+                    print("\n―― 🔴 Authorization Failed!"
+                        "\n―― Invalid Telethon session file or the session has expired.")
+            except sqlite3.OperationalError:
+                print("\n―― ⚠️ Invalid Telethon session file. Please ensure you are using a Telethon session file.")
+            except t_errors.RPCError as e:
+                print(f"\n―― ❌ An RPC error occurred: {e}")
+            except Exception as e:
+                print(f"\n―― ❌ An unexpected error occurred: {e}")
+
+           
             time.sleep(5)
 
         except TimeoutException:
