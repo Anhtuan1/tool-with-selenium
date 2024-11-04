@@ -2110,7 +2110,7 @@ class ChromeProfileManager(QMainWindow):
                         driver2.execute_script(SCRIPT_WALLET_INIT4)
                         time.sleep(8)
 
-                        accWalletUpdate = f'{email}|wallet|key';
+                        accWalletUpdate = f'{email}|wallet|key'
                         try:
                             copy_button = WebDriverWait(driver2, 10).until(
                                 EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Copy Address')]")))
@@ -2119,16 +2119,16 @@ class ChromeProfileManager(QMainWindow):
                             wallet = pyperclip.paste()
                             print('wallet:', wallet)
                             if wallet is not None:
-                                accWalletUpdate = accWalletUpdate.replace('wallet', wallet);
+                                accWalletUpdate = accWalletUpdate.replace('wallet', wallet)
                             if phrase is not None:
-                                accWalletUpdate = accWalletUpdate.replace('key', phrase);
+                                accWalletUpdate = accWalletUpdate.replace('key', phrase)
 
                             print('file update data:', accWalletUpdate)
 
                             # replace "12345667|wallet|key" -> "12345667|0x111..|text test .."
                             fileOpen = open(self.folder_path + '/loaddata.txt', "r+")
                             loadDataText = fileOpen.read()
-                            loadDataText = loadDataText.replace(f'{email}|wallet|key', accWalletUpdate);
+                            loadDataText = loadDataText.replace(f'{email}|wallet|key', accWalletUpdate)
                             with open(self.folder_path + '/loaddata.txt', 'w') as file:
                                 file.write(loadDataText)
 

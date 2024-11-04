@@ -47,8 +47,8 @@ url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
 # URL_LIST = 'https://t.me/drop_shit_game_bot?start=null'
 # URL_LIST = 'https://t.me/notpixel/app?startapp=f1641277785 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://web.telegram.org/k/#@BlumCryptoBot'
-URL_LIST = 'https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@BlumCryptoBot'
-URL_INFO = 'https://web.telegram.org/a https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot https://t.me/PAWSOG_bot/PAWS?startapp=Xe4l4CvT'
+URL_LIST = 'https://web.telegram.org/k/#@wallet https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/PAWSOG_bot/PAWS?startapp=Xe4l4CvT'
+URL_INFO = 'https://web.telegram.org/a https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@BlumCryptoBot https://web.telegram.org/k/#@Tomarket_ai_bot https://t.me/PAWSOG_bot/PAWS?startapp=Xe4l4CvT https://t.me/blum/app?startapp=ref_x2QGrP78j3'
 #https://web.telegram.org/k/#@BlumCryptoBot https://t.me/major/start?startapp=1641277785 https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H
 
 CHROME_SIZE = {
@@ -1454,9 +1454,10 @@ async function startConnect() {
 	console.log('- start connect');
 	return new Promise(resolve => {
 		setTimeout(async () => {
-            await clickByLabel(document.querySelectorAll('button'), "Connect Wallet", 5000);
-            await clickByLabel(document.querySelectorAll('button'), "Back to Hamster Kombat");
-            
+
+            await clickByLabel(document.querySelectorAll('button'), "Connect Wallet", 3000);
+            await clickByLabel(document.querySelectorAll('button'), "Connect", 3000);
+
             //click button "Back to Hamster Kombat" is not work: fixed by below code
             let iframeList = document.querySelectorAll('div.popup-payment-verification');
             console.log('- iframeList length:', iframeList.length);
@@ -1865,7 +1866,7 @@ class ChromeProfileManager(QMainWindow):
         global proxy
         num_threads_text = int(self.input_thread.toPlainText()) 
         width = 475
-        height = 806
+        height = 816
         scale = 0.6
         rows = int(self.input_rows.toPlainText()) 
         
@@ -2245,7 +2246,7 @@ class ChromeProfileManager(QMainWindow):
                     print("- SCRIPT enable TON space + go to phrase page")
                     driver2.switch_to.frame(iframe)
                     driver2.execute_script(SCRIPT_WALLET_INIT2)
-                    time.sleep(30)
+                    time.sleep(10)
                     phrase = []
                     phrasestr = ''
                     accWalletUpdate = f'{email}|wallet|key'
@@ -2292,46 +2293,44 @@ class ChromeProfileManager(QMainWindow):
                             EC.presence_of_element_located((By.XPATH, "//button[contains(., 'Copy Address')]")))
                         copy_button.click()
 
-                        wallet = pyperclip.paste()
-                        time.sleep(2)
+                        elements = driver2.find_elements("class name", "uDr2")
+                        for element in elements:
+                            wallet = element.get_attribute("textContent")
+                            wallet = wallet.replace("\n", "")
+                            print("wallet:", wallet)
+                        time.sleep(5)
                         
                         if wallet is not None:
                             accWalletUpdate = accWalletUpdate.replace('wallet', wallet)
-
                         print('accWalletUpdate:', accWalletUpdate)
 
                         if phrasestr == '':
                             driver2.get(web)
                             driver2.execute_script(SCRIPT_TELE_CONTROL_START1)
-                            time.sleep(15)
+                            time.sleep(5)
                             iframe_allow_attr = 'camera; microphone; geolocation;'
                             iframe = WebDriverWait(driver2, 20).until(
                                 EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
                             driver2.switch_to.frame(iframe)
                             driver2.execute_script(SCRIPT_WALLET_INIT1)
-                            time.sleep(10)
+                            time.sleep(8)
                             
                             print("- SCRIPT open setting page from telegram")
                             driver2.switch_to.default_content()
                             driver2.execute_script(SCRIPT_TELE_CONTROL_START2)
-                            time.sleep(10)
+                            time.sleep(8)
 
                             # run iframe script
                             print("- SCRIPT enable TON space + go to phrase page")
                             driver2.switch_to.frame(iframe)
                             driver2.execute_script(SCRIPT_WALLET_CLICK_TON)
-                            time.sleep(10)
-                            try:
-                                copyPhrase_button = WebDriverWait(driver2, 20).until(
-                                    EC.presence_of_element_located((By.XPATH, "//div[contains(., 'Copy Recovery Phrase')]")))
-                                copyPhrase_button.click()
-                                phrasestr = pyperclip.paste()
-                            except (NoSuchElementException, TimeoutException) as e:
-                                print(f"Xảy ra lỗi ko tim thay copyPhrase_button")
-
-                            time.sleep(2)
+                            time.sleep(8)
+                            
+                            elements = driver2.find_elements("css selector", ".cpHh.IqPa.PmUA.Fx5C.EJ6D")
+                            all_text = " ".join([element.get_attribute("textContent") for element in elements])
+                            phrasestr = re.sub(r'\d+\.\s*', '', all_text)
                             accWalletUpdate = accWalletUpdate.replace('key', phrasestr)
-
+                            time.sleep(2)
                         print('file update data:', accWalletUpdate)
 
                         file_path = f"{self.folder_path}/data_wallet.txt"
@@ -2354,7 +2353,7 @@ class ChromeProfileManager(QMainWindow):
                                 file.write(accWalletUpdate + "\n")
                             print(f"File '{file_path}' created and '{accWalletUpdate}' added.")
                         
-                        time.sleep(50)
+                        time.sleep(5)
                     except (NoSuchElementException, TimeoutException):
                         print("Copy button not found")
                     time.sleep(10)
@@ -2511,7 +2510,7 @@ class ChromeProfileManager(QMainWindow):
                 email = keys_list[i]
                 future = executor.submit(self.open_url, email, event)
                 futures.append(future)
-                time.sleep(1)
+                time.sleep(2)
         self.all_acction()
 
     def open_url(self, email, event):
