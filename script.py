@@ -50,11 +50,10 @@ SCRIPT_QUIT = '''
 SCRIPT_GAME_CONTROL_PAWS = """
 (async function () {
     await startGame();
-    setTimeout(async () => {
-        await startTask();//start
-        await startTask(7000);//claim
-    }, 20000)
-    
+    await startTask(2000, 'Limited');//start
+    await startTask(7000, 'Limited');//claim
+    await startTask(2000);//start
+    await startTask(7000);//claim
 })();
 
 async function startGame() {
@@ -62,12 +61,9 @@ async function startGame() {
 	return new Promise(resolve => {
 		setTimeout(async () => {
             if(await checkExistElm(document.querySelectorAll("div.btn-next"), 'Let’s start')) {
-                await clickByLabel(document.querySelectorAll("div.btn-next"), 'Let’s start', 20000, true);
+                await clickByLabel(document.querySelectorAll("div.btn-next"), 'Let’s start', 30000, true);
             }
             await clickByLabel(document.querySelectorAll("div.btn-next"), 'Gotcha!', 2000, true);
-            await clickByLabel(document.querySelectorAll(".connect-wallet-con div"), 'Connect wallet', 2000, true);
-            await clickByLabel(document.querySelectorAll("button.connect-btn"), 'Connect your TON wallet', 3000);
-            await clickByLabel(document.querySelectorAll('button'), "Open Wallet in Telegram", 2000);
             
             resolve();
 		}, 2000);
@@ -75,31 +71,37 @@ async function startGame() {
 }
 
 //mission
-async function startTask(time = 2000) {
-    console.log('- startTask');
+async function startTask(time = 2000, taskTitle = 'In-game') {
+    console.log('- startTask:', taskTitle);
 	return new Promise((resolve) => {
 		setTimeout(async () => {
 			await clickByLabel(document.querySelectorAll(".nav-item-con div"), 'Earn', 2000, true);
-		
-			let tasks = document.querySelectorAll(".invite-item");
-			if(tasks.length) {
-				let taskIndex = 0;
-				for await (let task of tasks) {
-					taskIndex++;
-                    let title = task.querySelector('.main-info .wallet-con .wallet').textContent;
-					let taskBtn = task.querySelector('.start-btn');
-					
-					if(!title.includes('Invite')) {
-						console.log('--- start task ', taskIndex, ':', title);
-						
-						//click got it to back
-                        console.log('click:', taskBtn);
-						await waitClick(taskBtn);
-                        await waitClick(taskBtn);
-                        await waitClick(taskBtn);
-					}
-				}				
-			}
+
+            if(await checkExistElm(document.querySelectorAll(".quests-tab-con  .type-select .type-item"), taskTitle)) {
+                await clickByLabel(document.querySelectorAll(".quests-tab-con  .type-select .type-item"), taskTitle);
+
+                let tasks = document.querySelectorAll(".quests-tab-con .quests .invite-item");
+                if(tasks.length) {
+                    let taskIndex = 0;
+                    for await (let task of tasks) {
+                        taskIndex++;
+                        let title = task.querySelector('.main-info .wallet-con .wallet').textContent;
+                        let taskBtn = task.querySelector('.start-btn');
+                        
+                        let exceptTask = [
+                            'Boost PAWS channel',
+                        ];
+    
+                        if(!title.includes('Invite') && !exceptTask.includes(title)) {
+                            console.log('--- start task ', taskIndex, ':', title);
+                            
+                            //click got it to back
+                            console.log('click:', taskBtn);
+                            await waitClick(taskBtn);
+                        }
+                    }				
+                }
+            }
 			resolve();
 		}, time);
 	});
@@ -1534,14 +1536,142 @@ async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
 }
         """
 SCRIPT_AUTO_NOTPIXEL = """
-    setInterval(() => { 
-        if(document.querySelector('._button_17fy4_1')) {
-            document.querySelector('._button_17fy4_1').click()
+    (async function () {
+        await start();
+    })();
+
+    async function start() {
+    console.log('- start');
+    return new Promise(resolve => {
+    setTimeout(async () => {
+            let btn = await getElementByClass(document.querySelectorAll('button img'), '_button_img_');
+            if(btn) {
+                await waitClick(btn.parentElement, 1000);
+                await clickByLabel(document.querySelectorAll('button span'), "Claim", 2000, true);
+            }
+            resolve();
+    }, 2000);
+    });
+    }
+
+
+    async function getElementByClass(elmList, className, time = 0, must_same = false) {
+    let result = null;
+    if (elmList.length && className) {
+    for (let item of elmList) {
+            let classStr = item.getAttribute('class');
+            console.log(classStr, className);
+            if(!classStr) continue;
+        if((!must_same && classStr.includes(className)) || (must_same && classStr.split(' ').indexOf(className))) {
+                console.log('--- elm class exist', item);
+                result = item;
+        break;
         }
-        if(document.querySelector('._button_13oyr_11')) {
-            document.querySelector('._button_13oyr_11').click()
+    }
+    }
+    return new Promise(resolve => setTimeout(resolve(result), time));
+    }
+
+    async function checkExistElm(elmList, label, time = 0, must_same = false) {
+    let result = false;
+    if (elmList.length && label) {
+    for (let btnItem of elmList) {
+        if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
+                console.log('--- elm exist', btnItem);
+                result = true;
+        break;
         }
-    }, 4000)
+    }
+    }
+    return new Promise(resolve => setTimeout(resolve(result), time));
+    }
+
+    async function simulateMouseClick(el, click_event_option = {}) {
+    let opts = {
+        ...click_event_option,
+        view: window, bubbles: true, cancelable: true, buttons: 1
+    };
+    el.dispatchEvent(new MouseEvent("mousedown", opts));
+    await new Promise(r => setTimeout(r, 50));
+    el.dispatchEvent(new MouseEvent("mouseup", opts));
+    el.dispatchEvent(new MouseEvent("click", opts));
+    }
+
+    async function simulateMouseTouch(el, time = 0) {
+    const evt1 = new PointerEvent('pointerdown', {clientX: 245, clientY: 700});
+    const evt2 = new PointerEvent('pointerup', {clientX: 245, clientY: 700});
+
+    el.dispatchEvent(evt1);
+    el.dispatchEvent(evt2);
+
+    return new Promise(resolve => setTimeout(resolve, time));
+    }
+
+    async function simulateMouseTouch2(element, time = 0) {
+    const events = [
+    new PointerEvent('pointerdown', { bubbles: true, cancelable: true, isTrusted: true, pointerId: 1, width: 1, height: 1, pressure: 0.5, pointerType: "touch" }),
+    new MouseEvent('mousedown', { bubbles: true, cancelable: true, isTrusted: true, screenX: 182, screenY: 877 }),
+    new PointerEvent('pointerup', { bubbles: true, cancelable: true, isTrusted: true, pointerId: 1, width: 1, height: 1, pressure: 0, pointerType: "touch" }),
+    new MouseEvent('mouseup', { bubbles: true, cancelable: true, isTrusted: true, screenX: 182, screenY: 877 }),
+    new PointerEvent('click', { bubbles: true, cancelable: true, isTrusted: true, pointerId: 1, width: 1, height: 1, pressure: 0, pointerType: "touch" }),
+    new PointerEvent('pointerout', { bubbles: true, cancelable: true, isTrusted: true, pointerId: 1, width: 1, height: 1, pressure: 0, pointerType: "touch" }),
+    new PointerEvent('pointerleave', { bubbles: true, cancelable: true, isTrusted: true, pointerId: 1, width: 1, height: 1, pressure: 0, pointerType: "touch" }),
+    new MouseEvent('mouseout', { bubbles: true, cancelable: true, isTrusted: true, screenX: 182, screenY: 877 }),
+    new MouseEvent('mouseleave', { bubbles: true, cancelable: true, isTrusted: true, screenX: 182, screenY: 877 })
+    ];
+
+    events.forEach((event, index) => {
+    setTimeout(() => element.dispatchEvent(event), index * 100);
+    });
+    return new Promise(resolve => setTimeout(resolve, time));
+    }
+
+    // Симуляция событий указателя
+    //example: simulatePointerEvents(paintButton, 0, 0, 0, 0);
+    function simulatePointerEvents(element, startX, startY, endX, endY) {
+    const events = [
+    new PointerEvent('pointerdown', { clientX: startX, clientY: startY, bubbles: true }),
+    new PointerEvent('pointermove', { clientX: startX, clientY: startY, bubbles: true }),
+    new PointerEvent('pointermove', { clientX: endX, clientY: endY, bubbles: true }),
+    new PointerEvent('pointerup', { clientX: endX, clientY: endY, bubbles: true })
+    ];
+
+    events.forEach(event => element.dispatchEvent(event));
+    }
+
+    //For React ≥ 15.6.1
+    async function simulateMouseInput(el, value) {
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+        window.HTMLInputElement.prototype,
+        'value').set;
+    nativeInputValueSetter.call(el, value);
+    const event = new Event('input', { bubbles: true });
+    el.dispatchEvent(event);
+    }
+
+    async function waitClick(btn, time = 1000, click_event_option = {}) {
+    if (btn) {
+        console.log('click', btn);
+        //btn.click();
+        await simulateMouseTouch2(btn);
+    }
+    return new Promise(resolve => setTimeout(resolve, time));
+    }
+    async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
+    if (btn_list.length && label) {
+        for await (const btnItem of btn_list) {
+            //console.log('--', btnItem.textContent, btnItem);
+            if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
+                console.log('->', btnItem.textContent, btnItem);
+                //btnItem.click();
+                await simulateMouseTouch2(btnItem);
+                break;
+        }
+        }
+    }
+    return new Promise(resolve => setTimeout(resolve, time));
+    }
+    
 """
 
 script_popup = f"""

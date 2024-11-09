@@ -641,10 +641,10 @@ class ChromeProfileManager(QMainWindow):
                         file.write(iframe_url)
                 except Exception as e:
                     print(f"An error occurred: {e}")
+                time.sleep(5)
                 driver2.switch_to.frame(iframe)
-                driver2.execute_script(SCRIPT_AUTO_NOTPIXEL) 
-                time.sleep(15)
-                # driver2.switch_to.frame(iframe)
+                driver2.execute_script(SCRIPT_AUTO_NOTPIXEL)
+                time.sleep(20)
                 # self.run_script_from_file(driver2, self.folder_path + "/notpixel.txt", 36)
 
             except (NoSuchElementException, TimeoutException) as e:
