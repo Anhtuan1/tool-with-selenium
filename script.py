@@ -50,6 +50,8 @@ SCRIPT_QUIT = '''
 SCRIPT_GAME_CONTROL_PAWS = """
 (async function () {
     await startGame();
+    await startTask(2000, 'Limited');//start
+    await startTask(7000, 'Limited');//claim
     await startTask(2000, 'Partners');//start
     await startTask(7000, 'Partners');//claim
     await startTask(2000);//start
@@ -762,14 +764,14 @@ SCRIPT_WALLET_INIT4 = """
 
 SCRIPT_GAME_BLUM = """
         (async function () {
+            await start();
             setInterval(() => {
                 if(document.querySelector('.play-btn')){
                     document.querySelector('.play-btn').click()
                 }
 
-            }, 7000);
+            }, 10000);
             
-            await start();
         })();
 
         async function start() {
@@ -777,6 +779,8 @@ SCRIPT_GAME_BLUM = """
         	return new Promise(resolve => {
         		setTimeout(async () => {
                     await clickByLabel(document.querySelectorAll('span'), "Home", 3000);
+                    await clickByLabel(document.querySelectorAll('button'), "Restore", 3000);
+                    await clickByLabel(document.querySelectorAll('div'), "Claim", 3000);
                     await clickByLabel(document.querySelectorAll('.button-label'), "Claim", 1000);
                     await clickByLabel(document.querySelectorAll('button'), "Create account", 1000);
                     await clickByLabel(document.querySelectorAll('button'), "Continue", 1000);
