@@ -410,7 +410,7 @@ class ChromeProfileManager(QMainWindow):
                         driver2.execute_script(SCRIPT_GAME_BLUM)
                         time.sleep(10)
                         token = driver2.execute_script("return localStorage;")
-                        self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 42)
+                        self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 62)
                     else:
                         driver2.execute_script(SCRIPT_GAME_START)
                         time.sleep(10)
@@ -1574,11 +1574,10 @@ class ChromeProfileManager(QMainWindow):
                 print("- SCRIPT GAME CONTROL")
                 # driver2.execute_script(script_login)
                 driver3.execute_script(SCRIPT_GAME_BLUM)
-                time.sleep(30)
+                time.sleep(50)
                 token = driver3.execute_script("return localStorage;")
                 print(token)
                 self.run_script_from_file(driver3, self.folder_path + "/blum.txt", 60)
-
                 print("- Done")
                 driver3.switch_to.default_content()
 
