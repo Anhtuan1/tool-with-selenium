@@ -50,6 +50,7 @@ SCRIPT_QUIT = '''
 SCRIPT_GAME_CONTROL_PAWS = """
 (async function () {
     await startGame();
+    await startTaskNOEL(3000);
     await startTask(2000, 'Limited');//start
     await startTask(7000, 'Limited');//claim
     await startTask(2000, 'Partners');//start
@@ -69,6 +70,24 @@ async function startGame() {
             
             resolve();
 		}, 2000);
+	});
+}
+
+//mission
+async function startTaskNOEL(time = 2000) {
+	return new Promise((resolve) => {
+		setTimeout(async () => {
+			await clickByLabel(document.querySelectorAll(".nav-item-con div"), 'PAWSMAS', 2000, true);
+            let taskbtn = document.querySelector(".main-info .icon-con img")
+            await waitClick(taskbtn);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 8000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+			resolve();
+		}, time);
 	});
 }
 
@@ -769,7 +788,6 @@ SCRIPT_GAME_BLUM = """
                 if(document.querySelector('.play-btn')){
                     document.querySelector('.play-btn').click()
                 }
-
             }, 10000);
             
         })();
@@ -779,13 +797,15 @@ SCRIPT_GAME_BLUM = """
         	return new Promise(resolve => {
         		setTimeout(async () => {
                     await clickByLabel(document.querySelectorAll('span'), "Home", 3000);
-                    await clickByLabel(document.querySelectorAll('button'), "Restore", 3000);
+                    await clickByLabel(document.querySelectorAll('button'), "Farm", 2000);
+                    await clickByLabel(document.querySelectorAll('button'), "Claim", 3000);
                     await clickByLabel(document.querySelectorAll('div'), "Claim", 3000);
-                    await clickByLabel(document.querySelectorAll('.button-label'), "Claim", 1000);
+                    await clickByLabel(document.querySelectorAll('button'), "Claim", 1000);
                     await clickByLabel(document.querySelectorAll('button'), "Create account", 1000);
                     await clickByLabel(document.querySelectorAll('button'), "Continue", 1000);
                     await clickByLabel(document.querySelectorAll('button'), "Start farming", 1000);
-                    await clickByLabel(document.querySelectorAll('.button-label'), "Claim", 1000);
+                    await clickByLabel(document.querySelectorAll('button'), "Play", 1000);
+                    await clickByLabel(document.querySelectorAll('button'), "Claim", 1000);
                     setTimeout(() => {
                         resolve();
                     }, 2000);
@@ -1598,7 +1618,7 @@ SCRIPT_GAME_MAJOR = """
         setInterval(() => {
             let btn = document.querySelector('._fixedBottom_bsh9g_144')
             if(btn) { btn.click()}
-            let btn2 = document.querySelector('._current_idquy_28')
+            let btn2 = document.querySelector('._current_8c2n5_29')
             if(btn2){btn2.click()}
         }, [4000])
     })();

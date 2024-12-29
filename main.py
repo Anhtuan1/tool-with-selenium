@@ -410,7 +410,7 @@ class ChromeProfileManager(QMainWindow):
                         driver2.execute_script(SCRIPT_GAME_BLUM)
                         time.sleep(10)
                         token = driver2.execute_script("return localStorage;")
-                        self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 62)
+                        self.run_script_from_file(driver2, self.folder_path + "/blum.txt", 82)
                     else:
                         driver2.execute_script(SCRIPT_GAME_START)
                         time.sleep(10)
@@ -893,12 +893,12 @@ class ChromeProfileManager(QMainWindow):
                     print(f"An error occurred: {e}")
 
                 #wait to game loading
-                time.sleep(15)
+                time.sleep(5)
 
                 print("- SCRIPT GAME CONTROL")
                 driver2.switch_to.frame(iframe)
                 driver2.execute_script(SCRIPT_GAME_CONTROL_PAWS)
-                time.sleep(64)
+                time.sleep(72)
                 # driver2.switch_to.default_content()
                 # driver2.execute_script(SCRIPT_WALLET_CONTROL_PAWS)
                 # time.sleep(45)
