@@ -26,7 +26,7 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from urllib.parse import urlparse, parse_qs, unquote
 from tkinter import Tk, Button, filedialog
 
-from script import SCRIPT_GAME_MEMEX, SCRIPT_GAME_SEED, SCRIPT_GAME_MAJOR, SCRIPT_AUTO_NOTPIXEL, SCRIPT_QUIT, SCRIPT_GAME_CONTROL_PAWS, SCRIPT_WALLET_CONTROL_PAWS, SCRIPT_TELE_CONTROL_START1, SCRIPT_WALLET_INIT1, SCRIPT_TELE_CONTROL_START2, SCRIPT_WALLET_INIT2, SCRIPT_TELE_CONTROL_START3, SCRIPT_WALLET_INIT3, SCRIPT_TELE_CONTROL_START4, SCRIPT_WALLET_CLICK_TON, SCRIPT_WALLET_INIT4, SCRIPT_GAME_BLUM, SCRIPT_GAME_TOMARKET, SCRIPT_GAME_START, SCRIPT_SET_NAME, SCRIPT_IFRAME_BYPASS_MOBILE, SCRIPT_GAME_CONTROL, SCRIPT_WALLET_CONTROL, SCRIPT_GAME_SET_WALLET_DEFAULT , script_popup, headers_tomarket            
+from script import SCRIPT_GAME_MEMEX, SCRIPT_GAME_SEED, SCRIPT_GAME_MAJOR, SCRIPT_AUTO_NOTPIXEL, SCRIPT_QUIT, SCRIPT_GAME_CONTROL_PAWS, SCRIPT_GAME_CONTROL_MISSION, SCRIPT_WALLET_CONTROL_PAWS, SCRIPT_TELE_CONTROL_START1, SCRIPT_WALLET_INIT1, SCRIPT_TELE_CONTROL_START2, SCRIPT_WALLET_INIT2, SCRIPT_TELE_CONTROL_START3, SCRIPT_WALLET_INIT3, SCRIPT_TELE_CONTROL_START4, SCRIPT_WALLET_CLICK_TON, SCRIPT_WALLET_INIT4, SCRIPT_GAME_BLUM, SCRIPT_GAME_TOMARKET, SCRIPT_GAME_START, SCRIPT_SET_NAME, SCRIPT_IFRAME_BYPASS_MOBILE, SCRIPT_GAME_CONTROL, SCRIPT_WALLET_CONTROL, SCRIPT_GAME_SET_WALLET_DEFAULT , script_popup, headers_tomarket            
 # from webdriver_manager.chrome import ChromeDriverManager
 
 # chrome_driver_path = ChromeDriverManager().install()
@@ -48,7 +48,7 @@ url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
 # URL_LIST = 'https://t.me/drop_shit_game_bot?start=null'
 # URL_LIST = 'https://t.me/notpixel/app?startapp=f1641277785 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://web.telegram.org/k/#@BlumCryptoBot'
-URL_LIST = 'https://t.me/PAWSOG_bot/PAWS?startapp=Xe4l4CvT https://web.telegram.org/k/#@BlumCryptoBot https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q https://web.telegram.org/k/#@BlumCryptoBot'
+URL_LIST = 'https://t.me/PAWSOG_bot/PAWS?startapp=Xe4l4CvT https://paws.community/app https://web.telegram.org/k/#@BlumCryptoBot https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q https://web.telegram.org/k/#@BlumCryptoBot'
 URL_INFO = 'https://t.me/MemeX_prelaunch_airdrop_bot?start=ref_code=MX2IMWSD https://web.telegram.org/a https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@BlumCryptoBot https://t.me/notpixel/app?startapp=f1641277785 https://web.telegram.org/k/#@Tomarket_ai_bot https://t.me/PAWSOG_bot/PAWS?startapp=Xe4l4CvT https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/tonstationgames_bot/app?startapp=ref_xbu3wqeht67331gphr4gwm https://t.me/major/start?startapp=1641277785'
 #https://web.telegram.org/k/#@BlumCryptoBot https://t.me/major/start?startapp=1641277785 https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H
 
@@ -477,183 +477,7 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
         
-        if web == 'https://web.telegram.org/k/#@Tomarket_ai_bot' or web == 'https://t.me/Tomarket_ai_bot/app?startapp=00020R5H' or 'https://t.me/Tomarket_ai_bot/app' in web:
-            print('Running Tomarket')
-            try:
-                chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                # Add the mobile emulation to the chrome options variable
-                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
-                chrome_options.add_argument(f"window-position={x_position},{y_position}")
-                chrome_options.add_argument("force-device-scale-factor=0.6") 
-
-                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
-                driver2 = webdriver.Chrome(options=chrome_options)
-                if web is not None:
-                    driver2.get(web)
-                    time.sleep(3)
-
-                try:
-                    if web == 'https://web.telegram.org/k/#@Tomarket_ai_bot':
-                        driver2.execute_script(script_popup)
-                        time.sleep(5)
-                        try:
-                            start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
-                            start_button.click()
-                        except (NoSuchElementException, TimeoutException):
-                            continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'START')]")
-                            continue_button.click()
-                    else:
-                        wait = WebDriverWait(driver2, 20)
-                        try:
-                            element = wait.until(
-                                EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
-                            )
-
-                            ref_link = element.get_attribute('href')
-                            ref_link = ref_link.replace('https://web.telegram.org/a/', 'https://web.telegram.org/k/')
-                            driver2.get(ref_link)
-                        except TimeoutException:
-                            print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
-                            driver2.quit()
-                    time.sleep(10)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Launch not found")
-                    time.sleep(5)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("confirm not found")
-                    time.sleep(5)
-
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 20).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-
-                    iframe_url = iframe.get_attribute('src')
-                    iframe_url = iframe_url.replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios").replace(
-                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    driver2.switch_to.frame(iframe)
-                    time.sleep(10)
-                    driver2.execute_script(SCRIPT_GAME_TOMARKET)
-                    time.sleep(100)
-                    parsed_url = urlparse(iframe_url)
-                    fragment = parsed_url.fragment
-                    params = parse_qs(fragment)
-                    tg_web_app_data = params.get('tgWebAppData', [None])[0]
-                    
-                    query = tg_web_app_data
-                    try:
-                        token = get_token_tomarket(query, 'https://api-web.tomarket.ai/tomarket-game/v1/user/login', 'https://mini-app.tomarket.ai/', proxyHeader)
-                        print('token-tomarket done')
-                        if(wallet != 'wallet'):
-                            start_connect =  self.set_wallet_game_tomarket(token=token, wallet=wallet, proxy=proxyHeader)
-                            if start_connect.status_code == 200:
-                                print(f"Connect done...{wallet}")
-
-                        # start_game = self.start_game_tomarket(token=token, proxy=proxyHeader)
-                        
-                        # if start_game.status_code == 200:
-                        #     print(f"Playing game in 30s...")
-                        #     time.sleep(30)
-                        #     point = random.randint(500, 600)
-                        #     claim_game = self.claim_game_tomarket(
-                        #         token=token, point=point, proxy=proxyHeader
-                        #     )
-                        #     if claim_game.status_code == 200:
-                        #         print(f"Claim point from game success")
-                        #     else:
-                        #         print(f"Claim point from game failed")
-                        # else:
-                        #     print(f"Start game failed")
-                    except (NoSuchElementException, TimeoutException):
-                        print(f"Lỗi: {str(e)}")
-                    time.sleep(5)
-
-                except (NoSuchElementException, TimeoutException):
-                    print(f"Lỗi: {str(e)}")
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi")
-            finally:
-                if driver2 is not None:
-                    print('Quit')
-                    driver2.quit()
-
-        if web == 'https://t.me/notpixel/app?startapp=f1641277785' or web == 'https://web.telegram.org/k/#@notpixel' or 'https://t.me/notpixel/app' in web:
-            print('Running NotPixcel')
-            try:
-                chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                # Add the mobile emulation to the chrome options variable
-                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
-                chrome_options.add_argument(f"window-position={x_position},{y_position}")
-                chrome_options.add_argument("force-device-scale-factor=0.6") 
-
-                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
-                driver2 = webdriver.Chrome(options=chrome_options)
-                if web is not None:
-                    driver2.get(web)
-                    time.sleep(3)
-                wait = WebDriverWait(driver2, 30)
-                try:
-                    element = wait.until(
-                        EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
-                    )
-                    ref_link = element.get_attribute('href')
-                    ref_link = ref_link.replace('https://web.telegram.org/a/', 'https://web.telegram.org/k/')
-                    driver2.get(ref_link)
-                except TimeoutException:
-                    print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
-                time.sleep(5)
-                try:
-                    continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                    continue_button.click()
-                except (NoSuchElementException, TimeoutException):
-                    print("Launch not found")
-                time.sleep(5)
-
-                try:
-                    continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
-                    continue_button.click()
-                except (NoSuchElementException, TimeoutException):
-                    print("confirm not found")
-                time.sleep(5)
-
-                iframe_allow_attr = 'camera; microphone; geolocation;'
-                iframe = WebDriverWait(driver2, 20).until(
-                    EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-
-                iframe_url = iframe.get_attribute('src')
-                iframe_url = iframe_url.replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios").replace(
-                    "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                try:
-                    data_path = f"{self.folder_path}/data_login_notpixcel/{email}"
-                    if not os.path.exists(data_path):
-                        os.makedirs(data_path)
-                    with open(data_path + '/url.txt', 'w') as file:
-                        file.write(iframe_url)
-                except Exception as e:
-                    print(f"An error occurred: {e}")
-                time.sleep(5)
-                driver2.switch_to.frame(iframe)
-                driver2.execute_script(SCRIPT_AUTO_NOTPIXEL)
-                time.sleep(40)
-                # self.run_script_from_file(driver2, self.folder_path + "/notpixel.txt", 36)
-
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi")
-            finally:
-                if driver2 is not None:
-                    print('Quit')
-                    driver2.quit()
+        
         
         if web == 'https://web.telegram.org/k/#@wallet':
             print('Running Wallet')
@@ -897,8 +721,21 @@ class ChromeProfileManager(QMainWindow):
 
                 print("- SCRIPT GAME CONTROL")
                 driver2.switch_to.frame(iframe)
+                # driver2.execute_script(SCRIPT_GAME_CONTROL_PAWS)
+                # time.sleep(30)
+                # driver2.get('https://paws.community/app')
                 driver2.execute_script(SCRIPT_GAME_CONTROL_PAWS)
-                time.sleep(72)
+                
+
+                # time.sleep(15)
+                # driver2.execute_script(SCRIPT_GAME_CONTROL_PAWS_CONNECT)
+                
+                time.sleep(20)
+                tabs = driver2.window_handles
+                driver2.switch_to.window(tabs[1])
+                driver2.execute_script(SCRIPT_GAME_CONTROL_PAWS)
+                time.sleep(10)
+                driver2.switch_to.window(tabs[0])
                 # driver2.switch_to.default_content()
                 # driver2.execute_script(SCRIPT_WALLET_CONTROL_PAWS)
                 # time.sleep(45)
@@ -1062,95 +899,7 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
-        if web == 'http://t.me/seed_coin_bot/app?startapp=7300524587' or 'https://t.me/seed_coin_bot' in web:
-            try:
-                print('Running seed')
-                chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                # Add the mobile emulation to the chrome options variable
-                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
-                chrome_options.add_argument(f"window-position={x_position},{y_position}")
-                chrome_options.add_argument("force-device-scale-factor=0.6") 
-                
-                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
-                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
-                driver2 = webdriver.Chrome(options=chrome_options)
-                data_path = f"{self.folder_path}/data_login_seed/{email}/url.txt"
-                if web is not None:
-                    driver2.get(web)
-                    time.sleep(3)
-
-                try:
-                    if web == 'https://t.me/seed_coin_bot':
-                        driver2.execute_script(script_popup)
-                        time.sleep(5)
-                        try:
-                            start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
-                            start_button.click()
-                        except (NoSuchElementException, TimeoutException):
-                            continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'START')]")
-                            continue_button.click()
-                    else:
-                        wait = WebDriverWait(driver2, 30)
-                        try:
-                            element = wait.until(
-                                EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
-                            )
-                            ref_link = element.get_attribute('href')
-                            driver2.get(ref_link)
-                        except TimeoutException:
-                            print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
-
-                    time.sleep(10)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Launch not found")
-                    time.sleep(2)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Confirm')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("confirm not found")
-                    time.sleep(2)
-
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 20).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-                    # get iframe url
-                    iframe_url = iframe.get_attribute('src')
-                    iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace(
-                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    try:
-                        data_path = f"{self.folder_path}/data_login_seed/{email}"
-                        if not os.path.exists(data_path):
-                            os.makedirs(data_path)
-                        with open(data_path + '/url.txt', 'w') as file:
-                            file.write(iframe_url)
-                    except Exception as e:
-                        print(f"An error occurred: {e}")
-
-                    driver2.switch_to.frame(iframe)
-                    print("- SCRIPT GAME CONTROL")
-                    time.sleep(10)
-                    # driver2.execute_script(script_login)
-                    driver2.execute_script(SCRIPT_GAME_SEED)
-                    time.sleep(25)
-                    print("- Done")
-
-                except (NoSuchElementException, TimeoutException):
-                    print(f"Lỗi: {str(e)}")
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi")
-            finally:
-                if driver2 is not None:
-                    print('Quit')
-                    driver2.quit()
-
+        
     def run_script_from_file(self, driver, file_path, run_time):
         try:
             print(f"Start run script from file: {file_path}")
