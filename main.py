@@ -26,11 +26,11 @@ from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from urllib.parse import urlparse, parse_qs, unquote
 from tkinter import Tk, Button, filedialog
 
-from script import SCRIPT_GAME_MEMEX, SCRIPT_GAME_SEED, SCRIPT_GAME_MAJOR, SCRIPT_AUTO_NOTPIXEL, SCRIPT_QUIT, SCRIPT_GAME_CONTROL_PAWS, SCRIPT_GAME_CONTROL_MISSION, SCRIPT_WALLET_CONTROL_PAWS, SCRIPT_TELE_CONTROL_START1, SCRIPT_WALLET_INIT1, SCRIPT_TELE_CONTROL_START2, SCRIPT_WALLET_INIT2, SCRIPT_TELE_CONTROL_START3, SCRIPT_WALLET_INIT3, SCRIPT_TELE_CONTROL_START4, SCRIPT_WALLET_CLICK_TON, SCRIPT_WALLET_INIT4, SCRIPT_GAME_BLUM, SCRIPT_GAME_TOMARKET, SCRIPT_GAME_START, SCRIPT_SET_NAME, SCRIPT_IFRAME_BYPASS_MOBILE, SCRIPT_GAME_CONTROL, SCRIPT_WALLET_CONTROL, SCRIPT_GAME_SET_WALLET_DEFAULT , script_popup, headers_tomarket            
+from script import SCRIPT_GAME_MEMEX, SCRIPT_GAME_CONTROL_LAUNCH, SCRIPT_GAME_MAJOR, SCRIPT_AUTO_NOTPIXEL, SCRIPT_QUIT, SCRIPT_GAME_CONTROL_PAWS, SCRIPT_GAME_CONTROL_MISSION, SCRIPT_WALLET_CONTROL_PAWS, SCRIPT_TELE_CONTROL_START1, SCRIPT_WALLET_INIT1, SCRIPT_TELE_CONTROL_START2, SCRIPT_WALLET_INIT2, SCRIPT_TELE_CONTROL_START3, SCRIPT_WALLET_INIT3, SCRIPT_TELE_CONTROL_START4, SCRIPT_WALLET_CLICK_TON, SCRIPT_WALLET_INIT4, SCRIPT_GAME_BLUM, SCRIPT_GAME_TOMARKET, SCRIPT_GAME_START, SCRIPT_SET_NAME, SCRIPT_IFRAME_BYPASS_MOBILE, SCRIPT_GAME_CONTROL, SCRIPT_WALLET_CONTROL, SCRIPT_GAME_SET_WALLET_DEFAULT , script_popup, headers_tomarket            
 # from webdriver_manager.chrome import ChromeDriverManager
 
 # chrome_driver_path = ChromeDriverManager().install()
-
+# chrome-extension://bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html
 try:
     from telethon.sync import TelegramClient, events
     from telethon.sessions import StringSession
@@ -48,7 +48,7 @@ url_ref = 'https://t.me/waveonsuibot/walletapp?startapp='
 url_tele = 'https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q'
 # URL_LIST = 'https://t.me/drop_shit_game_bot?start=null'
 # URL_LIST = 'https://t.me/notpixel/app?startapp=f1641277785 https://t.me/Tomarket_ai_bot/app?startapp=00020R5H https://web.telegram.org/k/#@BlumCryptoBot'
-URL_LIST = 'https://t.me/PAWSOG_bot/PAWS?startapp=Xe4l4CvT https://paws.community/app https://web.telegram.org/k/#@BlumCryptoBot https://t.me/dogshouse_bot/join?startapp=zySPSgu7Qvmqqaao3JoL4Q https://web.telegram.org/k/#@BlumCryptoBot'
+URL_LIST = 'chrome-extension://bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html https://paws.community/app?tab=claim'
 URL_INFO = 'https://t.me/MemeX_prelaunch_airdrop_bot?start=ref_code=MX2IMWSD https://web.telegram.org/a https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@BlumCryptoBot https://t.me/notpixel/app?startapp=f1641277785 https://web.telegram.org/k/#@Tomarket_ai_bot https://t.me/PAWSOG_bot/PAWS?startapp=Xe4l4CvT https://t.me/blum/app?startapp=ref_x2QGrP78j3 https://t.me/tonstationgames_bot/app?startapp=ref_xbu3wqeht67331gphr4gwm https://t.me/major/start?startapp=1641277785'
 #https://web.telegram.org/k/#@BlumCryptoBot https://t.me/major/start?startapp=1641277785 https://t.me/bwcwukong_bot/Play?startapp=1641277785 https://web.telegram.org/k/#@wallet https://web.telegram.org/k/#@hamster_kombat_bot https://t.me/Tomarket_ai_bot/app?startapp=00020R5H
 
@@ -330,6 +330,257 @@ class ChromeProfileManager(QMainWindow):
         scaled_height = int(height)
         CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
         iframe = None
+        if web =='https://paws.community/app?tab=claim':
+            try:
+                print('Running Extension')
+                chrome_options.add_argument(f'--user-data-dir={profile_path}')
+                chrome_options.add_argument('--no-experiments')
+                # Add the mobile emulation to the chrome options variable
+                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
+                chrome_options.add_argument(f"window-position={x_position},{y_position}")
+                chrome_options.add_argument("force-device-scale-factor=0.6") 
+                
+                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
+                
+                driver2 = webdriver.Chrome(options=chrome_options)
+                if web is not None:
+                    driver2.get(web)
+                    time.sleep(6)
+                # login_btn = WebDriverWait(driver2, 10).until(
+                #     EC.presence_of_element_located((By.CSS_SELECTOR, ".login-btn"))
+                # )
+                # driver2.execute_script("arguments[0].click();", login_btn)
+                # time.sleep(1)
+
+                # phantom_wallet_btn = WebDriverWait(driver2, 10).until(
+                #     EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'Phantom Wallet')]"))
+                # )
+                # phantom_wallet_btn.click()
+                # time.sleep(3)
+
+                # main_window = driver2.current_window_handle
+                # WebDriverWait(driver2, 5).until(lambda d: len(d.window_handles) > 1)
+
+                # # Switch to the popup window
+                # for handle in driver2.window_handles:
+                #     if handle != main_window:
+                #         driver2.switch_to.window(handle)
+                #         break
+
+                # # Now you're inside the popup, perform actions
+                # print("Switched to Phantom Wallet popup!")
+                # password_field = driver2.find_element(By.CSS_SELECTOR, 'input[data-testid="unlock-form-password-input"]')
+                
+                # # Enter the password
+                # password_field.send_keys("Dien pass vao day")
+                # time.sleep(1)
+                # unlock_button = driver2.find_element(By.CSS_SELECTOR, 'button[data-testid="unlock-form-submit-button"]')
+                # unlock_button.click()
+
+                # time.sleep(3)
+                # # Locate the "Manage Accounts" button
+                # manage_accounts_button = driver2.find_element(By.CSS_SELECTOR, 'button[data-testid="primary-button"]')
+
+                # # Click the button
+                # manage_accounts_button.click()
+                # time.sleep(2)
+
+                # driver2.switch_to.window(main_window)
+                # print("Switched back to the main page!")
+
+
+                wait = WebDriverWait(driver2, 20)
+
+                # Locate and click the "Next" button
+                next_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.next-btn')))
+                next_btn.click()
+                time.sleep(5)
+                # wait = WebDriverWait(driver2, 15)
+
+                # # Locate and click the "Next" button
+                # next_btn = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '.next-btn')))
+                # next_btn.click()
+                # time.sleep(2)
+                # Locate the main div containing the amount
+                # Wait for the element to be present
+                
+                amount_div = driver2.find_elements(By.CSS_SELECTOR, '.amount')
+                amount_main_text = ''
+                for word in amount_div:
+                    if word.text != '':
+                        amount_main_text = word.text
+                        print(amount_main_text)
+                    
+                time.sleep(2)
+
+                file_path_wallet = f"{self.folder_path}/pawsAmount.txt"
+
+                data_to_write_amount = f"{email}|{amount_main_text}\n"
+
+                try:
+
+                    with open(file_path_wallet, 'a') as file:
+                            file.write(data_to_write_amount)
+                except FileNotFoundError:
+                        # If file doesn't exist, create it and write loadDataText
+                        with open(file_path_wallet, 'w') as file:
+                            file.write(data_to_write_amount)
+                        print(f"File '{file_path_wallet}' created and '{data_to_write_amount}' added.")
+
+                time.sleep(5)
+
+                
+            except (NoSuchElementException, TimeoutException) as e:
+                print(f"Xảy ra lỗi")
+            finally:
+                if driver2 is not None:
+                    print('Quit')
+                    driver2.quit()   
+        if web == 'chrome-extension://bfnaelmomeimhlpmgjnjophhpkkoljpa/popup.html':
+            try:
+                print('Running Extension')
+                chrome_options.add_argument(f'--user-data-dir={profile_path}')
+                chrome_options.add_argument('--no-experiments')
+                # Add the mobile emulation to the chrome options variable
+                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
+                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
+                chrome_options.add_argument(f"window-position={x_position},{y_position}")
+                chrome_options.add_argument("force-device-scale-factor=0.6") 
+                
+                CHROME_EXTENSION_CRX_PATH = self.folder_path + '/chrome_extension/ignore-x-frame-headers/2.0.0_0.crx'
+                
+                driver2 = webdriver.Chrome(options=chrome_options)
+                if web is not None:
+                    driver2.get(web)
+                    time.sleep(6)
+                
+                # Locate the password input field
+                password_field = driver2.find_element(By.CSS_SELECTOR, 'input[data-testid="unlock-form-password-input"]')
+                
+                # Enter the password
+                password_field.send_keys("Dien pass vao day")
+                time.sleep(1)
+                unlock_button = driver2.find_element(By.CSS_SELECTOR, 'button[data-testid="unlock-form-submit-button"]')
+                unlock_button.click()
+
+                time.sleep(3)
+                # Locate the settings menu button
+                settings_button = driver2.find_element(By.CSS_SELECTOR, 'div[data-testid="settings-menu-open-button"]')
+
+                # Click the button
+                settings_button.click()
+                time.sleep(1)
+                # Locate the "Manage Accounts" button
+                manage_accounts_button = driver2.find_element(By.CSS_SELECTOR, 'button[data-testid="sidebar_menu-button-manage_accounts"]')
+
+                # Click the button
+                manage_accounts_button.click()
+                time.sleep(1)
+
+                # Locate "Account 1" div using data-testid
+                account_1_button = driver2.find_element(By.CSS_SELECTOR, 'div[data-testid="manage-accounts-sortable-Account 1"]')
+
+                # Click the button
+                account_1_button.click()
+
+                time.sleep(1)
+                # Locate the button containing "Account Addresses"
+                account_addresses_button = driver2.find_element(By.XPATH, "//div[contains(text(), 'Account Addresses')]")
+
+                # Click the button
+                account_addresses_button.click()
+
+                time.sleep(1)
+                wait = WebDriverWait(driver2, 10)
+                solana_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//div[contains(text(), 'Solana')]")))
+
+                # Click the button
+                solana_button.click()
+                time.sleep(1)
+                wait = WebDriverWait(driver2, 10)
+                textarea = wait.until(EC.presence_of_element_located((By.TAG_NAME, "textarea")))
+
+                # Get the text value
+                solana_address = textarea.get_attribute("value")
+
+                file_path_wallet = f"{self.folder_path}/Wallet_phantom.txt"
+                data_to_write_wallet = f"{email}|{solana_address}\n"
+                try:
+
+                    with open(file_path_wallet, 'a') as file:
+                            file.write(data_to_write_wallet)
+                except FileNotFoundError:
+                        # If file doesn't exist, create it and write loadDataText
+                        with open(file_path_wallet, 'w') as file:
+                            file.write(data_to_write_wallet)
+                        print(f"File '{file_path_wallet}' created and '{data_to_write_wallet}' added.")
+
+                time.sleep(1)
+
+                wait = WebDriverWait(driver2, 10)
+                back_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="header--back"]')))
+
+                # Click the back button
+                back_button.click()
+                time.sleep(1)
+
+                wait = WebDriverWait(driver2, 10)
+                back_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="header--back"]')))
+                back_button.click()
+                time.sleep(1)
+                wait = WebDriverWait(driver2, 10)
+                show_phrase_button = wait.until(EC.element_to_be_clickable((By.XPATH, "//button[div//div[text()='Show Secret Phrase']]")))
+
+                # Click the button
+                show_phrase_button.click()
+                time.sleep(1)
+                wait = WebDriverWait(driver2, 10)
+                password_input = wait.until(EC.presence_of_element_located((By.NAME, "password")))
+
+                # Send the password
+                password_input.send_keys("Dien pass vao day")
+                checkbox = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, 'input[type="checkbox"]')))
+                driver2.execute_script("arguments[0].click();", checkbox)
+                time.sleep(1)
+
+                wait = WebDriverWait(driver2, 10)
+                next_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, 'button[data-testid="primary-button"]')))
+
+                # Click the button
+                next_button.click()
+                time.sleep(1)
+                phrase_words = []
+                for i in range(12):  # Assuming 12-word recovery phrase
+                    input_selector = f'input[data-testid="secret-recovery-phrase-word-input-{i}"]'
+                    word = driver2.find_element(By.CSS_SELECTOR, input_selector).get_attribute("value")
+                    phrase_words.append(word)
+
+                # Convert the list into a single string
+                secret_phrase = " ".join(phrase_words)
+                file_path = f"{self.folder_path}/phantom.txt"
+                data_to_write = f"{email}|{solana_address}|{secret_phrase}\n"
+                try:
+
+                    with open(file_path, 'a') as file:
+                            file.write(data_to_write)
+                except FileNotFoundError:
+                        # If file doesn't exist, create it and write loadDataText
+                        with open(file_path, 'w') as file:
+                            file.write(data_to_write)
+                        print(f"File '{file_path}' created and '{data_to_write}' added.")
+
+                time.sleep(1)
+            except (NoSuchElementException, TimeoutException) as e:
+                print(f"Xảy ra lỗi")
+            finally:
+                if driver2 is not None:
+                    print('Quit')
+                    driver2.quit()   
+        
+        
+        
+        
         if web == 'https://web.telegram.org/k/#@BlumCryptoBot' or web == 'https://t.me/blum/app?startapp=ref_x2QGrP78j3' or 'https://t.me/blum/app' in web:
             try:
                 print('Running Blum')
@@ -348,7 +599,6 @@ class ChromeProfileManager(QMainWindow):
                 if web is not None:
                     driver2.get(web)
                     time.sleep(3)
-
                 try:
                     if web == 'https://web.telegram.org/k/#@BlumCryptoBot':
                         driver2.execute_script(script_popup)
@@ -650,6 +900,7 @@ class ChromeProfileManager(QMainWindow):
                     print('Quit')
                     driver2.quit()
 
+        
         if web == 'https://t.me/PAWSOG_bot/PAWS?startapp=Xe4l4CvT' or 'https://t.me/PAWSOG_bot/PAWS' in web:
             try:
                 print('Running Paws')
@@ -694,19 +945,18 @@ class ChromeProfileManager(QMainWindow):
                     print("confirm not found")
                 
                 #wait to game load
-                time.sleep(10)
-
+                time.sleep(5)
+                driver2.execute_script(SCRIPT_GAME_CONTROL_LAUNCH)
                 iframe_allow_attr = 'camera; microphone; geolocation;'
-                iframe = WebDriverWait(driver2, 50).until(
+                iframe = WebDriverWait(driver2, 20).until(
                     EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
                 
                 #get iframe url
                 iframe_url = iframe.get_attribute('src')
                 iframe_url = iframe_url.replace("tgWebAppPlatform=weba", "tgWebAppPlatform=ios").replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios")
                 
-                print("Src attribute of the iframe:", iframe_url)
                 # driver2.get(iframe_url)
-
+                
                 try:
                     data_path = f"{self.folder_path}/data_login_paws/{email}"
                     if not os.path.exists(data_path):
@@ -717,7 +967,7 @@ class ChromeProfileManager(QMainWindow):
                     print(f"An error occurred: {e}")
 
                 #wait to game loading
-                time.sleep(5)
+                time.sleep(2)
 
                 print("- SCRIPT GAME CONTROL")
                 driver2.switch_to.frame(iframe)
@@ -725,22 +975,13 @@ class ChromeProfileManager(QMainWindow):
                 # time.sleep(30)
                 # driver2.get('https://paws.community/app')
                 driver2.execute_script(SCRIPT_GAME_CONTROL_PAWS)
-                
-
-                # time.sleep(15)
-                # driver2.execute_script(SCRIPT_GAME_CONTROL_PAWS_CONNECT)
-                
-                time.sleep(20)
-                tabs = driver2.window_handles
-                driver2.switch_to.window(tabs[1])
-                driver2.execute_script(SCRIPT_GAME_CONTROL_PAWS)
-                time.sleep(10)
-                driver2.switch_to.window(tabs[0])
+                time.sleep(50)
                 # driver2.switch_to.default_content()
-                # driver2.execute_script(SCRIPT_WALLET_CONTROL_PAWS)
-                # time.sleep(45)
-
-                # driver2.switch_to.default_content()
+                # iframe_allow_attr2 = 'camera; microphone; geolocation;'
+                # iframe2 = WebDriverWait(driver2, 10).until(
+                #     EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr2}"]')))
+                # driver2.switch_to.frame(iframe2)
+                # print(iframe2.get_attribute('src'))
             except (NoSuchElementException, TimeoutException) as e:
                 print(f"Xảy ra lỗi")
             finally:
@@ -824,81 +1065,7 @@ class ChromeProfileManager(QMainWindow):
                 if driver2 is not None:
                     print('Quit')
                     driver2.quit()
-        if web == 'https://t.me/MemeX_prelaunch_airdrop_bot?start=ref_code=MX2IMWSD' or 'https://t.me/MemeX_prelaunch_airdrop_bot' in web:
-            print('Running MEMEX')
-            try:
-                chrome_options.add_argument(f'--user-data-dir={profile_path}')
-                chrome_options.add_argument('--no-experiments')
-                chrome_options.add_experimental_option("mobileEmulation", mobile_emulation)
-                chrome_options.add_argument(f"window-size={scaled_width},{scaled_height}")
-                chrome_options.add_argument(f"window-position={x_position},{y_position}")
-                chrome_options.add_argument("force-device-scale-factor=0.6") 
-
-
-                chrome_options.add_extension(CHROME_EXTENSION_CRX_PATH)
-                driver2 = webdriver.Chrome(options=chrome_options)
-                if web is not None:
-                    driver2.get(web)
-                    time.sleep(3)
-
-                try:
-                    
-                    
-                    wait = WebDriverWait(driver2, 30)
-                    try:
-                        element = wait.until(
-                            EC.presence_of_element_located((By.CLASS_NAME, 'tgme_action_web_button'))
-                        )
-                        ref_link = element.get_attribute('href')
-                        driver2.get(ref_link)
-                    except TimeoutException:
-                        print("Element with class 'tgme_action_web_button' not found or not clickable within 30 seconds.")
-                    time.sleep(2)
-
-                    
-                    try:
-                        StartBtn = driver2.find_element(By.XPATH, "//button[contains(., 'START')]")
-                        StartBtn.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Not found start button ") 
-                    time.sleep(10)
-
-                    try:
-                        start_button = driver2.find_element(By.CSS_SELECTOR, "div.new-message-bot-commands-view")
-                        start_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Not found play button")
-                        
-                    time.sleep(10)
-
-                    try:
-                        continue_button = driver2.find_element(By.XPATH, "//button[contains(., 'Launch')]")
-                        continue_button.click()
-                    except (NoSuchElementException, TimeoutException):
-                        print("Launch not found")
-                    time.sleep(2)
-
-
-                    iframe_allow_attr = 'camera; microphone; geolocation;'
-                    iframe = WebDriverWait(driver2, 20).until(
-                        EC.presence_of_element_located((By.CSS_SELECTOR, f'iframe[allow="{iframe_allow_attr}"]')))
-                    # get iframe url
-                    iframe_url = iframe.get_attribute('src')
-                    iframe_url = iframe_url.replace("tgWebAppPlatform=web", "tgWebAppPlatform=ios").replace(
-                        "tgWebAppPlatform=web", "tgWebAppPlatform=ios")
-                    driver2.switch_to.frame(iframe)
-                    driver2.execute_script(SCRIPT_GAME_MEMEX)
-                    time.sleep(60)
-                    
-                except (NoSuchElementException, TimeoutException):
-                    print(f"Lỗi: {str(e)}")
-            except (NoSuchElementException, TimeoutException) as e:
-                print(f"Xảy ra lỗi")
-            finally:
-                if driver2 is not None:
-                    print('Quit')
-                    driver2.quit()
-
+        
         
     def run_script_from_file(self, driver, file_path, run_time):
         try:

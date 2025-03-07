@@ -4,7 +4,7 @@
   window.BlumAC = true;
 
   const c = [208, 216, 0];
-  const ha = [228, 120, 50];
+  const ha = [208, 216, 0];
   const t = 5;
 
   setInterval(() => {
@@ -27,7 +27,7 @@
         const b = pixels[index + 2];
         const greenishRange = (c[0] - t < r && r < c[0] + t) && (c[1] - t < g && g < c[1] + t) && (c[2] - t < b && b < c[2] + t);
 	      const haRange = (ha[0] - t < r && r < ha[0] + t) && (ha[1] - t < g && g < ha[1] + t) && (ha[2] - t < b && b < ha[2] + t);
-        if (greenishRange || haRange) {
+        if (greenishRange) {
           simulateClick(screenCanvas, x, y);
         }
 	

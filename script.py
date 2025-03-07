@@ -188,14 +188,163 @@ async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
 	return new Promise(resolve => setTimeout(resolve, time));
 }
         """
+SCRIPT_GAME_CONTROL_LAUNCH = """
+(async function () {
+    await startGame()
+})();
+
+async function startGame() {
+	console.log('- startGame');
+	return new Promise(resolve => {
+		setInterval(async () => {
+        
+            if(await checkExistElm(document.querySelectorAll(".chat-join"), 'SUBSCRIBE')) {
+                await clickByLabel(document.querySelectorAll(".chat-join"), 'SUBSCRIBE', 2000, true);
+            }
+
+            if(await checkExistElm(document.querySelectorAll("button"), 'Launch')) {
+                await clickByLabel(document.querySelectorAll("button"), 'Launch', 2000, true);
+            }
+            resolve();
+		}, 3000);
+	});
+}
+
+//mission
+async function startTaskNOEL(time = 2000) {
+	return new Promise((resolve) => {
+		setTimeout(async () => {
+			await clickByLabel(document.querySelectorAll(".nav-item-con div"), 'PAWSMAS', 2000, true);
+            let taskbtn = document.querySelector(".main-info .icon-con img")
+            await waitClick(taskbtn);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 8000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+            await clickByLabel(document.querySelectorAll(".start-btn"), 'Go', 6000, true);
+			resolve();
+		}, time);
+	});
+}
+
+//mission
+async function startTask(time = 2000, taskTitle = 'In-game') {
+    console.log('- startTask:', taskTitle);
+	return new Promise((resolve) => {
+		setTimeout(async () => {
+			await clickByLabel(document.querySelectorAll(".nav-item-con div"), 'Earn', 2000, true);
+
+            if(await checkExistElm(document.querySelectorAll(".quests-tab-con  .type-select .type-item"), taskTitle)) {
+                await clickByLabel(document.querySelectorAll(".quests-tab-con  .type-select .type-item"), taskTitle);
+
+                let tasks = document.querySelectorAll(".quests-tab-con .quests .invite-item");
+                if(tasks.length) {
+                    let taskIndex = 0;
+                    for await (let task of tasks) {
+                        taskIndex++;
+                        let title = task.querySelector('.main-info .wallet-con .wallet').textContent;
+                        let taskBtn = task.querySelector('.start-btn');
+                        
+                        let exceptTask = [
+                            'Boost PAWS channel', 'Connect Solana Wallet'
+                        ];
+    
+                        if(!title.includes('Invite') && !exceptTask.includes(title)) {
+                            console.log('--- start task ', taskIndex, ':', title);
+                            
+                            //click got it to back
+                            console.log('click:', taskBtn);
+                            await waitClick(taskBtn);
+                        }
+                    }				
+                }
+            }
+			resolve();
+		}, time);
+	});
+}
+
+async function getElementByText(elm_list, label, time = 0, must_same = false) {
+	let result = null;
+	if (elm_list.length && label) {
+        for await (const elm of elm_list) {
+            //console.log('--', elm.textContent, elm);
+            if((!must_same && elm.textContent.includes(label)) || (must_same && elm.textContent == label)) {
+                console.log('->', elm.textContent, elm);
+                result = elm;
+                break;
+			}
+        }
+	}
+	return new Promise(resolve => setTimeout(resolve(result), time));
+}
+
+async function checkExistElm(elmList, label, time = 0) {
+	let result = false;
+	if (elmList.length && label) {
+		for (let btnItem of elmList) {
+			if(btnItem.textContent.includes(label)){
+                console.log('--- elm exist', btnItem);
+                result = true;
+				break;
+			}
+		}
+	}
+	return new Promise(resolve => setTimeout(resolve(result), time));
+}
+
+async function simulateMouseClick(el) {
+  let opts = {view: window, bubbles: true, cancelable: true, buttons: 1};
+  el.dispatchEvent(new MouseEvent("mousedown", opts));
+  await new Promise(r => setTimeout(r, 50));
+  el.dispatchEvent(new MouseEvent("mouseup", opts));
+  el.dispatchEvent(new MouseEvent("click", opts));
+}
+
+//For React ≥ 15.6.1
+async function simulateMouseInput(el, value) {
+    const nativeInputValueSetter = Object.getOwnPropertyDescriptor(
+      window.HTMLInputElement.prototype,
+      'value').set;
+    nativeInputValueSetter.call(el, value);
+    const event = new Event('input', { bubbles: true });
+    el.dispatchEvent(event);
+}
+
+async function waitClick(btn, time = 1000) {
+	if (btn) await simulateMouseClick(btn);
+	return new Promise(resolve => setTimeout(resolve, time));
+}
+async function clickByLabel(btn_list, label, time = 1000, must_same = false) {
+	if (btn_list.length && label) {
+        for await (const btnItem of btn_list) {
+            //console.log('--', btnItem.textContent, btnItem);
+            if((!must_same && btnItem.textContent.includes(label)) || (must_same && btnItem.textContent == label)) {
+                //console.log('->', btnItem.textContent, btnItem);
+                await simulateMouseClick(btnItem);
+                break;
+			}
+        }
+	}
+	return new Promise(resolve => setTimeout(resolve, time));
+}
+        """
+
 
 SCRIPT_GAME_CONTROL_PAWS = """
 (async function () {
-    await startGame()
-    await startTask(7000,'Limited')
-    await startTask(7000,'Limited')
+    // await startGame()
     
-    
+    await startTask(1000,'Limited')
+    await startTask(5000,'Limited')
+    await startTask(5000,'Limited')
+    await startTask(3000,'Partners')
+    await startTask(5000,'Partners')
+    await startTask(5000,'Partners')
+    await startTask(6000,'Partners')
+    await startTask(6000,'Partners')
+    await startTask(6000,'Partners')
 })();
 
 async function startGame() {
